@@ -1,5 +1,8 @@
 # Reading in potential data and finding polynomial fit
 
+# To make Julia call its own mini-python library (PyCall), set:
+# ENV["PYTHON"] = "" then run Pkg.build("PyCall") in Julia REPL
+
 using DataFrames
 using Polynomials
 
@@ -20,34 +23,36 @@ potential_matrix_2 = convert(Matrix, potential_data_2)
 poly_order = 4 # order of polynomial for fitting potential
 
 ######################### Defining data ##########################
-Q1_data = potential_matrix_1[:,1]
-E1_data = potential_matrix_1[:,2]
+Q1 = potential_matrix_1[:,1]
+E1 = potential_matrix_1[:,2]
 
-Q2_data = potential_matrix_2[:,1]
-E2_data = potential_matrix_2[:,2]
+Q2 = potential_matrix_2[:,1]
+E2 = potential_matrix_2[:,2]
 
 ######################### Polynomial fit #########################
 # polynomial fitting for first potential
-potential_energy_surface_1 = polyfit(Q1_data, E1_data, poly_order)
+V1 = polyfit(Q1, E1, poly_order)
 # polynomial coefficients
-c_i_1 = Polynomials.coeffs(potential_energy_surface_1)
+c1 = Polynomials.coeffs(V1)
 
 # polynomial fitting for second potential
-potential_energy_surface_2 = polyfit(Q2_data, E2_data, poly_order)
+V2 = polyfit(Q2, E2, poly_order)
 # polynomial coefficients
-c_i_2 = Polynomials.coeffs(potential_energy_surface_2)
+c2 = Polynomials.coeffs(V2)
 
 ######################### Function for polynomial fit #########################
+
+# This is now in Phonon.jl
 
 # Inputs:
 # x, e.g. x = linspace(-10,10,100)
 # coefficients, polynomial coefficients
 # poly_order, order of polynomial (integer)
-
-function polyfunc(x, coefficients, poly_order)
-    y_terms = zeros(length(x),poly_order + 1)
-    for i = 1:poly_order + 1
-        y_terms[:,i] = coefficients[i].*x.^(i-1)
-    end
-    return sum(y_terms,2)
-end
+#
+# function polyfunc(x, coefficients, poly_order)
+#     y_terms = zeros(length(x),poly_order + 1)
+#     for i = 1:poly_order + 1
+#         y_terms[:,i] = coefficients[i].*x.^(i-1)
+#     end
+#     return sum(y_terms,2)
+# end

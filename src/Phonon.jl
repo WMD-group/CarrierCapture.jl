@@ -2,7 +2,7 @@ module Phonon
 using Brooglie # Atomic unit
 
 amu = 931.4940954E6   # eV / c^2
-ħc = 0.19732697E-6    # eV m 
+ħc = 0.19732697E-6    # eV m
 
 function solve1D_ev_amu(pot_ev_amu; NQ=1000, Qi=-10, Qf=10, nev=30, maxiter=10000)
     factor = (1/amu) *(ħc*1E10)^2
@@ -14,7 +14,7 @@ end
 
 
 # Set of potentials
-function step(x,width,depth; x0=0) 
+function step(x,width,depth; x0=0)
     x -= x0
     pot_well = (x .>= -width/2.) .& (x .<= width/2.)
     return pot_well * -depth
@@ -29,7 +29,15 @@ end
 function double(x, ħω1, ħω2)
     a1 = amu / 2. * (ħω1/ħc/1E10)^2
     a2 = amu / 2. * (ħω2/ħc/1E10)^2
-    return - a1*x.*x + a2*x.*x.*x.*x 
+    return - a1*x.*x + a2*x.*x.*x.*x
+end
+
+function polyfunc(x, coefficients, poly_order)
+    y_terms = zeros(length(x),poly_order + 1)
+    for i = 1:poly_order + 1
+        y_terms[:,i] = coefficients[i].*x.^(i-1)
+    end
+    return sum(y_terms,2)
 end
 
 end # module
