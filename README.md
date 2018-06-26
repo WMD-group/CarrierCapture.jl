@@ -15,6 +15,8 @@ to also describe anharmonic potential energy surfaces.
 The codes are written in [Julia](https://julialang.org), while the [Jupyter Notebooks](http://jupyter.org) also contain Python.
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation.
 
+`Pkg.clone("https://github.com/RedPointyJackson/Brooglie")`
+
 ## Development
 
 Development is in progress and hosted on [Github](https://github.com/WMD-group/carriercapture). 
