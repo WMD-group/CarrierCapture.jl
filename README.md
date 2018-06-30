@@ -39,4 +39,7 @@ The capture of electrons or holes by point defects in a crystalline materials re
 
 * [Stoneham, Non-radiative transitions in semiconductors (1981)](http://iopscience.iop.org/article/10.1088/0034-4885/44/12/001/meta) **Review on models and theory**
 
+* [Markvart, Determination of potential surfaces from multiphonon transition rates (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/15/002) **Treatment of anharmonicity**
+
+* [Markvart, Semiclassical theory of non-radiative transitions (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/29/006/meta) **Treatment of anharmonicity**
 
