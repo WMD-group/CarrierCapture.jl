@@ -18,6 +18,11 @@ g = 1       # degeneracy
 W = 0.204868962802   # ev/(amu^(1/2)*Å)
 # poly_order = 4 # order of polynomial for potenital fittings
 
+mutable struct potential
+    Q # Configuration coordinate
+    E # Energy
+end
+
 mutable struct CC
     # Configuration coordinate
     # potentials
@@ -38,20 +43,20 @@ function calc_anharm_wave_func(potential_matrix_1, potential_matrix_2, poly_orde
 
     # data for first potential
     Q1 = potential_matrix_1[:,1]
-    E1 = potential_matrix_1[:,2]
+    Energies_1 = potential_matrix_1[:,2]
 
     # data for second potential
     Q2 = potential_matrix_2[:,1]
-    E2 = potential_matrix_2[:,2]
+    Energies_2 = potential_matrix_2[:,2]
 
     ######################### Polynomial fit #########################
     # polynomial fitting for first potential
-    poly1 = polyfit(Q1, E1, poly_order)
+    poly1 = polyfit(Q1, Energies_1, poly_order)
     # polynomial coefficients
     c1 = Polynomials.coeffs(poly1)
 
     # polynomial fitting for second potential
-    poly2 = polyfit(Q2, E2, poly_order)
+    poly2 = polyfit(Q2, Energies_2, poly_order)
     # polynomial coefficients
     c2 = Polynomials.coeffs(poly2)
 
@@ -59,23 +64,25 @@ function calc_anharm_wave_func(potential_matrix_1, potential_matrix_2, poly_orde
     x = linspace(Qi, Qf, NQ)
 
     # define potential using coefficients (calls polyfunc from Phonon)
-    V1 = polyfunc(x, c1, poly_order)
-    V2 = polyfunc(x, c2, poly_order)
+    E1 = polyfunc(x, c1, poly_order)
+    V1 = potential(x, E1)
+
+    E2 = polyfunc(x, c2, poly_order)
+    V2 = potential(x, E2)
 
     # calculate ΔQ and ΔE here
-    Q1min = Q1[indmin(E1)]
-    Q2min = Q2[indmin(E2)]
+    Q1min = Q1[indmin(Energies_1)]
+    Q2min = Q2[indmin(Energies_2)]
     ΔQ = Q2min - Q1min
-    ΔE = minimum(E2) - minimum(E1)
+    ΔE = minimum(Energies_2) - minimum(Energies_1)
 
     # solve Schrödinger equation
     # function solve1D_ev_amu(pot_ev_amu; NQ=1000, Qi=-10, Qf=10, nev=30, maxiter=10000)
     # Ground state
-    maxiter = 1000
-    ϵ1, χ1 = solve1D_ev_amu(x->polyfunc(x, c1, poly_order), NQ=NQ, Qi=Qi, Qf=Qf, nev=nev, maxiter=maxiter)
+
+    ϵ1, χ1 = solve1D_ev_amu(x->polyfunc(x, c1, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
     # Excited state
-    ϵ2, χ2 = solve1D_ev_amu(x->polyfunc(x-ΔQ, c2, poly_order), NQ=NQ, Qi=Qi, Qf=Qf, nev=nev, maxiter=maxiter)
-    ϵ2 += ΔE
+    ϵ2, χ2 = solve1D_ev_amu(x->polyfunc(x, c2, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
 
     # Assign
     cc = CC()
