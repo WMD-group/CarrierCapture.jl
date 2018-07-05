@@ -4,10 +4,10 @@ using Brooglie # Atomic unit
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 
-function solve1D_ev_amu(pot_ev_amu; NQ=1000, Qi=-10, Qf=10, nev=30, maxiter=10000)
+function solve1D_ev_amu(pot_ev_amu; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=100)
     factor = (1/amu) *(ħc*1E10)^2
 
-    ϵ1, χ1 = solve1D(x->pot_ev_amu(x*factor^0.5),
+    ϵ1, χ1 = solve1D(x->pot_ev_amu(x*factor^0.5);
                   N=NQ, a=Qi/factor^0.5, b=Qf/factor^0.5, m=1, nev=nev, maxiter=maxiter)
     return ϵ1, χ1/factor^0.25
 end
@@ -33,11 +33,11 @@ function double(x, ħω1, ħω2)
 end
 
 function polyfunc(x, coefficients, poly_order)
-    y_terms = zeros(length(x),poly_order + 1)
+    y = 0.*x
     for i = 1:poly_order + 1
-        y_terms[:,i] = coefficients[i].*x.^(i-1)
+        y += coefficients[i].*x.^(i-1)
     end
-    return sum(y_terms,2)
+    return y
 end
 
 end # module
