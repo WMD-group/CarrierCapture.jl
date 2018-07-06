@@ -3,10 +3,9 @@ module AnharmCaptureRate
 push!(LOAD_PATH, ".")
 
 using Phonon: polyfunc, solve1D_ev_amu
-using Plots
-# using DataFrames
+# using Plots
 using Polynomials
-
+using PyPlot
 ######################### Defining constants #########################
 ħ = 6.582119514E-16 # eV⋅s
 kB = 8.6173303E-5 # eV⋅K⁻¹
@@ -93,17 +92,31 @@ function calc_anharm_wave_func(potential_matrix_1, potential_matrix_2, poly_orde
 end
 
 function plot_potentials(cc::CC)
-    # Initial state
-    plot(cc.V1.Q, cc.V1.E, lw=4, color="black")
-    for i = 1:length(cc.ϵ1)
-        plot!(cc.V1.Q, cc.χ1[i]*1E-1+cc.ϵ1[i], color="#d73027")
+    # close("all")
+    fig = figure()
+    ax = gca()
+    scaling = 1E-2
+    # plot potentials
+    PyPlot.plot(cc.V1.Q, cc.V1.E, lw=1, color="red")
+    PyPlot.plot(cc.V2.Q, cc.V2.E, lw=1, color="blue")
+
+    # plot wavefunctions
+    for i = 1:10
+        PyPlot.plot(cc.V1.Q, cc.χ1[i]*scaling+cc.ϵ1[i], color="red", linewidth=0.5, alpha = 0.3)
+        fill_between(cc.V1.Q, cc.ϵ1[i], cc.χ1[i]*scaling+cc.ϵ1[i], color="red", alpha=0.2)
+        PyPlot.plot(cc.V2.Q, cc.χ2[i]*scaling+cc.ϵ2[i], color="blue", linewidth=0.5, alpha = 0.3)
+        fill_between(cc.V2.Q, cc.ϵ2[i], cc.χ2[i]*scaling+cc.ϵ2[i], color="blue", alpha=0.2)
     end
 
-    # Final state
-    plot!(cc.V2.Q, cc.V2.E, lw=4, color="black")
-    for i = 1:length(cc.ϵ2)
-        plot!(cc.V2.Q, cc.χ2[i]*1E-1+cc.ϵ2[i], color="#4575b4")
-    end
+    # # plot overlap
+    # for i = 1:10
+    #     PyPlot.plot(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="green", linewidth=0.5, alpha = 0.3)
+    #     fill_between(cc.V1.Q, cc.ϵ1[i], cc.ϵ1[i]+integrand*1E-1, color="green", alpha=0.3)
+    # end
+    xlabel("Q (amu)"); ylabel("Energy (eV)");
+    PyPlot.grid("off")
+    ax[:grid](color="gray", linestyle=":", linewidth=0.5)
+    tight_layout()
 end
 
 function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
@@ -126,8 +139,10 @@ function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
 
                 # plot
                 alpha = (cut_off-Δϵ)/cut_off
-                plot!(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="#31a354", lw=3, alpha=alpha)
-
+                # plot!(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="#31a354", lw=2, alpha=0.5)
+                PyPlot.plot(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="orange", linewidth=0.5, alpha=0.1)
+                fill_between(cc.V1.Q, cc.ϵ1[i], cc.ϵ1[i]+integrand*1E-1, color="orange", linewidth=0.5, alpha=0.1)
+                # #31a354 is green
             end
         end
     end
