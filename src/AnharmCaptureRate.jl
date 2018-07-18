@@ -5,7 +5,7 @@ push!(LOAD_PATH, ".")
 using Phonon: polyfunc, solve1D_ev_amu
 # using Plots
 using Polynomials
-using PyPlot
+using Plots
 ######################### Defining constants #########################
 ħ = 6.582119514E-16 # eV⋅s
 kB = 8.6173303E-5 # eV⋅K⁻¹
@@ -92,31 +92,17 @@ function calc_anharm_wave_func(potential_matrix_1, potential_matrix_2, poly_orde
 end
 
 function plot_potentials(cc::CC)
-    # close("all")
-    fig = figure()
-    ax = gca()
-    scaling = 1E-2
-    # plot potentials
-    PyPlot.plot(cc.V1.Q, cc.V1.E, lw=1, color="red")
-    PyPlot.plot(cc.V2.Q, cc.V2.E, lw=1, color="blue")
-
-    # plot wavefunctions
-    for i = 1:10
-        PyPlot.plot(cc.V1.Q, cc.χ1[i]*scaling+cc.ϵ1[i], color="red", linewidth=0.5, alpha = 0.3)
-        fill_between(cc.V1.Q, cc.ϵ1[i], cc.χ1[i]*scaling+cc.ϵ1[i], color="red", alpha=0.2)
-        PyPlot.plot(cc.V2.Q, cc.χ2[i]*scaling+cc.ϵ2[i], color="blue", linewidth=0.5, alpha = 0.3)
-        fill_between(cc.V2.Q, cc.ϵ2[i], cc.χ2[i]*scaling+cc.ϵ2[i], color="blue", alpha=0.2)
+    # Initial state (red)
+    plot(cc.V1.Q, cc.V1.E, lw=2, color="#ff4300", xlab = "Q (amu)", ylab = "Energy (eV)", legend=false)
+    for i = 1:length(cc.ϵ1)
+        plot!(cc.V1.Q, cc.χ1[i]*1E-1+cc.ϵ1[i],lw=2, fill=(cc.ϵ1[i], :red), α=0.6, color="#ff4300")
     end
 
-    # # plot overlap
-    # for i = 1:10
-    #     PyPlot.plot(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="green", linewidth=0.5, alpha = 0.3)
-    #     fill_between(cc.V1.Q, cc.ϵ1[i], cc.ϵ1[i]+integrand*1E-1, color="green", alpha=0.3)
-    # end
-    xlabel("Q (amu)"); ylabel("Energy (eV)");
-    PyPlot.grid("off")
-    ax[:grid](color="gray", linestyle=":", linewidth=0.5)
-    tight_layout()
+    # Final state (blue)
+    plot!(cc.V2.Q, cc.V2.E, lw=2, color="#005dff")
+    for i = 1:length(cc.ϵ2)
+        plot!(cc.V2.Q, cc.χ2[i]*1E-1+cc.ϵ2[i],lw=2, fill=(cc.ϵ2[i], :blue), α=0.6,  color="#005dff")
+    end
 end
 
 function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
@@ -139,15 +125,43 @@ function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
 
                 # plot
                 alpha = (cut_off-Δϵ)/cut_off
-                # plot!(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="#31a354", lw=2, alpha=0.5)
-                PyPlot.plot(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="orange", linewidth=0.5, alpha=0.1)
-                fill_between(cc.V1.Q, cc.ϵ1[i], cc.ϵ1[i]+integrand*1E-1, color="orange", linewidth=0.5, alpha=0.1)
-                # #31a354 is green
+                plot!(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="#ff9900", lw=2, alpha=alpha)
+
             end
         end
     end
     return(p)
 end
+
+# function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
+#     p = plot_potentials(cc)
+#     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
+#     cc.ϵ_list = []
+#     cc.overlap_list = []
+#     cc.δ_list = []
+#     for i in range(1, length(cc.ϵ1))
+#         for j in range(1, length(cc.ϵ2))
+#             Δϵ = abs(cc.ϵ1[i] - cc.ϵ2[j])
+#             if  Δϵ < cut_off
+#                 integrand = (cc.χ1[i] .* cc.V1.Q .* cc.χ2[j])
+#                 overlap = sum(integrand)*ΔL
+#
+#                 append!(cc.ϵ_list, cc.ϵ1[i])
+#                 append!(cc.overlap_list, overlap)
+#
+#                 append!(cc.δ_list, exp(-(Δϵ/σ)^2/2)/(σ*sqrt(2*π)))
+#
+#                 # plot
+#                 alpha = (cut_off-Δϵ)/cut_off
+#                 # plot!(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="#31a354", lw=2, alpha=0.5)
+#                 PyPlot.plot(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="orange", linewidth=0.5, alpha=0.1)
+#                 fill_between(cc.V1.Q, cc.ϵ1[i], cc.ϵ1[i]+integrand*1E-1, color="orange", linewidth=0.5, alpha=0.1)
+#                 # #31a354 is green
+#             end
+#         end
+#     end
+#     return(p)
+# end
 
 function calc_capt_coeff(W, V, T_range, cc::CC)
     capt_coeff = zeros(length(T_range))
