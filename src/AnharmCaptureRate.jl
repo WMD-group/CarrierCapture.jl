@@ -15,7 +15,6 @@ kB = 8.6173303E-5 # eV⋅K⁻¹
 V = 1.1E-21 # Å³ volume
 g = 1       # degeneracy
 W = 0.204868962802   # ev/(amu^(1/2)*Å)
-# poly_order = 4 # order of polynomial for potenital fittings
 
 mutable struct potential
     Q # Configuration coordinate
@@ -132,36 +131,6 @@ function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
     end
     return(p)
 end
-
-# function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
-#     p = plot_potentials(cc)
-#     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
-#     cc.ϵ_list = []
-#     cc.overlap_list = []
-#     cc.δ_list = []
-#     for i in range(1, length(cc.ϵ1))
-#         for j in range(1, length(cc.ϵ2))
-#             Δϵ = abs(cc.ϵ1[i] - cc.ϵ2[j])
-#             if  Δϵ < cut_off
-#                 integrand = (cc.χ1[i] .* cc.V1.Q .* cc.χ2[j])
-#                 overlap = sum(integrand)*ΔL
-#
-#                 append!(cc.ϵ_list, cc.ϵ1[i])
-#                 append!(cc.overlap_list, overlap)
-#
-#                 append!(cc.δ_list, exp(-(Δϵ/σ)^2/2)/(σ*sqrt(2*π)))
-#
-#                 # plot
-#                 alpha = (cut_off-Δϵ)/cut_off
-#                 # plot!(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="#31a354", lw=2, alpha=0.5)
-#                 PyPlot.plot(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="orange", linewidth=0.5, alpha=0.1)
-#                 fill_between(cc.V1.Q, cc.ϵ1[i], cc.ϵ1[i]+integrand*1E-1, color="orange", linewidth=0.5, alpha=0.1)
-#                 # #31a354 is green
-#             end
-#         end
-#     end
-#     return(p)
-# end
 
 function calc_capt_coeff(W, V, T_range, cc::CC)
     capt_coeff = zeros(length(T_range))
