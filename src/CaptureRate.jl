@@ -58,17 +58,22 @@ function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=
     cc
 end 
 
-function plot_potentials(cc::CC)
+function plot_potentials(cc::CC; plot_wf=false)
     # Initial state
-    plot(cc.V1.Q, cc.V1.E, lw=4, color="black")
-    for i = 1:length(cc.ϵ1)
-        plot!(cc.V1.Q, cc.χ1[i]*1E-1+cc.ϵ1[i], color="#d73027")
-    end
-
+    plot(cc.V1.Q, cc.V1.E, lw=4, color="black")    
     # Final state
     plot!(cc.V2.Q, cc.V2.E, lw=4, color="black")
-    for i = 1:length(cc.ϵ2)
-        plot!(cc.V2.Q, cc.χ2[i]*1E-1+cc.ϵ2[i], color="#4575b4")
+
+    # plot wave functions
+    if plot_wf
+        # Initial state
+        for i = 1:length(cc.ϵ1)
+            plot!(cc.V1.Q, cc.χ1[i]*1E-1+cc.ϵ1[i], color="#d73027")
+        end
+        # Final state
+        for i = 1:length(cc.ϵ2)
+            plot!(cc.V2.Q, cc.χ2[i]*1E-1+cc.ϵ2[i], color="#4575b4")
+        end
     end
 end
 
@@ -116,7 +121,7 @@ function calc_capt_coeff(W, V, T_range, cc::CC)
         capt_coeff += occ * overlap .* overlap * δ
     end
     capt_coeff = V*2*π/ħ*g*W^2 * capt_coeff
-    return(capt_coeff)
+    return capt_coeff
 end
 
 
