@@ -33,7 +33,7 @@ function double(x, ħω1, ħω2)
 end
 
 function polyfunc(x, coefficients, poly_order)
-    y = 0.*x
+    y = 0 .*x
     for i = 1:poly_order + 1
         y += coefficients[i].*x.^(i-1)
     end
