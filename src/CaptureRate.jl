@@ -2,7 +2,8 @@ module CaptureRate
 
 push!(LOAD_PATH, ".")
 
-using Phonon: harmonic, solve1D_ev_amu
+using Phonon: polyfunc, harmonic, solve1D_ev_amu
+using Polynomials
 using Plots
 
 ħ = 6.582119514E-16 # eV⋅s
@@ -33,22 +34,22 @@ CC() = CC([], [], [], [], [], [], [], [], [])
 
 function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=10)
     # potentials
-    x = linspace(Qi, Qf, NQ)
+    x = range(Qi, stop=Qf, length=NQ)
 
     # define potential
     # Ground state
     E1 = harmonic(x, ħω1)
     V1 = potential(x, E1)
     # Excited state
-    E2 = harmonic(x-ΔQ, ħω2)+ΔE
+    E2 = harmonic(x .- ΔQ, ħω2) .+ ΔE
     V2 = potential(x, E2)
 
     # solve Schrödinger equation
     # Ground state
     ϵ1, χ1 = solve1D_ev_amu(x->harmonic(x, ħω1), NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
     # Excited state
-    ϵ2, χ2 = solve1D_ev_amu(x->harmonic(x-ΔQ, ħω2), NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
-    ϵ2 += ΔE
+    ϵ2, χ2 = solve1D_ev_amu(x->harmonic(x .- ΔQ, ħω2), NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
+    ϵ2 = ϵ2 .+ ΔE
 
     # Assign
     cc = CC()
@@ -58,17 +59,75 @@ function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=
     cc
 end 
 
+
+function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10)
+    ######################### Defining data ##########################
+    #     Q, Configuration coordinate
+    #     E, Energy
+
+    # data for first potential
+    Q1 = potential_matrix_1[:,1]
+    Energies_1 = potential_matrix_1[:,2]
+
+    # data for second potential
+    Q2 = potential_matrix_2[:,1]
+    Energies_2 = potential_matrix_2[:,2]
+
+    ######################### Polynomial fit #########################
+    # polynomial fitting for first potential
+    poly1 = polyfit(Q1, Energies_1, poly_order)
+    # polynomial coefficients
+    c1 = Polynomials.coeffs(poly1)
+
+    # polynomial fitting for second potential
+    poly2 = polyfit(Q2, Energies_2, poly_order)
+    # polynomial coefficients
+    c2 = Polynomials.coeffs(poly2)
+
+    # x coordinate vector
+    x = LinRange(Qi, Qf, NQ)
+
+    # define potential using coefficients (calls polyfunc from Phonon)
+    E1 = polyfunc(x, c1, poly_order)
+    V1 = potential(x, E1)
+
+    E2 = polyfunc(x, c2, poly_order)
+    V2 = potential(x, E2)
+
+    # calculate ΔQ and ΔE here
+    Q1min = Q1[argmin(Energies_1)]
+    Q2min = Q2[argmin(Energies_2)]
+    ΔQ = Q2min - Q1min
+    ΔE = minimum(Energies_2) - minimum(Energies_1)
+
+    # solve Schrödinger equation
+    # function solve1D_ev_amu(pot_ev_amu; NQ=1000, Qi=-10, Qf=10, nev=30, maxiter=10000)
+    # Ground state
+
+    ϵ1, χ1 = solve1D_ev_amu(x->polyfunc(x, c1, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
+    # Excited state
+    ϵ2, χ2 = solve1D_ev_amu(x->polyfunc(x, c2, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
+
+    # Assign
+    cc = CC()
+    cc.V1 = V1; cc.V2 = V2
+    cc.ϵ1 = ϵ1; cc.χ1 = χ1
+    cc.ϵ2 = ϵ2; cc.χ2 = χ2
+    cc
+end
+
+
 function plot_potentials(cc::CC)
     # Initial state
     plot(cc.V1.Q, cc.V1.E, lw=4, color="black")
     for i = 1:length(cc.ϵ1)
-        plot!(cc.V1.Q, cc.χ1[i]*1E-1+cc.ϵ1[i], color="#d73027")
+        plot!(cc.V1.Q, cc.χ1[i]*1E-1 .+ cc.ϵ1[i], color="#d73027")
     end
 
     # Final state
     plot!(cc.V2.Q, cc.V2.E, lw=4, color="black")
     for i = 1:length(cc.ϵ2)
-        plot!(cc.V2.Q, cc.χ2[i]*1E-1+cc.ϵ2[i], color="#4575b4")
+        plot!(cc.V2.Q, cc.χ2[i]*1E-1 .+ cc.ϵ2[i], color="#4575b4")
     end
 end
 
@@ -78,8 +137,8 @@ function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
     cc.ϵ_list = []
     cc.overlap_list = []
     cc.δ_list = []
-    for i in range(1, length(cc.ϵ1))
-        for j in range(1, length(cc.ϵ2))
+    for i in UnitRange(1, length(cc.ϵ1))
+        for j in UnitRange(1, length(cc.ϵ2))
             Δϵ = abs(cc.ϵ1[i] - cc.ϵ2[j])
             if  Δϵ < cut_off
                 integrand = (cc.χ1[i] .* cc.V1.Q .* cc.χ2[j]) 
@@ -92,7 +151,7 @@ function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
 
                 # plot
                 alpha = (cut_off-Δϵ)/cut_off
-                plot!(cc.V1.Q, cc.ϵ1[i]+integrand*1E-1, color="#31a354", lw=3, alpha=alpha)
+                plot!(cc.V1.Q, cc.ϵ1[i] .+ integrand*1E-1, color="#31a354", lw=3, alpha=alpha)
 
             end
         end
@@ -107,7 +166,7 @@ function calc_capt_coeff(W, V, T_range, cc::CC)
     Z = 0
     β = 1 ./ (kB .* T_range)
     for ϵ in cc.ϵ1
-        Z+=exp.(-β*ϵ)
+        Z = Z .+ exp.(-β*ϵ)
     end
     # println('Z', Z)
     for summand in zip(cc.ϵ_list, cc.overlap_list, cc.δ_list)
@@ -116,7 +175,7 @@ function calc_capt_coeff(W, V, T_range, cc::CC)
         capt_coeff += occ * overlap .* overlap * δ
     end
     capt_coeff = V*2*π/ħ*g*W^2 * capt_coeff
-    return(capt_coeff)
+    return capt_coeff
 end
 
 
