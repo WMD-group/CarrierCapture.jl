@@ -5,7 +5,7 @@ amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 
 function solve1D_ev_amu(pot_ev_amu; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=100)
-    factor = (1/amu) *(ħc*1E10)^2
+    factor = (1/amu) * (ħc*1E10)^2
 
     ϵ1, χ1 = solve1D(x->pot_ev_amu(x*factor^0.5);
                   N=NQ, a=Qi/factor^0.5, b=Qf/factor^0.5, m=1, nev=nev, maxiter=maxiter)
@@ -14,10 +14,10 @@ end
 
 
 # Set of potentials
-function step(x,width,depth; x0=0)
-    x -= x0
+function step(x, width, depth; x0=0.)
+    x = x .- x0
     pot_well = (x .>= -width/2.) .& (x .<= width/2.)
-    return pot_well * -depth
+    return pot_well .* -depth
 end
 
 function harmonic(x, ħω)
@@ -33,7 +33,7 @@ function double(x, ħω1, ħω2)
 end
 
 function polyfunc(x, coefficients, poly_order)
-    y = 0.*x
+    y = 0. * x
     for i = 1:poly_order + 1
         y += coefficients[i].*x.^(i-1)
     end
