@@ -16,11 +16,11 @@ The codes are written in [Julia](https://julialang.org), while the [Jupyter Note
 
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation and can be installed by:
 
-`Pkg.clone("https://github.com/RedPointyJackson/Brooglie")`
-`Pkg.add("Plots")`
-`Pkg.add("Arpack")`
-`Pkg.add("Polynomials")`
-`Pkg.add("DataFrames")`
+`Pkg.clone("https://github.com/RedPointyJackson/Brooglie")`  
+`Pkg.add("Plots")`  
+`Pkg.add("Arpack")`  
+`Pkg.add("Polynomials")`  
+`Pkg.add("DataFrames")`  
 
 ## Development
 
