@@ -32,10 +32,10 @@ function double(x, ħω1, ħω2)
     return - a1*x.*x + a2*x.*x.*x.*x
 end
 
-function polyfunc(x, coefficients, poly_order)
+function polyfunc(x, coeffs, poly_order)
     y = 0 .* x
     for i = 1:poly_order + 1
-        y += coefficients[i].*x.^(i-1)
+        y += coeffs[i].*x.^(i-1)
     end
     return y
 end
