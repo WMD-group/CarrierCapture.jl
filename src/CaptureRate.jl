@@ -9,8 +9,8 @@ using Plots
 ħ = 6.582119514E-16 # eV⋅s
 kB = 8.6173303E-5 # eV⋅K⁻¹
 
-V = 1.1E-21 # Å³ volume
-g = 1       # degeneracy
+V = 1.1E-21          # Å³ volume
+g = 1                # degeneracy
 W = 0.204868962802   # ev/(amu^(1/2)*Å)
 
 
@@ -32,7 +32,11 @@ mutable struct CC
 end
 CC() = CC([], [], [], [], [], [], [], [], [])
 
-function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=10)
+function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=20, nev2=Nothing)
+    if nev2 == Nothing
+        nev2 = nev
+    end
+
     # potentials
     x = range(Qi, stop=Qf, length=NQ)
 
@@ -48,7 +52,7 @@ function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=
     # Ground state
     ϵ1, χ1 = solve1D_ev_amu(x->harmonic(x, ħω1), NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
     # Excited state
-    ϵ2, χ2 = solve1D_ev_amu(x->harmonic(x .- ΔQ, ħω2), NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
+    ϵ2, χ2 = solve1D_ev_amu(x->harmonic(x .- ΔQ, ħω2), NQ=NQ, Qi=Qi, Qf=Qf, nev=nev2)
     ϵ2 = ϵ2 .+ ΔE
 
     # Assign
@@ -60,7 +64,10 @@ function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=
 end 
 
 
-function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10)
+function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10, nev2=Nothing)
+    if nev2 == Nothing
+        nev2 = nev
+    end
     ######################### Defining data ##########################
     #     Q, Configuration coordinate
     #     E, Energy
@@ -101,12 +108,10 @@ function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order,
     ΔE = minimum(Energies_2) - minimum(Energies_1)
 
     # solve Schrödinger equation
-    # function solve1D_ev_amu(pot_ev_amu; NQ=1000, Qi=-10, Qf=10, nev=30, maxiter=10000)
     # Ground state
-
     ϵ1, χ1 = solve1D_ev_amu(x->polyfunc(x, c1, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
     # Excited state
-    ϵ2, χ2 = solve1D_ev_amu(x->polyfunc(x, c2, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
+    ϵ2, χ2 = solve1D_ev_amu(x->polyfunc(x, c2, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev2)
 
     # Assign
     cc = CC()
@@ -117,22 +122,30 @@ function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order,
 end
 
 
-function plot_potentials(cc::CC)
+function plot_potentials(cc::CC; plt=Nothing, scale_factor=2e-2)
+    if plt == Nothing
+       plt = plot()
+    end
     # Initial state
-    plot(cc.V1.Q, cc.V1.E, lw=4, color="black")
+    plot!(plt, cc.V1.Q, cc.V1.E, lw=4, color="#bd0026", label="")
     for i = 1:length(cc.ϵ1)
-        plot!(cc.V1.Q, cc.χ1[i]*1E-1 .+ cc.ϵ1[i], color="#d73027")
+        plot!(cc.V1.Q, cc.χ1[i]*scale_factor .+ cc.ϵ1[i], fillrange=[cc.χ1[i]*0 .+ cc.ϵ1[i], cc.χ1[i]*scale_factor .+ cc.ϵ1[i]], c="#bd0026", alpha=0.5, label="")
+        # plot!(cc.V1.Q, cc.χ1[i]*scale_factor .+ cc.ϵ1[i], color="#d73027", label="")
     end
 
     # Final state
-    plot!(cc.V2.Q, cc.V2.E, lw=4, color="black")
+    plot!(cc.V2.Q, cc.V2.E, lw=4, color="#4575b4", label="")
     for i = 1:length(cc.ϵ2)
-        plot!(cc.V2.Q, cc.χ2[i]*1E-1 .+ cc.ϵ2[i], color="#4575b4")
+        plot!(cc.V2.Q, cc.χ2[i]*scale_factor .+ cc.ϵ2[i], fillrange=[cc.χ2[i]*0 .+ cc.ϵ2[i], cc.χ2[i]*scale_factor .+ cc.ϵ2[i]], c="#4575b4", alpha=0.5, label="")
+        # plot!(cc.V2.Q, cc.χ2[i]*scale_factor .+ cc.ϵ2[i], color="#4575b4", label="")
     end
 end
 
-function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
-    p = plot_potentials(cc)
+function calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025, lplot=false)
+    if lplot == true
+        plt = plot_potentials(cc; plt=plt)
+    end
+
     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
     cc.ϵ_list = []
     cc.overlap_list = []
@@ -150,31 +163,35 @@ function calc_overlap!(cc::CC; cut_off=0.25, σ=0.025)
                 append!(cc.δ_list, exp(-(Δϵ/σ)^2/2)/(σ*sqrt(2*π)))
 
                 # plot
-                alpha = (cut_off-Δϵ)/cut_off
-                plot!(cc.V1.Q, cc.ϵ1[i] .+ integrand*1E-1, color="#31a354", lw=3, alpha=alpha)
-
+                # alpha = (cut_off-Δϵ)/cut_off
+                # plot!(cc.V1.Q, cc.ϵ1[i] .+ integrand*1E-1, color="#31a354", lw=3, alpha=alpha, label="")
             end
         end
     end
-    return(p)
+    if lplot
+        return(plt)
+    end
 end
 
 function calc_capt_coeff(W, V, T_range, cc::CC)
-    capt_coeff = zeros(length(T_range))
-    # TODO: CHECK convergence of the partition function Z(number of eigenvalue)
     # TODO:       convergence over σ
+    capt_coeff = zeros(length(T_range))
     Z = 0
     β = 1 ./ (kB .* T_range)
     for ϵ in cc.ϵ1
         Z = Z .+ exp.(-β*ϵ)
     end
-    # println('Z', Z)
     for summand in zip(cc.ϵ_list, cc.overlap_list, cc.δ_list)
         ϵ, overlap, δ = summand
         occ = exp.(-β*ϵ) ./ Z
         capt_coeff += occ * overlap .* overlap * δ
     end
     capt_coeff = V*2*π/ħ*g*W^2 * capt_coeff
+
+    occ_high = exp(-β[length(Z)]*cc.ϵ1[length(cc.ϵ1)] ./ Z[length(Z)])
+    
+    println("occupation(ϵ_max, T_max): ", occ_high)
+    
     return capt_coeff
 end
 
