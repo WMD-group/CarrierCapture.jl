@@ -2,7 +2,8 @@ module CaptureRate
 
 push!(LOAD_PATH, ".")
 
-using Phonon: polyfunc, harmonic, solve1D_ev_amu
+using Potential
+using Potential: polyfunc, harmonic, solve1D_ev_amu
 using Polynomials
 using Plots
 
@@ -94,7 +95,7 @@ function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order,
     # x coordinate vector
     x = LinRange(Qi, Qf, NQ)
 
-    # define potential using coefficients (calls polyfunc from Phonon)
+    # define potential using coefficients (calls polyfunc from Potential)
     E1 = polyfunc(x, c1, poly_order)
     V1 = potential(x, E1)
 

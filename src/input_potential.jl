@@ -40,19 +40,3 @@ V2 = polyfit(Q2, E2, poly_order)
 # polynomial coefficients
 c2 = Polynomials.coeffs(V2)
 
-######################### Function for polynomial fit #########################
-
-# This is now in Phonon.jl
-
-# Inputs:
-# x, e.g. x = linspace(-10,10,100)
-# coefficients, polynomial coefficients
-# poly_order, order of polynomial (integer)
-#
-# function polyfunc(x, coefficients, poly_order)
-#     y_terms = zeros(length(x),poly_order + 1)
-#     for i = 1:poly_order + 1
-#         y_terms[:,i] = coefficients[i].*x.^(i-1)
-#     end
-#     return sum(y_terms,2)
-# end
