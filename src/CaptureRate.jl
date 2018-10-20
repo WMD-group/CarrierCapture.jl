@@ -2,18 +2,17 @@ module CaptureRate
 
 push!(LOAD_PATH, ".")
 
-using Potential
-using Potential: polyfunc, harmonic, solve1D_ev_amu
+using Potential: plot_potential, polyfunc, harmonic, solve1D_ev_amu
 using Polynomials
 using Plots
 
 ħ = 6.582119514E-16 # eV⋅s
 kB = 8.6173303E-5 # eV⋅K⁻¹
 
-V = 1.1E-21          # Å³ volume
-g = 1                # degeneracy
-W = 0.204868962802   # ev/(amu^(1/2)*Å)
-
+# V = 1.1E-21          # Å³ volume
+# g = 1                # degeneracy
+# W = 0.204868962802   # ev/(amu^(1/2)*Å)
+occ_cut_off = 1E-5
 
 mutable struct potential
     Q # Configuration coordinate
@@ -128,25 +127,13 @@ function plot_potentials(cc::CC; plt=Nothing, scale_factor=2e-2)
        plt = plot()
     end
     # Initial state
-    plot!(plt, cc.V1.Q, cc.V1.E, lw=4, color="#bd0026", label="")
-    for i = 1:length(cc.ϵ1)
-        plot!(cc.V1.Q, cc.χ1[i]*scale_factor .+ cc.ϵ1[i], fillrange=[cc.χ1[i]*0 .+ cc.ϵ1[i], cc.χ1[i]*scale_factor .+ cc.ϵ1[i]], c="#bd0026", alpha=0.5, label="")
-        # plot!(cc.V1.Q, cc.χ1[i]*scale_factor .+ cc.ϵ1[i], color="#d73027", label="")
-    end
+    plot_potential(cc.V1.Q, cc.V1.E, cc.ϵ1, cc.χ1, plt=plt, color="#bd0026", scale_factor=scale_factor)
 
     # Final state
-    plot!(cc.V2.Q, cc.V2.E, lw=4, color="#4575b4", label="")
-    for i = 1:length(cc.ϵ2)
-        plot!(cc.V2.Q, cc.χ2[i]*scale_factor .+ cc.ϵ2[i], fillrange=[cc.χ2[i]*0 .+ cc.ϵ2[i], cc.χ2[i]*scale_factor .+ cc.ϵ2[i]], c="#4575b4", alpha=0.5, label="")
-        # plot!(cc.V2.Q, cc.χ2[i]*scale_factor .+ cc.ϵ2[i], color="#4575b4", label="")
-    end
+    plot_potential(cc.V2.Q, cc.V2.E, cc.ϵ2, cc.χ2, plt=plt, color="#4575b4", scale_factor=scale_factor)
 end
 
-function calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025, lplot=false)
-    if lplot == true
-        plt = plot_potentials(cc; plt=plt)
-    end
-
+function calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025)
     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
     cc.ϵ_list = []
     cc.overlap_list = []
@@ -169,12 +156,9 @@ function calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025, lplot=false)
             end
         end
     end
-    if lplot
-        return(plt)
-    end
 end
 
-function calc_capt_coeff(W, V, T_range, cc::CC)
+function calc_capt_coeff(W, V, T_range, cc::CC; g=1)
     # TODO:       convergence over σ
     capt_coeff = zeros(length(T_range))
     Z = 0
@@ -182,8 +166,8 @@ function calc_capt_coeff(W, V, T_range, cc::CC)
     for ϵ in cc.ϵ1
         Z = Z .+ exp.(-β*ϵ)
     end
-    for summand in zip(cc.ϵ_list, cc.overlap_list, cc.δ_list)
-        ϵ, overlap, δ = summand
+    for var in zip(cc.ϵ_list, cc.overlap_list, cc.δ_list)
+        ϵ, overlap, δ = var
         occ = exp.(-β*ϵ) ./ Z
         capt_coeff += occ * overlap .* overlap * δ
     end
@@ -191,7 +175,7 @@ function calc_capt_coeff(W, V, T_range, cc::CC)
 
     occ_high = exp(-β[length(Z)]*cc.ϵ1[length(cc.ϵ1)] ./ Z[length(Z)])
     
-    println("occupation(ϵ_max, T_max): ", occ_high)
+    @assert occ_high < occ_cut_off "occ(ϵ_max, T_max): $occ_high should be less than $occ_cut_off"
     
     return capt_coeff
 end
