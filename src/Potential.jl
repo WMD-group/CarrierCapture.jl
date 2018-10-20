@@ -1,10 +1,11 @@
 module Potential
 using Brooglie # Atomic unit
+using Plots
 
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 
-function solve1D_ev_amu(pot_ev_amu; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=100)
+function solve1D_ev_amu(pot_ev_amu; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
     factor = (1/amu) * (ħc*1E10)^2
 
     ϵ1, χ1 = solve(x->pot_ev_amu(x*factor^0.5);
@@ -12,26 +13,24 @@ function solve1D_ev_amu(pot_ev_amu; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=100)
     return ϵ1, χ1/factor^0.25
 end
 
-function plot_potentials(pot, ϵ1, χ1; plt=Nothing, scale_factor=2e-2)
+function plot_potential(Q, E, ϵ1, χ1; plt=Nothing, color="#bd0026", label="", scale_factor=2e-2)
     if plt == Nothing
        plt = plot()
     end
-
-    # Initial state
-    plot!(plt, V1.Q, V1.E, lw=4, color="#bd0026", label="")
+    plot!(plt, Q, E, lw=4, color=color, label=label)
     for i = 1:length(ϵ1)
-        plot!(Q, χ1[i]*scale_factor .+ ϵ1[i],
+        plot!(plt, Q, χ1[i]*scale_factor .+ ϵ1[i],
               fillrange=[χ1[i]*0 .+ ϵ1[i], χ1[i]*scale_factor .+ ϵ1[i]],
-              c="#bd0026", alpha=0.5, label="")    
+              color=color, alpha=0.5, label="")    
     end
 end
 
 
 # Set of potentials
-function step(x, width, depth; x0=0.)
+function sqwell(x, width, depth; x0=0.)
     x = x .- x0
-    pot_well = (x .>= -width/2.) .& (x .<= width/2.)
-    return pot_well .* -depth
+    pot_well = (x .< -width/2.) .| (x .> width/2.)
+    return pot_well .* depth
 end
 
 function harmonic(x, ħω)
