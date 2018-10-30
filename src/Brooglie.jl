@@ -7,7 +7,7 @@ module Brooglie
 export solve1D, solve2D, solve3D
 
 using Base.Iterators
-using SparseArrays
+using SparseArrays, Arpack
 
 const H2eV = 27.21138602 # Hartree to electronvolt
 """
