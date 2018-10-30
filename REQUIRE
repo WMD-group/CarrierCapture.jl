@@ -3,3 +3,8 @@ Brooglie
 Plots
 Polynomials
 DataFrames
+
+Julia 1.0 install package e.g.
+using Pkg
+Pkg.add("CSV")
+using CSV
