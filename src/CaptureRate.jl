@@ -7,13 +7,9 @@ using Potential: polyfunc, harmonic, solve1D_ev_amu
 using Polynomials
 using Plots
 
+# defining constants
 ħ = 6.582119514E-16 # eV⋅s
 kB = 8.6173303E-5 # eV⋅K⁻¹
-
-V = 1.1E-21          # Å³ volume
-g = 1                # degeneracy
-W = 0.204868962802   # ev/(amu^(1/2)*Å)
-
 
 mutable struct potential
     Q # Configuration coordinate
@@ -28,7 +24,7 @@ mutable struct CC
     ϵ1; ϵ2
     χ1; χ2
     # vibrational wave function overlap integral
-    # (initial state) phonon eigenvalue; phonon overlap; Gaussian function energy 
+    # (initial state) phonon eigenvalue; phonon overlap; Gaussian function energy
     ϵ_list; overlap_list; δ_list
 end
 CC() = CC([], [], [], [], [], [], [], [], [])
@@ -62,7 +58,7 @@ function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=
     cc.ϵ1 = ϵ1; cc.χ1 = χ1
     cc.ϵ2 = ϵ2; cc.χ2 = χ2
     cc
-end 
+end
 
 
 function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10, nev2=Nothing)
@@ -155,7 +151,7 @@ function calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025, lplot=false)
         for j in UnitRange(1, length(cc.ϵ2))
             Δϵ = abs(cc.ϵ1[i] - cc.ϵ2[j])
             if  Δϵ < cut_off
-                integrand = (cc.χ1[i] .* cc.V1.Q .* cc.χ2[j]) 
+                integrand = (cc.χ1[i] .* cc.V1.Q .* cc.χ2[j])
                 overlap = sum(integrand)*ΔL
 
                 append!(cc.ϵ_list, cc.ϵ1[i])
@@ -190,9 +186,9 @@ function calc_capt_coeff(W, V, T_range, cc::CC)
     capt_coeff = V*2*π/ħ*g*W^2 * capt_coeff
 
     occ_high = exp(-β[length(Z)]*cc.ϵ1[length(cc.ϵ1)] ./ Z[length(Z)])
-    
+
     println("occupation(ϵ_max, T_max): ", occ_high)
-    
+
     return capt_coeff
 end
 

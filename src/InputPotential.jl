@@ -39,4 +39,3 @@ c1 = Polynomials.coeffs(V1)
 V2 = polyfit(Q2, E2, poly_order)
 # polynomial coefficients
 c2 = Polynomials.coeffs(V2)
-
