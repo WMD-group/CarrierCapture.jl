@@ -8,7 +8,7 @@ amu = 931.4940954E6   # eV / c^2
 function solve1D_ev_amu(pot_ev_amu; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
     factor = (1/amu) * (ħc*1E10)^2
 
-    ϵ1, χ1 = solve(x->pot_ev_amu(x*factor^0.5);
+    ϵ1, χ1 = solve1D(x->pot_ev_amu(x*factor^0.5);
                   N=NQ, a=Qi/factor^0.5, b=Qf/factor^0.5, m=1, nev=nev, maxiter=maxiter)
     return ϵ1, χ1/factor^0.25
 end
@@ -21,7 +21,11 @@ function plot_potential(Q, E, ϵ1, χ1; plt=Nothing, color="#bd0026", label="", 
     for i = 1:length(ϵ1)
         plot!(plt, Q, χ1[i]*scale_factor .+ ϵ1[i],
               fillrange=[χ1[i]*0 .+ ϵ1[i], χ1[i]*scale_factor .+ ϵ1[i]],
+<<<<<<< HEAD
               color=color, alpha=0.5, label="")    
+=======
+              c="#bd0026", alpha=0.5, label="")
+>>>>>>> master
     end
 end
 
