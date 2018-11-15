@@ -62,7 +62,7 @@ function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=
 end
 
 
-function calc_poly_wave_func(Potential1, Potential2, poly_order; Qi1=-10, Qf1=10, Qi2=0, Qf2=10, NQ=100, nev=10, nev2=Nothing)
+function calc_poly_wave_func(Potential1, Potential2, poly_order; Qi1=-10, Qf1=10, NQ=100, nev=10, nev2=Nothing)
     if nev2 == Nothing
         nev2 = nev
     end
