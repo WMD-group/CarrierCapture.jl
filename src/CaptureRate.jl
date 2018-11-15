@@ -62,7 +62,7 @@ function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=
 end
 
 
-function calc_poly_wave_func(Potential1, Potential2, poly_order; Qi1=-10, Qf1=10, NQ=100, nev=10, nev2=Nothing)
+function calc_poly_wave_func(Potential1, Potential2, poly_order; Qi1=-10, Qf1=10, Qi2=Nothing, Qf2=Nothing, NQ=100, nev=10, nev2=Nothing)
     if nev2 == Nothing
         nev2 = nev
     end
@@ -153,14 +153,14 @@ function plot_potentials(cc::CC; plt=Nothing, scale_factor=2e-2)
     plot!(plt, cc.V1.Q, cc.V1.E, lw=4, color="#bd0026", label="")
     for i = 1:length(cc.ϵ1)
         plot!(cc.V1.Q, cc.χ1[i]*scale_factor .+ cc.ϵ1[i], fillrange=[cc.χ1[i]*0 .+ cc.ϵ1[i], cc.χ1[i]*scale_factor .+ cc.ϵ1[i]], c="#bd0026", alpha=0.5, label="")
-        # plot!(cc.V1.Q, cc.χ1[i]*scale_factor .+ cc.ϵ1[i], color="#d73027", label="")
+        plot!(cc.V1.Q, cc.χ1[i]*scale_factor .+ cc.ϵ1[i], color="#d73027", label="")
     end
 
     # Final state
     plot!(cc.V2.Q, cc.V2.E, lw=4, color="#4575b4", label="")
     for i = 1:length(cc.ϵ2)
         plot!(cc.V2.Q, cc.χ2[i]*scale_factor .+ cc.ϵ2[i], fillrange=[cc.χ2[i]*0 .+ cc.ϵ2[i], cc.χ2[i]*scale_factor .+ cc.ϵ2[i]], c="#4575b4", alpha=0.5, label="")
-        # plot!(cc.V2.Q, cc.χ2[i]*scale_factor .+ cc.ϵ2[i], color="#4575b4", label="")
+        plot!(cc.V2.Q, cc.χ2[i]*scale_factor .+ cc.ϵ2[i], color="#4575b4", label="")
     end
 end
 
