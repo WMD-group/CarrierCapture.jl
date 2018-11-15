@@ -1,9 +1,56 @@
 module Potential
 using Brooglie # Atomic unit
-using Plots
+# using Plots
+using LsqFit
 
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
+
+export potential, pot_from_dict, fit_pot!, solve_pot!
+export solve1D_ev_amu, plot_potential
+export sqwell, harmonic, double, polyfunc
+
+mutable struct potential
+    QE_data::Array{Float64, 2}
+    nev::Int
+    type::String
+    func::Function
+    params::Dict{String, Number}
+    p0::Array{Float64,1}
+    Q; E
+    ϵ; χ
+end
+potential() = potential([0. 0.], 0, "", x->0, Dict(), [0.], [], [], [], [])
+
+
+function pot_from_dict(QE_data::Array{Float64, 2}, cfg::Dict)
+    pot = potential()
+    pot.QE_data = QE_data
+    pot.nev = Int(cfg["nev"])
+    pot.type = cfg["function"]["type"]
+    pot.p0 =  parse.(Float64, split(cfg["function"]["p0"]))
+    pot.params = convert(Dict{String, Number}, cfg["function"]["params"])
+    return pot
+end
+
+
+function fit_pot!(pot::potential, Q)
+    # find func
+    func = @eval $(Symbol(pot.type))
+    params = pot.params
+    fit = curve_fit((x,p) -> func.(x, Ref(p); param=params), pot.QE_data[:,1], pot.QE_data[:,2], pot.p0)
+    pot.Q = Q
+    pot.E = func.(Q, Ref(fit.param); param=params)
+    pot.func = x -> func.(x, Ref(fit.param); param=params)
+end
+
+
+function solve_pot!(pot::potential)
+    # solve
+    pot.ϵ, pot.χ = solve1D_ev_amu(pot.func; 
+        NQ=length(pot.Q), Qi=minimum(pot.Q), Qf=maximum(pot.Q), nev=pot.nev)
+end
+
 
 function solve1D_ev_amu(pot_ev_amu; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
     factor = (1/amu) * (ħc*1E10)^2
@@ -13,21 +60,18 @@ function solve1D_ev_amu(pot_ev_amu; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*N
     return ϵ1, χ1/factor^0.25
 end
 
-function plot_potential(Q, E, ϵ1, χ1; plt=Nothing, color="#bd0026", label="", scale_factor=2e-2)
-    if plt == Nothing
-       plt = plot()
-    end
-    plot!(plt, Q, E, lw=4, color=color, label=label)
-    for i = 1:length(ϵ1)
-        plot!(plt, Q, χ1[i]*scale_factor .+ ϵ1[i],
-              fillrange=[χ1[i]*0 .+ ϵ1[i], χ1[i]*scale_factor .+ ϵ1[i]],
-<<<<<<< HEAD
-              color=color, alpha=0.5, label="")    
-=======
-              c="#bd0026", alpha=0.5, label="")
->>>>>>> master
-    end
-end
+
+# function plot_potential(Q, E, ϵ1, χ1; plt=Nothing, color="#bd0026", label="", scale_factor=2e-2)
+#     if plt == Nothing
+#        plt = plot()
+#     end
+#     plot!(plt, Q, E, lw=4, color=color, label=label)
+#     for i = 1:length(ϵ1)
+#         plot!(plt, Q, χ1[i]*scale_factor .+ ϵ1[i],
+#               fillrange=[χ1[i]*0 .+ ϵ1[i], χ1[i]*scale_factor .+ ϵ1[i]],
+#               color=color, alpha=0.5, label="")    
+#     end
+# end
 
 
 # Set of potentials
@@ -49,7 +93,8 @@ function double(x, ħω1, ħω2)
     return - a1*x.*x + a2*x.*x.*x.*x
 end
 
-function polyfunc(x, coeffs, poly_order)
+function polyfunc(x, coeffs; param)
+    poly_order = Int(param["poly_order"])
     y = 0 .* x
     for i = 1:poly_order + 1
         y += coeffs[i].*x.^(i-1)
