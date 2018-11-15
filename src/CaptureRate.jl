@@ -6,6 +6,7 @@ using Potential
 using Potential: polyfunc, harmonic, solve1D_ev_amu
 using Polynomials
 using Plots
+using CSV
 
 # defining constants
 ħ = 6.582119514E-16 # eV⋅s
@@ -61,21 +62,44 @@ function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=
 end
 
 
-function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10, nev2=Nothing)
+function calc_poly_wave_func(Potential1, Potential2, poly_order; Qi1=-10, Qf1=10, Qi2=0, Qf2=10, NQ=100, nev=10, nev2=Nothing)
     if nev2 == Nothing
         nev2 = nev
     end
+
+    if Qi2 == Nothing
+        Qi2 = Qi1
+    end
+
+    if Qf2 == Nothing
+        Qf2 = Qf1
+    end
+
+    ######################### Import data #########################
+    # import data from two files
+    # Q (first column, amu^{1/2}Å) and E (second column, eV)
+
+    # import first potential curve and convert to matrix
+    # import potential data
+    E_Q_1_data = CSV.read("Potential1.txt", header=false, delim=' ')
+    E_Q_2_data = CSV.read("Potential2.txt", header=false, delim=' ')
+
+
+    # convert data to matrix
+    E_Q_1 = convert(Matrix, E_Q_1_data)
+    E_Q_2 = convert(Matrix, E_Q_2_data)
+
     ######################### Defining data ##########################
-    #     Q, Configuration coordinate
-    #     E, Energy
+    # extract Q data
+    Q1 = E_Q_1[:,1]
+    Q2 = E_Q_2[:,1]
 
-    # data for first potential
-    Q1 = potential_matrix_1[:,1]
-    Energies_1 = potential_matrix_1[:,2]
+    energies_1 = E_Q_1[:,2]
+    energies_2 = E_Q_2[:,2]
 
-    # data for second potential
-    Q2 = potential_matrix_2[:,1]
-    Energies_2 = potential_matrix_2[:,2]
+    # extract energies and convert to float
+    Energies_1 = map(x->parse(Float64,x),energies_1)
+    Energies_2 = map(x->parse(Float64,x),energies_2)
 
     ######################### Polynomial fit #########################
     # polynomial fitting for first potential
@@ -88,15 +112,16 @@ function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order,
     # polynomial coefficients
     c2 = Polynomials.coeffs(poly2)
 
-    # x coordinate vector
-    x = LinRange(Qi, Qf, NQ)
+    # x coordinate vectors for each potential
+    x1 = LinRange(Qi1, Qf1, NQ)
+    x2 = LinRange(Qi2, Qf2, NQ)
 
     # define potential using coefficients (calls polyfunc from Potential)
-    E1 = polyfunc(x, c1, poly_order)
-    V1 = potential(x, E1)
+    E1 = polyfunc(x1, c1, poly_order)
+    V1 = potential(x1, E1)
 
-    E2 = polyfunc(x, c2, poly_order)
-    V2 = potential(x, E2)
+    E2 = polyfunc(x2, c2, poly_order)
+    V2 = potential(x2, E2)
 
     # calculate ΔQ and ΔE here
     Q1min = Q1[argmin(Energies_1)]
@@ -106,13 +131,14 @@ function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order,
 
     # solve Schrödinger equation
     # Ground state
-    ϵ1, χ1 = solve1D_ev_amu(x->polyfunc(x, c1, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
+    ϵ1, χ1 = solve1D_ev_amu(x1->polyfunc(x1, c1, poly_order); NQ=NQ, Qi=Qi1, Qf=Qf1, nev=nev)
     # Excited state
-    ϵ2, χ2 = solve1D_ev_amu(x->polyfunc(x, c2, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev2)
+    ϵ2, χ2 = solve1D_ev_amu(x2->polyfunc(x2, c2, poly_order); NQ=NQ, Qi=Qi2, Qf=Qf2, nev=nev2)
 
     # Assign
     cc = CC()
-    cc.V1 = V1; cc.V2 = V2
+    cc.V1 = V1;
+    cc.V2 = V2
     cc.ϵ1 = ϵ1; cc.χ1 = χ1
     cc.ϵ2 = ϵ2; cc.χ2 = χ2
     cc
