@@ -46,47 +46,47 @@ Code setup
 ----------
 The notebook `capture.ipynb` contains commands for each of the above steps, which call the Julia script `CaptureRate.jl`. 
 
-    - general polynomial potential (calc_poly_wave_func)
+    > general polynomial potential (calc_poly_wave_func)
 
-    - calculating phonon overlap (calc_overlap)
+    > calculating phonon overlap (calc_overlap)
 
-    - calculating capture coefficient (calc_capt_coeff)
+    > calculating capture coefficient (calc_capt_coeff)
 
 ###Input for calc_poly_wave_func: 
 
 calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10, nev2=Nothing)
 
-    - potential_matrix_1 & potential_matrix_2: potentials from files (named Potential1.txt and Potential2.txt).
+    > potential_matrix_1 & potential_matrix_2: potentials from files (named Potential1.txt and Potential2.txt).
 
-    - Each potential is read from a file with Q and E in columns 1 and 2 respectively (energy in eV and Q in amu^(1/2) Angstrom). 
+    > Each potential is read from a file with Q and E in columns 1 and 2 respectively (energy in eV and Q in amu^(1/2) Angstrom). 
 
-    - poly_order: order of the polynomial that you'd like to use to fit your potential data
+    > poly_order: order of the polynomial that you'd like to use to fit your potential data
 
-    - Qi and Qf [amu^(1/2)*Å] define the domain where potential will be solved (Q ∈ [`Qi`,`Qf`]), discretised in `NQ` steps for each potential.
+    > Qi and Qf [amu^(1/2)*Å] define the domain where potential will be solved (Q ∈ [`Qi`,`Qf`]), discretised in `NQ` steps for each potential.
  
-    - `nev` the number of first energy levels of 1D potentials to solve. 
+    > `nev` the number of first energy levels of 1D potentials to solve. 
 
-    - You can also include an additional argument nev2 = XX to solve for a different number of states in the second potential (by default nev2 = nev)
+    > You can also include an additional argument nev2 = XX to solve for a different number of states in the second potential (by default nev2 = nev)
 
 ###Input for calc_overlap: 
 
 calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025, lplot=false)
 
-    - cut_off: energetic difference criteria for overlap of phonons (Δϵ < cut_off)
+    > cut_off: energetic difference criteria for overlap of phonons (Δϵ < cut_off)
 
-    - σ: amount of smearing of delta functions for determining phonon overlap
+    > σ: amount of smearing of delta functions for determining phonon overlap
 
 ###Input for calc_capt_coeff: 
 
 calc_capt_coeff(W, V, g, T_range, cc::CC)
 
-    - V: volume of supercell [Å³]
+    > V: volume of supercell [Å³]
 
-    - g: configurational degeneracy 
+    > g: configurational degeneracy 
 
-    - W: electron-phonon coupling matrix element [ev/(amu^(1/2)*Å)]
+    > W: electron-phonon coupling matrix element [ev/(amu^(1/2)*Å)]
 
-    - T: temperature range for calculating capture coefficient (K)
+    > T: temperature range for calculating capture coefficient (K)
 
 Theory
 ------
