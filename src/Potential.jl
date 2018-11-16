@@ -7,29 +7,40 @@ amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 
 export potential, pot_from_dict, fit_pot!, solve_pot!
-export solve1D_ev_amu, plot_potential
+export solve1D_ev_amu
 export sqwell, harmonic, double, polyfunc
 
 mutable struct potential
+    name::String
+    color::String
     QE_data::Array{Float64, 2}
     nev::Int
     type::String
     func::Function
     params::Dict{String, Number}
     p0::Array{Float64,1}
-    Q; E
-    ϵ; χ
+    E0::Float64
+    Q::Array{Float64,1}; E::Array{Float64,1}
+    ϵ::Array{Float64,1}; χ::Array{Array{Float64,1},1}
 end
-potential() = potential([0. 0.], 0, "", x->0, Dict(), [0.], [], [], [], [])
+potential() = potential("", "black", [0. 0.], 0, "", x->0, Dict(), [0.], Inf, [], [], [], [[]])
 
 
 function pot_from_dict(QE_data::Array{Float64, 2}, cfg::Dict)
     pot = potential()
-    pot.QE_data = QE_data
-    pot.nev = Int(cfg["nev"])
+    pot.name = cfg["name"]
+    pot.color = cfg["color"]
+    pot.nev = cfg["nev"]
     pot.type = cfg["function"]["type"]
     pot.p0 =  parse.(Float64, split(cfg["function"]["p0"]))
     pot.params = convert(Dict{String, Number}, cfg["function"]["params"])
+    pot.E0 = get(cfg, "E0", Inf)
+    
+    pot.QE_data = QE_data 
+    if pot.E0 < Inf
+        pot.QE_data[:, 2] .+= - minimum(pot.QE_data[:, 2]) + pot.E0
+    end
+
     return pot
 end
 

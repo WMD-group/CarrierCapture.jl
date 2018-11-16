@@ -1,27 +1,67 @@
 # POTENTIAL INPUT
-potential_i:
-    data: Potential_1.csv
-    nev: 20
-    function: 
-        type: polyfunc
-        p0: 0.1 0.1 0.1 0.1 0.1 0.1
-        params: 
-            poly_order: 4
-potential_f:
-    data: Potential_2.csv
-    nev: 20
-    function:
-        type: polyfunc
-        p0: 0.1 0.1 0.1 0.1 0.1 0.1
-        params: 
-            poly_order: 4
-            etc: 2.0
-Qi: -20
-Qf: 30
+Qi: -25
+Qf: 35
 NQ: 2000
-Egap: 1.2
+
+potentials:
+    - potential:
+        name: SnVI+e+h
+        data: Potential_1.csv
+        nev: 10
+        E0: 1.2
+        function: 
+            type: polyfunc
+            p0: 0.1 0.1 0.1 0.1 0.1 0.1
+            params: 
+                poly_order: 4
+        color: "#b2182b"
+    - potential:
+        name: SnIII+h
+        data: Potential_2.csv
+        nev: 60
+        E0: 0.5
+        function:
+            type: polyfunc
+            p0: 0.1 0.1 0.1 0.1 0.1 0.1
+            params: 
+                poly_order: 4
+                etc: 2.0
+        color: "#2166ac"
+    - potential:
+        name: SnVI
+        data: Potential_1.csv
+        nev: 50
+        E0: 0
+        function: 
+            type: polyfunc
+            p0: 0.1 0.1 0.1 0.1 0.1 0.1
+            params:
+                poly_order: 4
+        color: "#b2182b"
+
+plot:
+    Qmin: -10
+    Qmax: 15
+    Emin: -0.2
+    Emax: 2
 
 # CAPTURE INPUT
+captures:
+    Ti: 1
+    Tf: 800
+    NT: 100
+    V: 1.1E-21
+    CCs:
+        - CC:
+            W: 6.4E-2
+            g: 1
+            initial: 1
+            final: 2
+        - CC:
+            W: 6.4E-2
+            g: 2
+            initial: 2
+            final: 3
 
 # # Example input:
 # ħω1: 0.042
