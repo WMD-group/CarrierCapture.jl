@@ -44,9 +44,12 @@ A typical usage will consist of three or four steps, implemented in a series of 
 
 Code setup
 ----------
-The capture.ipynb contains commands for each of the above steps, which call the Julia script `CaptureRate.jl`. 
+The notebook `capture.ipynb` contains commands for each of the above steps, which call the Julia script `CaptureRate.jl`. 
+
     - general polynomial potential (calc_poly_wave_func)
+
     - calculating phonon overlap (calc_overlap)
+
     - calculating capture coefficient (calc_capt_coeff)
 
 Input for calc_poly_wave_func: calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10, nev2=Nothing)
