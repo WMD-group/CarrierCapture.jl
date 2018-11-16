@@ -101,6 +101,12 @@ function calc_poly_wave_func(Potential1, Potential2, poly_order; Qi1=-10, Qf1=10
     Energies_1 = map(x->parse(Float64,x),energies_1)
     Energies_2 = map(x->parse(Float64,x),energies_2)
 
+    # shift the curves to be around E = 0
+    E_shift = minimum(Energies_1)
+
+    Energies_1 = Energies_1 .- E_shift
+    Energies_2 = Energies_2 .- E_shift
+
     ######################### Polynomial fit #########################
     # polynomial fitting for first potential
     poly1 = polyfit(Q1, Energies_1, poly_order)
@@ -196,7 +202,7 @@ function calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025, lplot=false)
     end
 end
 
-function calc_capt_coeff(W, V, T_range, cc::CC)
+function calc_capt_coeff(W, V, g, T_range, cc::CC)
     # TODO:       convergence over σ
     capt_coeff = zeros(length(T_range))
     Z = 0
