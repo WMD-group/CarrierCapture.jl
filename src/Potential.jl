@@ -1,7 +1,10 @@
+push!(LOAD_PATH,"../src/")
+
 module Potential
 using Brooglie # Atomic unit
 # using Plots
 using LsqFit
+# using JLD2
 
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
@@ -22,8 +25,12 @@ mutable struct potential
     E0::Float64
     Q::Array{Float64,1}; E::Array{Float64,1}
     ϵ::Array{Float64,1}; χ::Array{Array{Float64,1},1}
+    potential() = new()
+    # TODO: JLD2
+    #       Don't blame S. Kim.
+    #       Blame JLD2
 end
-potential() = potential("", "black", [0. 0.], 0, "", x->0, Dict(), [0.], Inf, [], [], [], [[]])
+# # potential() = potential("", "black", [0. 0.], 0, "", x->0, Dict(), [0.], Inf, [], [], [], [[]])
 
 
 function pot_from_dict(QE_data::Array{Float64, 2}, cfg::Dict)
