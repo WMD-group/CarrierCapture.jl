@@ -52,9 +52,9 @@ The notebook `capture.ipynb` contains commands for each of the above steps, whic
 
     > calculating capture coefficient (calc_capt_coeff)
 
-###Input for calc_poly_wave_func: 
+### Input for calc_poly_wave_func: 
 
-calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10, nev2=Nothing)
+    > calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10, nev2=Nothing)
 
     > potential_matrix_1 & potential_matrix_2: potentials from files (named Potential1.txt and Potential2.txt).
 
@@ -68,17 +68,17 @@ calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, 
 
     > You can also include an additional argument nev2 = XX to solve for a different number of states in the second potential (by default nev2 = nev)
 
-###Input for calc_overlap: 
+### Input for calc_overlap: 
 
-calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025, lplot=false)
+    > calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025, lplot=false)
 
     > cut_off: energetic difference criteria for overlap of phonons (Δϵ < cut_off)
 
     > σ: amount of smearing of delta functions for determining phonon overlap
 
-###Input for calc_capt_coeff: 
+### Input for calc_capt_coeff: 
 
-calc_capt_coeff(W, V, g, T_range, cc::CC)
+    > calc_capt_coeff(W, V, g, T_range, cc::CC)
 
     > V: volume of supercell [Å³]
 
