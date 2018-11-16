@@ -5,13 +5,16 @@ using Plots
 using ArgParse
 using YAML
 using CSV
+using JLD2, FileIO
 
 
 function plot_pot!(pot::potential; lplt_wf=false, plt=Nothing, 
-			       color="#bd0026", label="", scale_factor=2e-2)
+			       color=Nothing, label="", scale_factor=2e-2)
     if plt == Nothing
         plt = plot()
     end
+    label = if label=="" pot.name else label end
+    color = if color==Nothing pot.color else color end
     # plot wave functions
     if lplt_wf
         ϵ = pot.ϵ; χ = pot.χ
@@ -29,7 +32,6 @@ function plot_pot!(pot::potential; lplt_wf=false, plt=Nothing,
     return plt
 end
 
-
 s = ArgParseSettings()
 @add_arg_table s begin
     "--input", "-i"
@@ -39,47 +41,39 @@ s = ArgParseSettings()
 end
 
 input = YAML.load(open(parse_args(ARGS, s)["input"]))
+# input = YAML.load(open("pot_input.yaml"))
 
-# Global
 Qi, Qf, NQ = input["Qi"], input["Qf"], input["NQ"]
 Q = range(Qi, stop=Qf, length=NQ)
 
-# potential_i
-pot_i_cfg = input["potential_i"]
-# import data 
-QE_data = convert(Array{Float64, 2}, CSV.read(pot_i_cfg["data"]))
-pot_i = pot_from_dict(QE_data, pot_i_cfg)
-fit_pot!(pot_i, Q)
-solve_pot!(pot_i)
-
-# potential_f
-pot_f_cfg = input["potential_f"]
-# import data 
-QE_data = convert(Array{Float64, 2}, CSV.read(pot_f_cfg["data"]))
-pot_f = pot_from_dict(QE_data, pot_f_cfg)
-fit_pot!(pot_f, Q)
-solve_pot!(pot_f)
-
-
-# plot
-plt = plot_pot!(pot_i, lplt_wf=true)
-plot_pot!(pot_f, lplt_wf=true, color="#005dff", plt=plt)
-
-if get(input, "Egap", Nothing) != Nothing
-	# potential_i + Egap
-	pot_g_cfg = input["potential_i"]
-	# import data 
-	QE_data = convert(Array{Float64, 2}, CSV.read(pot_g_cfg["data"]))
-	QE_data[:, 2] .+= input["Egap"]
-	pot_g = pot_from_dict(QE_data, pot_g_cfg)
-	fit_pot!(pot_g, Q)
-	solve_pot!(pot_g)
-	plot_pot!(pot_g, lplt_wf=true, plt=plt)
+pots = []
+plt = plot()
+for potential in input["potentials"]
+	pot_cfg = potential["potential"]
+	QE_data = convert(Array{Float64, 2}, CSV.read(pot_cfg["data"]))
+	pot = pot_from_dict(QE_data, pot_cfg)
+	append!(pots, [pot])
+	fit_pot!(pot, Q)
+	solve_pot!(pot)
+	plot_pot!(pot, lplt_wf=true, plt=plt)
 end
 
-ylims!(0., 3)
-xlims!(Qi, Qf)
+# Dump data for Rate
+jldopen("potential.jld2", "w") do file
+    # addrequire(file, Potential)
+    for pot in pots
+    	file[pot.name] = pot
+    end
+end
 
-# savefig(plt, "pot.png")
+plot_cfg = get(input, "plot", Nothing)
+if plot_cfg == Nothing
+    ylims!(0., 3)
+    xlims!(Qi, Qf)
+else
+    ylims!(plot_cfg["Emin"], plot_cfg["Emax"])
+    xlims!(plot_cfg["Qmin"], plot_cfg["Qmax"])
+end
 savefig(plt, "pot.pdf")
+
 end # module
