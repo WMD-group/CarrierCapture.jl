@@ -62,7 +62,7 @@ function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=
 end
 
 
-function calc_poly_wave_func(Potential1, Potential2, poly_order; Qi1=-10, Qf1=10, Qi2=Nothing, Qf2=Nothing, NQ=100, nev=10, nev2=Nothing)
+function calc_poly_wave_func(Potential1::AbstractString, Potential2::AbstractString, poly_order; Qi1=-10, Qf1=10, Qi2=Nothing, Qf2=Nothing, NQ=100, nev=10, nev2=Nothing)
     if nev2 == Nothing
         nev2 = nev
     end
@@ -81,8 +81,8 @@ function calc_poly_wave_func(Potential1, Potential2, poly_order; Qi1=-10, Qf1=10
 
     # import first potential curve and convert to matrix
     # import potential data
-    E_Q_1_data = CSV.read("Potential1.txt", header=false, delim=' ')
-    E_Q_2_data = CSV.read("Potential2.txt", header=false, delim=' ')
+    E_Q_1_data = CSV.read(Potential1; header=false, delim='\t')
+    E_Q_2_data = CSV.read(Potential2; header=false, delim='\t')
 
 
     # convert data to matrix
@@ -94,18 +94,18 @@ function calc_poly_wave_func(Potential1, Potential2, poly_order; Qi1=-10, Qf1=10
     Q1 = E_Q_1[:,1]
     Q2 = E_Q_2[:,1]
 
-    energies_1 = E_Q_1[:,2]
-    energies_2 = E_Q_2[:,2]
+    Energies_1 = E_Q_1[:,2]
+    Energies_2 = E_Q_2[:,2]
 
-    # extract energies and convert to float
-    Energies_1 = map(x->parse(Float64,x),energies_1)
-    Energies_2 = map(x->parse(Float64,x),energies_2)
+    # # extract energies and convert to float
+    # Energies_1 = map(x->parse(Float64,x),energies_1)
+    # Energies_2 = map(x->parse(Float64,x),energies_2)
 
-    # shift the curves to be around E = 0
-    E_shift = minimum(Energies_1)
-
-    Energies_1 = Energies_1 .- E_shift
-    Energies_2 = Energies_2 .- E_shift
+    # # shift the curves to be around E = 0
+    # E_shift = minimum(Energies_1)
+    #
+    # Energies_1 = Energies_1 .- E_shift
+    # Energies_2 = Energies_2 .- E_shift
 
     ######################### Polynomial fit #########################
     # polynomial fitting for first potential
