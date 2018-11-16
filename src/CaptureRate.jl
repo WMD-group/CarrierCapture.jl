@@ -1,37 +1,39 @@
+push!(LOAD_PATH,"../src/")
 module CaptureRate
-
-push!(LOAD_PATH, ".")
-
-using Potential: plot_potential, polyfunc, harmonic, solve1D_ev_amu
+using Potential
 using Polynomials
-using Plots
+# using Plots
+
+export conf_coord, cc_from_dict, calc_overlap!, calc_capt_coeff!
 
 ħ = 6.582119514E-16 # eV⋅s
 kB = 8.6173303E-5 # eV⋅K⁻¹
 
-# V = 1.1E-21          # Å³ volume
-# g = 1                # degeneracy
-# W = 0.204868962802   # ev/(amu^(1/2)*Å)
 occ_cut_off = 1E-5
 
-mutable struct potential
-    Q # Configuration coordinate
-    E # Energy
-end
 
-mutable struct CC
+mutable struct conf_coord
     # Configuration coordinate
     # potentials
-    V1; V2
-    # eigenvalue and eigenvectors.
-    ϵ1; ϵ2
-    χ1; χ2
+    V1::potential; V2::potential
+    # e-ph coupling matrix element; degeneracy
+    W::Float64; g::Int
     # vibrational wave function overlap integral
     # (initial state) phonon eigenvalue; phonon overlap; Gaussian function energy 
-    ϵ_list; overlap_list; δ_list
+    ϵ_list::Array{Float64,1}; overlap_list::Array{Float64,1}; δ_list::Array{Float64,1}
+    temp::Array{Float64,1}; capt_coeff::Array{Float64,1}
 end
-CC() = CC([], [], [], [], [], [], [], [], [])
+conf_coord(pot_i::potential, pot_f::potential) = conf_coord(pot_i, pot_f, Inf, 1, [], [], [], [], [])
 
+# cc() = CC(pote(), potential(), [], [], [], [], [], [], [])
+
+
+function cc_from_dict(pot_i, pot_f, cfg::Dict)
+    cc = conf_coord(pot_i, pot_f, cfg["W"], cfg["g"], [], [], [], [], [])
+    return cc
+end
+
+"""
 function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=20, nev2=Nothing)
     if nev2 == Nothing
         nev2 = nev
@@ -132,38 +134,35 @@ function plot_potentials(cc::CC; plt=Nothing, scale_factor=2e-2)
     # Final state
     plot_potential(cc.V2.Q, cc.V2.E, cc.ϵ2, cc.χ2, plt=plt, color="#4575b4", scale_factor=scale_factor)
 end
+"""
 
-function calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025)
+function calc_overlap!(cc::conf_coord; cut_off=0.25, σ=0.025)
     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
     cc.ϵ_list = []
     cc.overlap_list = []
     cc.δ_list = []
-    for i in UnitRange(1, length(cc.ϵ1))
-        for j in UnitRange(1, length(cc.ϵ2))
-            Δϵ = abs(cc.ϵ1[i] - cc.ϵ2[j])
+    for i in UnitRange(1, length(cc.V1.ϵ))
+        for j in UnitRange(1, length(cc.V2.ϵ))
+            Δϵ = abs(cc.V1.ϵ[i] - cc.V2.ϵ[j])
             if  Δϵ < cut_off
-                integrand = (cc.χ1[i] .* cc.V1.Q .* cc.χ2[j]) 
+                integrand = (cc.V1.χ[i] .* cc.V1.Q .* cc.V2.χ[j]) 
                 overlap = sum(integrand)*ΔL
 
-                append!(cc.ϵ_list, cc.ϵ1[i])
+                append!(cc.ϵ_list, cc.V1.ϵ[i])
                 append!(cc.overlap_list, overlap)
 
                 append!(cc.δ_list, exp(-(Δϵ/σ)^2/2)/(σ*sqrt(2*π)))
-
-                # plot
-                # alpha = (cut_off-Δϵ)/cut_off
-                # plot!(cc.V1.Q, cc.ϵ1[i] .+ integrand*1E-1, color="#31a354", lw=3, alpha=alpha, label="")
             end
         end
     end
 end
 
-function calc_capt_coeff(W, V, T_range, cc::CC; g=1)
+function calc_capt_coeff!(cc::conf_coord, V, temp)
     # TODO:       convergence over σ
-    capt_coeff = zeros(length(T_range))
+    capt_coeff = zeros(length(temp))
     Z = 0
-    β = 1 ./ (kB .* T_range)
-    for ϵ in cc.ϵ1
+    β = 1 ./ (kB .* temp)
+    for ϵ in cc.V1.ϵ
         Z = Z .+ exp.(-β*ϵ)
     end
     for var in zip(cc.ϵ_list, cc.overlap_list, cc.δ_list)
@@ -171,13 +170,14 @@ function calc_capt_coeff(W, V, T_range, cc::CC; g=1)
         occ = exp.(-β*ϵ) ./ Z
         capt_coeff += occ * overlap .* overlap * δ
     end
-    capt_coeff = V*2*π/ħ*g*W^2 * capt_coeff
+    capt_coeff = V*2*π/ħ*cc.g*cc.W^2 * capt_coeff
 
-    occ_high = exp(-β[length(Z)]*cc.ϵ1[length(cc.ϵ1)] ./ Z[length(Z)])
+    occ_high = exp(-β[length(Z)]*cc.V1.ϵ[length(cc.V1.ϵ)] ./ Z[length(Z)])
     
     @assert occ_high < occ_cut_off "occ(ϵ_max, T_max): $occ_high should be less than $occ_cut_off"
     
-    return capt_coeff
+    cc.capt_coeff = capt_coeff
+    cc.temp = temp
 end
 
 

@@ -7,7 +7,7 @@ potentials:
     - potential:
         name: SnVI+e+h
         data: Potential_1.csv
-        nev: 10
+        nev: 20
         E0: 1.2
         function: 
             type: polyfunc
@@ -47,21 +47,23 @@ plot:
 
 # CAPTURE INPUT
 captures:
-    Ti: 1
-    Tf: 800
+    Tmin: 1
+    Tmax: 800
     NT: 100
-    V: 1.1E-21
-    CCs:
-        - CC:
+    Volume: 1.1E-21
+    cut_off: 0.25
+    σ: 0.025
+    ccs:
+        - cc:
             W: 6.4E-2
             g: 1
-            initial: 1
-            final: 2
-        - CC:
+            initial: SnVI+e+h
+            final: SnIII+h
+        - cc:
             W: 6.4E-2
             g: 2
-            initial: 2
-            final: 3
+            initial: SnIII+h
+            final: SnVI
 
 # # Example input:
 # ħω1: 0.042

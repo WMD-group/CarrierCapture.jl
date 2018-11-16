@@ -5,11 +5,10 @@ using Plots
 using ArgParse
 using YAML
 using CSV
-using JLD2, FileIO
+# using JLD2, FileIO
+using Serialization
 
-
-function plot_pot!(pot::potential; lplt_wf=false, plt=Nothing, 
-			       color=Nothing, label="", scale_factor=2e-2)
+function plot_pot!(pot::potential; lplt_wf=false, plt=Nothing, color=Nothing, label="", scale_factor=2e-2)
     if plt == Nothing
         plt = plot()
     end
@@ -46,24 +45,28 @@ input = YAML.load(open(parse_args(ARGS, s)["input"]))
 Qi, Qf, NQ = input["Qi"], input["Qf"], input["NQ"]
 Q = range(Qi, stop=Qf, length=NQ)
 
-pots = []
+pots = Dict{String, potential}()
 plt = plot()
 for potential in input["potentials"]
 	pot_cfg = potential["potential"]
 	QE_data = convert(Array{Float64, 2}, CSV.read(pot_cfg["data"]))
 	pot = pot_from_dict(QE_data, pot_cfg)
-	append!(pots, [pot])
+	# append!(pots, [pot])
+	pots[pot.name] = pot
 	fit_pot!(pot, Q)
 	solve_pot!(pot)
 	plot_pot!(pot, lplt_wf=true, plt=plt)
 end
 
 # Dump data for Rate
-jldopen("potential.jld2", "w") do file
-    # addrequire(file, Potential)
-    for pot in pots
-    	file[pot.name] = pot
-    end
+# jldopen("potential.jld2", "w") do file
+#     # addrequire(file, Potential)
+#     for pot in pots
+#     	file[pot.name] = pot
+#     end
+# end
+open("potential.jld", "w") do file
+    serialize(file, pots)
 end
 
 plot_cfg = get(input, "plot", Nothing)
