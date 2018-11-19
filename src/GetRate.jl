@@ -1,27 +1,27 @@
+#!/usr/bin/env julia
+
 push!(LOAD_PATH,"../src/")
 module GetRate
 using CaptureRate
-using Plots
-using ArgParse
-using YAML
+using Plots, LaTeXStrings
+using ArgParse, YAML
+using CSV, DataFrames # consider CSVFiles
 # using JLD2, FileIO
 using Serialization
-using Potential
-using LsqFit
-using LaTeXStrings
+using Potential, LsqFit
+
 
 function plot_cc!(cc::conf_coord; plt=Nothing, color=Nothing, label="")
     if plt == Nothing
         plt = plot()
     end
-    # label = if label=="" pot.name else label end
+    label = if label=="" cc.name else label end
     # color = if color==Nothing pot.color else color end
-    # plot!(plt, 1000 ./ cc.temp, cc.capt_coeff, lw=4, color=color, label=label)
-    plot!(plt, 1000 ./ cc.temp, cc.capt_coeff, lw=4)
+    plot!(plt, 1000 ./ cc.temp, cc.capt_coeff, lw=4, label=cc.name)
     xlims!(0, 5)
-    ylims!(1E-10, 1E-5)
+    ylims!(1E-22, 1E-5)
     xaxis!(L"\ 1000\/T (K^{-1}) \ (^{}$$")
-    yaxis!(L"C_{n}  (cm^{3}\/s) \ (^{}$$", :log10)
+    yaxis!(L"C (cm^{3}\/s) \ (^{}$$", :log10)
 end
 
 s = ArgParseSettings()
@@ -71,13 +71,18 @@ for cc in input_capt["ccs"]
     calc_capt_coeff!(cc, V, temp)
     append!(ccs, [cc])
 end
-println(length(ccs))
 
+# plot
 plt = plot()
 for cc in ccs
     plot_cc!(cc; plt=plt)
 end
 savefig(plt, "capt.pdf")
+
+# write capture coefficient cvs
+for (i, cc) in enumerate(ccs)
+    CSV.write("capt_coeff_$(i).csv", DataFrame([cc.temp, cc.capt_coeff], [:T, :C]))
+end
 
 
 end # module

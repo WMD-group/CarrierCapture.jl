@@ -1,34 +1,40 @@
-# POTENTIAL INPUT
 Qi: -25
 Qf: 35
 NQ: 2000
 
+plot:
+    Qmin: -5
+    Qmax: 10
+    Emin: -0.2
+    Emax: 2
+
+# POTENTIAL INPUT
 potentials:
     - potential:
-        name: SnVI+e+h
+        name: GeVI+e+h
         data: Potential_1.csv
-        nev: 20
-        E0: 1.2
+        nev: 30
+        E0: 1.4
         function: 
             type: polyfunc
             p0: 0.1 0.1 0.1 0.1 0.1 0.1
             params: 
-                poly_order: 4
+                poly_order: 2
         color: "#b2182b"
     - potential:
-        name: SnIII+h
+        name: GeIII+h
         data: Potential_2.csv
-        nev: 60
-        E0: 0.5
+        nev: 85
+        E0: 0.36523
         function:
             type: polyfunc
             p0: 0.1 0.1 0.1 0.1 0.1 0.1
             params: 
-                poly_order: 4
+                poly_order: 2
                 etc: 2.0
         color: "#2166ac"
     - potential:
-        name: SnVI
+        name: GeVI
         data: Potential_1.csv
         nev: 50
         E0: 0
@@ -36,14 +42,8 @@ potentials:
             type: polyfunc
             p0: 0.1 0.1 0.1 0.1 0.1 0.1
             params:
-                poly_order: 4
+                poly_order: 2
         color: "#b2182b"
-
-plot:
-    Qmin: -10
-    Qmax: 15
-    Emin: -0.2
-    Emax: 2
 
 # CAPTURE INPUT
 captures:
@@ -57,13 +57,13 @@ captures:
         - cc:
             W: 6.4E-2
             g: 1
-            initial: SnVI+e+h
-            final: SnIII+h
+            initial: GeVI+e+h
+            final: GeIII+h
         - cc:
             W: 6.4E-2
             g: 2
-            initial: SnIII+h
-            final: SnVI
+            initial: GeIII+h
+            final: GeVI
 
 # # Example input:
 # ħω1: 0.042
