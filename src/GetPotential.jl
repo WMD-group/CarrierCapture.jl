@@ -9,6 +9,7 @@ using CSV, DataFrames # consider CSVFiles
 # Native serialization in Julia works fine.
 # using JLD2, FileIO
 using Serialization
+using Printf
 
 
 function plot_pot!(pot::potential; lplt_wf=false, plt=Nothing, color=Nothing, label="", scale_factor=2e-2)
@@ -40,13 +41,13 @@ end
 s = ArgParseSettings()
 @add_arg_table s begin
     "--input", "-i"
-        help = "input file in a yaml format (default:pot_input.yaml)"
-        default = "pot_input.yaml"
+        help = "input file in a yaml format (default:input.yaml)"
+        default = "input.yaml"
         arg_type = String
 end
 
 input = YAML.load(open(parse_args(ARGS, s)["input"]))
-# input = YAML.load(open("pot_input.yaml"))
+# input = YAML.load(open("input.yaml"))
 
 Qi, Qf, NQ = input["Qi"], input["Qf"], input["NQ"]
 Q = range(Qi, stop=Qf, length=NQ)
@@ -64,6 +65,15 @@ for potential in input["potentials"]
 	solve_pot!(pot)
 	plot_pot!(pot, lplt_wf=true, plt=plt)
 end
+
+# print zero-phonon frequencies
+println("===========ħω0===========")
+for (name, pot) in pots
+	ϵ0 = pot.ϵ[1] - pot.E0
+	ħω0 = @sprintf("%.1f", 2*ϵ0*1000)
+	println("$(name): $(ħω0) meV")
+end
+println("=========================")
 
 open("potential.jld", "w") do file
     serialize(file, pots)
