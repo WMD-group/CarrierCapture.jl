@@ -1,12 +1,15 @@
+#!/usr/bin/env julia
+
 push!(LOAD_PATH,"../src/")
 module GetPotential
 using Potential
-using Plots
-using ArgParse
-using YAML
-using CSV
+using Plots, LaTeXStrings
+using ArgParse, YAML
+using CSV, DataFrames # consider CSVFiles
+# Native serialization in Julia works fine.
 # using JLD2, FileIO
 using Serialization
+
 
 function plot_pot!(pot::potential; lplt_wf=false, plt=Nothing, color=Nothing, label="", scale_factor=2e-2)
     if plt == Nothing
@@ -14,6 +17,7 @@ function plot_pot!(pot::potential; lplt_wf=false, plt=Nothing, color=Nothing, la
     end
     label = if label=="" pot.name else label end
     color = if color==Nothing pot.color else color end
+    
     # plot wave functions
     if lplt_wf
         ϵ = pot.ϵ; χ = pot.χ
@@ -23,11 +27,13 @@ function plot_pot!(pot::potential; lplt_wf=false, plt=Nothing, color=Nothing, la
                   color=color, alpha=0.5, label="")    
         end
     end
+    
     # plot function
     plot!(plt, pot.Q, pot.E, lw=4, color=color, label=label)
-    # plot
-    scatter!(plt, pot.QE_data[:,1], pot.QE_data[:,2], color=color, label="")
+    # plot data
+    scatter!(plt, pot.QE_data.Q, pot.QE_data.E, color=color, label="")
 
+    xaxis!(L"\ Q (amu^{1\/2} Å) \ (^{}$$"); yaxis!(L"\ Energy  (eV) \ (^{}$$")
     return plt
 end
 
@@ -49,26 +55,21 @@ pots = Dict{String, potential}()
 plt = plot()
 for potential in input["potentials"]
 	pot_cfg = potential["potential"]
-	QE_data = convert(Array{Float64, 2}, CSV.read(pot_cfg["data"]))
+	# TODO: make CSV.read compatable with a format "-.30073981E+03"
+	#       consider <CSVFiles> package
+	QE_data = names!(CSV.read(pot_cfg["data"]; allowmissing=:none), [:Q, :E])
 	pot = pot_from_dict(QE_data, pot_cfg)
-	# append!(pots, [pot])
 	pots[pot.name] = pot
 	fit_pot!(pot, Q)
 	solve_pot!(pot)
 	plot_pot!(pot, lplt_wf=true, plt=plt)
 end
 
-# Dump data for Rate
-# jldopen("potential.jld2", "w") do file
-#     # addrequire(file, Potential)
-#     for pot in pots
-#     	file[pot.name] = pot
-#     end
-# end
 open("potential.jld", "w") do file
     serialize(file, pots)
 end
 
+# plot
 plot_cfg = get(input, "plot", Nothing)
 if plot_cfg == Nothing
     ylims!(0., 3)
@@ -78,5 +79,10 @@ else
     xlims!(plot_cfg["Qmin"], plot_cfg["Qmax"])
 end
 savefig(plt, "pot.pdf")
+
+# write capture coefficient cvs
+for (name, pot) in pots
+    CSV.write("eigval_$(name).csv", DataFrame([pot.ϵ .- pot.E0, pot.ϵ], [:ϵ_E0, :ϵ]))
+end
 
 end # module

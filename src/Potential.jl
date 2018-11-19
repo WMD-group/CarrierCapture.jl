@@ -1,8 +1,12 @@
+
+__precompile__()
+
 push!(LOAD_PATH,"../src/")
 
 module Potential
 using Brooglie # Atomic unit
 # using Plots
+using DataFrames
 using LsqFit
 # using JLD2
 
@@ -16,7 +20,7 @@ export sqwell, harmonic, double, polyfunc
 mutable struct potential
     name::String
     color::String
-    QE_data::Array{Float64, 2}
+    QE_data::DataFrame
     nev::Int
     type::String
     func::Function
@@ -24,6 +28,7 @@ mutable struct potential
     p0::Array{Float64,1}
     E0::Float64
     Q::Array{Float64,1}; E::Array{Float64,1}
+    # ϵ includes E0
     ϵ::Array{Float64,1}; χ::Array{Array{Float64,1},1}
     potential() = new()
     # TODO: JLD2
@@ -33,7 +38,7 @@ end
 # # potential() = potential("", "black", [0. 0.], 0, "", x->0, Dict(), [0.], Inf, [], [], [], [[]])
 
 
-function pot_from_dict(QE_data::Array{Float64, 2}, cfg::Dict)
+function pot_from_dict(QE_data::DataFrame, cfg::Dict)
     pot = potential()
     pot.name = cfg["name"]
     pot.color = cfg["color"]
@@ -45,7 +50,7 @@ function pot_from_dict(QE_data::Array{Float64, 2}, cfg::Dict)
     
     pot.QE_data = QE_data 
     if pot.E0 < Inf
-        pot.QE_data[:, 2] .+= - minimum(pot.QE_data[:, 2]) + pot.E0
+        pot.QE_data.E .+= - minimum(pot.QE_data.E) + pot.E0
     end
 
     return pot
@@ -56,7 +61,7 @@ function fit_pot!(pot::potential, Q)
     # find func
     func = @eval $(Symbol(pot.type))
     params = pot.params
-    fit = curve_fit((x,p) -> func.(x, Ref(p); param=params), pot.QE_data[:,1], pot.QE_data[:,2], pot.p0)
+    fit = curve_fit((x,p) -> func.(x, Ref(p); param=params), pot.QE_data.Q, pot.QE_data.E, pot.p0)
     pot.Q = Q
     pot.E = func.(Q, Ref(fit.param); param=params)
     pot.func = x -> func.(x, Ref(fit.param); param=params)

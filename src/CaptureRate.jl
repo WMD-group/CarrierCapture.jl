@@ -14,6 +14,7 @@ occ_cut_off = 1E-5
 
 mutable struct conf_coord
     # Configuration coordinate
+    name::String
     # potentials
     V1::potential; V2::potential
     # e-ph coupling matrix element; degeneracy
@@ -23,13 +24,12 @@ mutable struct conf_coord
     ϵ_list::Array{Float64,1}; overlap_list::Array{Float64,1}; δ_list::Array{Float64,1}
     temp::Array{Float64,1}; capt_coeff::Array{Float64,1}
 end
-conf_coord(pot_i::potential, pot_f::potential) = conf_coord(pot_i, pot_f, Inf, 1, [], [], [], [], [])
-
-# cc() = CC(pote(), potential(), [], [], [], [], [], [], [])
+conf_coord(pot_i::potential, pot_f::potential) = conf_coord("", pot_i, pot_f, Inf, 1, [], [], [], [], [])
 
 
 function cc_from_dict(pot_i, pot_f, cfg::Dict)
-    cc = conf_coord(pot_i, pot_f, cfg["W"], cfg["g"], [], [], [], [], [])
+    name = cfg["initial"]*" => "*cfg["final"]
+    cc = conf_coord(name, pot_i, pot_f, cfg["W"], cfg["g"], [], [], [], [], [])
     return cc
 end
 
