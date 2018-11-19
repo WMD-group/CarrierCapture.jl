@@ -1,3 +1,5 @@
+__precompile__()
+
 push!(LOAD_PATH,"../src/")
 module CaptureRate
 using Potential
@@ -27,7 +29,7 @@ end
 conf_coord(pot_i::potential, pot_f::potential) = conf_coord("", pot_i, pot_f, Inf, 1, [], [], [], [], [])
 
 
-function cc_from_dict(pot_i, pot_f, cfg::Dict)
+function cc_from_dict(pot_i, pot_f, cfg::Dict)::conf_coord
     name = cfg["initial"]*" => "*cfg["final"]
     cc = conf_coord(name, pot_i, pot_f, cfg["W"], cfg["g"], [], [], [], [], [])
     return cc
