@@ -1,4 +1,3 @@
-
 __precompile__()
 
 push!(LOAD_PATH,"../src/")
@@ -21,29 +20,31 @@ mutable struct potential
     name::String
     color::String
     QE_data::DataFrame
-    nev::Int
-    type::String
+    E0::Float64
+    func_type::String
     func::Function
     params::Dict{String, Number}
     p0::Array{Float64,1}
-    E0::Float64
     Q::Array{Float64,1}; E::Array{Float64,1}
+    nev::Int
     # ϵ includes E0
     ϵ::Array{Float64,1}; χ::Array{Array{Float64,1},1}
-    potential() = new()
     # TODO: JLD2
     #       Don't blame S. Kim.
     #       Blame JLD2
+    potential() = new("", "black", DataFrame([0. 0.]), Inf, 
+                      "polyfunc", x->0, Dict(), [0.],  
+                      [], [], 
+                      0, [], [[]])
 end
-# # potential() = potential("", "black", [0. 0.], 0, "", x->0, Dict(), [0.], Inf, [], [], [], [[]])
 
 
-function pot_from_dict(QE_data::DataFrame, cfg::Dict)
+function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot = potential()
     pot.name = cfg["name"]
     pot.color = cfg["color"]
     pot.nev = cfg["nev"]
-    pot.type = cfg["function"]["type"]
+    pot.func_type = cfg["function"]["type"]
     pot.p0 =  parse.(Float64, split(cfg["function"]["p0"]))
     pot.params = convert(Dict{String, Number}, cfg["function"]["params"])
     pot.E0 = get(cfg, "E0", Inf)
@@ -59,7 +60,7 @@ end
 
 function fit_pot!(pot::potential, Q)
     # find func
-    func = @eval $(Symbol(pot.type))
+    func = @eval $(Symbol(pot.func_type))
     params = pot.params
     fit = curve_fit((x,p) -> func.(x, Ref(p); param=params), pot.QE_data.Q, pot.QE_data.E, pot.p0)
     pot.Q = Q

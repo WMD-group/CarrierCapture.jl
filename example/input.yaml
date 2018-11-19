@@ -2,11 +2,16 @@ Qi: -25
 Qf: 35
 NQ: 2000
 
+# PLOT INPUT
 plot:
     Qmin: -5
     Qmax: 10
     Emin: -0.2
     Emax: 2
+    Cmin: 1E-20
+    Cmax: 1E-5
+    invTmin: 1
+    invTmax: 5
 
 # POTENTIAL INPUT
 potentials:
@@ -47,7 +52,7 @@ potentials:
 
 # CAPTURE INPUT
 captures:
-    Tmin: 1
+    Tmin: 10
     Tmax: 800
     NT: 100
     Volume: 1.1E-21
