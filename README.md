@@ -47,3 +47,7 @@ The capture of electrons or holes by point defects in a crystalline materials re
 
 * [Markvart, Semiclassical theory of non-radiative transitions (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/29/006/meta) **Semiclassical treatment of matrix elements following Landau and Holstein**
 
+## TODO
+
+Using [DifferentialEquations.jl](https://github.com/JuliaDiffEq/DifferentialEquations.jl) rather than Brooglie
+

@@ -1,0 +1,128 @@
+Qi: -25
+Qf: 35
+NQ: 2000
+
+# PLOT INPUT
+plot:
+    Qmin: -5
+    Qmax: 10
+    Emin: -0.2
+    Emax: 2
+    Cmin: 1E-20
+    Cmax: 1E-5
+    invTmin: 1
+    invTmax: 5
+
+# POTENTIAL INPUT
+potentials:
+    - potential:
+        name: GeVI+e+h
+        data: Potential_1.csv
+        nev: 30
+        E0: 1.4
+        function: 
+            type: polyfunc
+            p0: 0.1 0.1 0.1 0.1 0.1 0.1
+            params: 
+                poly_order: 2
+        color: "#b2182b"
+    - potential:
+        name: GeIII+h
+        data: Potential_2.csv
+        nev: 85
+        E0: 0.36523
+        function:
+            type: polyfunc
+            p0: 0.1 0.1 0.1 0.1 0.1 0.1
+            params: 
+                poly_order: 2
+                etc: 2.0
+        color: "#2166ac"
+    - potential:
+        name: GeVI
+        data: Potential_1.csv
+        nev: 50
+        E0: 0
+        function: 
+            type: polyfunc
+            p0: 0.1 0.1 0.1 0.1 0.1 0.1
+            params:
+                poly_order: 2
+        color: "#b2182b"
+
+# CAPTURE INPUT
+captures:
+    Tmin: 10
+    Tmax: 800
+    NT: 100
+    Volume: 1.1E-21
+    cut_off: 0.25
+    σ: 0.025
+    ccs:
+        - cc:
+            W: 6.4E-2
+            g: 1
+            initial: GeVI+e+h
+            final: GeIII+h
+        - cc:
+            W: 6.4E-2
+            g: 2
+            initial: GeIII+h
+            final: GeVI
+
+# # Example input:
+# ħω1: 0.042
+# ħω2: 0.036
+# ΔQ: -1.61
+# ΔE: -1.02
+# Qi: -10.0
+# Qf: 10 
+# NQ: 1000
+# nev: 20
+# nev2: Nothing
+
+
+# # input for calc_poly_wave_func: calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10, nev2=Nothing)
+#     # potential_matrix_1 & potential_matrix_2: potentials from files (named Potential_1.csv and Potential_2.csv?).
+#     # Each potential is read from a file with Q and E in columns 1 and 2 respectively. 
+#     # poly_order: order of the polynomial that you'd like to use to fit your potential data
+#     # Qi and Qf [amu^(1/2)*Å] define the domain where potential will be solved (Q ∈ [`Qi`,`Qf`]), discretised in `NQ` steps
+#     # `nev` the number of first energy levels of 1D potentials to solve. 
+#     # You can also include an additional argument nev2 = XX to solve for a different number of states in the second potential (by default nev2 = nev)
+
+# potential_matrix_1: Potential_1.csv
+# potential_matrix_2: Potential_2.csv
+# poly_order: 4
+# Qi: -10
+# Qf: 10
+# NQ: 100
+# nev: 10
+# nev2: Nothing
+
+# # input for calc_overlap: calc_overlap!(cc::CC; plt=Nothing, cut_off=0.25, σ=0.025, lplot=false)
+#     # cut_off: energetic difference criteria for overlap of phonons (Δϵ < cut_off)
+#     # σ: amount of smearing of delta functions for determining phonon overlap
+
+# cut_off: 0.25
+# σ: 0.025
+
+# # input for calc_capt_coeff: calc_capt_coeff(W, V, T_range, cc::CC)
+#     # V: volume of supercell [Å³]
+#     # g: degeneracy (spin?)
+#     # W: electron-phonon coupling matrix element [ev/(amu^(1/2)*Å)]
+#     # T_range: temperature range
+
+# T_range: 1:10:800
+# V: 1.1E-21
+# g: 1
+# W: 6.4E-2
+
+# # Sommerfeld-factor.ipynb requires:
+# m_e_CZTS = 0.18
+# m_h_CZTS = 0.40
+# m_e_CZTSe = 0.10
+# m_h_CZTSe = 0.23
+# ϵ_0_CZTS = 9.9
+# ϵ_0_CZTSe = 11.4
+
+
