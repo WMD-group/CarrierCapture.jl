@@ -20,7 +20,7 @@ The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to 
 `Pkg.add("Plots")`  
 `Pkg.add("Arpack")`  
 `Pkg.add("Polynomials")`  
-`Pkg.add("DataFrames")`  
+`Pkg.add("CSV")`  
 
 ## Development
 
@@ -29,13 +29,13 @@ Please use the [issue tracker](https://github.com/WMD-group/carriercapture/issue
 
 ## Usage
 
-A typical usage will consist of about four steps, implemented in a series of short programs. Input for the calculations is provided in `input.yaml`.
+A typical usage will consist of about four steps, implemented in a series of short programs which may be run from the command line. Input for the calculations is provided in `input.yaml`.
 
-1. Prepare a sequence of structures with displacements which interpolate between two defect states. Run single-point energy calculations on these structures, and extract the total energies.
+1. Prepare a sequence of structures with displacements which interpolate between two defect states. Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing may be found in XXX
 
-2. Generate configuration coordinate diagrams with polynomial fits (`GetPotential.jl`). Solve these potential energy surfaces for the phonon wavefunctions for each defect and calculate the overlap between phonons in the donor and acceptor potentials.
+2. Generate configuration coordinate diagrams with polynomial fits to the data (`GetPotential.jl`). Solve these potential energy surfaces for the phonon wavefunctions for each defect.
 
-3. Calculate the capture coefficient over a given temperature range (`GetRate.jl`)
+3.  Calculate the overlap between phonons in the donor and acceptor potentials to give the capture coefficient for a given temperature range (`GetRate.jl`)
 
 4. Calculate the lifetimes and rates for a given defect 
 
