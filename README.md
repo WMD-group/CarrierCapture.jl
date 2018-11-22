@@ -20,7 +20,12 @@ The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to 
 `Pkg.add("Plots")`  
 `Pkg.add("Arpack")`  
 `Pkg.add("Polynomials")`  
-`Pkg.add("CSV")`  
+`Pkg.add("CSV")`
+`Pkg.add("DataFrames")`
+`Pkg.add("LaTeXStrings")`
+`Pkg.add("ArgParse")`
+`Pkg.add("YAML")`
+`Pkg.add("LsqFit")`
 
 ## Development
 

@@ -21,7 +21,7 @@ plot:
 # poly_order:   order of the polynomial that you'd like to use to fit your potential data
 # nev: 		the number of energy levels to be solved for the potentials. 
 # E0: 		energy offset of potential minimum [eV]
-# p0: 		initial guesses for polynomial coefficients for fitting (must have poly_order +1 entries)
+# p0: 		initial guesses for polynomial coefficients for fitting (must have poly_order + 1 entries)
 
 potentials:
     - potential:

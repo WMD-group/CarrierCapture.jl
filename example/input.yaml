@@ -17,13 +17,13 @@ plot:
 
 # POTENTIAL INPUT
 
-# potential:	potentials from files (named Potential_1.csv and Potential_2.csv). Each potential is read from a file with Q and E in columns 1 and 2 respectively. 
+# potential:	potentials from files (e.g. Potential_1.csv and Potential_2.csv). Each potential is read from a file with Q and E in columns 1 and 2 respectively. 
 # poly_order:   order of the polynomial that you'd like to use to fit your potential data
-# nev: 		the number of energy levels to be solved for the potentials. You can also include an additional argument nev2 = XX to solve for a different number of states in the second potential (by default nev2 = nev)
+# nev: 		the number of energy levels to be solved for the potentials. 
 # E0: 		energy offset of potential minimum [eV]
-# p0: 		initial guesses for polynomial coefficients for fitting
-
+# p0: 		initial guesses for polynomial coefficients for fitting (must have poly_order + 1 entries)
 potentials:
+
     - potential:
         name: GeVI+e+h
         data: Potential_1.csv
