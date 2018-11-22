@@ -40,6 +40,10 @@ A typical usage will consist of about four steps, implemented in a series of sho
 
 2. Generate configuration coordinate diagrams with polynomial fits to the data (`GetPotential.jl`). Solve these potential energy surfaces for the phonon wavefunctions for each defect.
 
+<center>
+<img src="example_GaAs/cc_example_labelled_potentials.png" width="400" height="400"/>
+</center>
+
 3.  Calculate the overlap between phonons in the donor and acceptor potentials to give the capture coefficient for a given temperature range (`GetRate.jl`)
 
 4. Calculate the lifetimes and rates for a given defect 
@@ -62,6 +66,12 @@ The following examples are provided to illustrate some of the applications of th
 ### Electronic matrix elements
 
 > The electronic matrix element frequently causes feelings of discomfort (Stoneham, 1981)
+
+The capture coefficient between an initial and final state for this computational set up is given by (eq. 22 in [Alkauskas and coworkers](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202))
+
+$$C_p = V \frac{2\pi}{\hbar} g W_{if}^2 \sum_m w_m \sum_n |\langle \xi_{im}| Q - Q_0 | \xi_{fn}\rangle|^2 \delta(\Delta E + m\hbar\Omega_i -n\hbar\Omega_f).$$
+
+Here, $V$ is the volume of the supercell, $W_{if}$ is the eletron-phonon overlap and $\xi_{im}$ and $\xi_{fn}$ describe the wavefunctions of the $m^\mathrm{th}$ and $n^\mathrm{th}$ phonons in the initial $i$ and final $f$ potential. The delta function term serves to conserve energy and in practice is replaced by a smearing Gaussian of finite width $\sigma$.
 
 ## Extended Reading List
 
