@@ -71,7 +71,7 @@ The capture coefficient between an initial and final state for this computationa
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=C_p&space;=&space;V&space;\frac{2\pi}{\hbar}&space;g&space;W_{if}^2&space;\sum_m&space;w_m&space;\sum_n&space;|\langle&space;\xi_{im}|&space;Q&space;-&space;Q_0&space;|&space;\xi_{fn}\rangle|^2&space;\delta(\Delta&space;E&space;&plus;&space;m\hbar\Omega_i&space;-n\hbar\Omega_f)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?C_p&space;=&space;V&space;\frac{2\pi}{\hbar}&space;g&space;W_{if}^2&space;\sum_m&space;w_m&space;\sum_n&space;|\langle&space;\xi_{im}|&space;Q&space;-&space;Q_0&space;|&space;\xi_{fn}\rangle|^2&space;\delta(\Delta&space;E&space;&plus;&space;m\hbar\Omega_i&space;-n\hbar\Omega_f)" title="C_p = V \frac{2\pi}{\hbar} g W_{if}^2 \sum_m w_m \sum_n |\langle \xi_{im}| Q - Q_0 | \xi_{fn}\rangle|^2 \delta(\Delta E + m\hbar\Omega_i -n\hbar\Omega_f)" /></a>
 
-Here, $V$ is the volume of the supercell, $W_{if}$ is the eletron-phonon overlap and $\xi_{im}$ and $\xi_{fn}$ describe the wavefunctions of the $m^\mathrm{th}$ and $n^\mathrm{th}$ phonons in the initial $i$ and final $f$ potential. The delta function term serves to conserve energy and in practice is replaced by a smearing Gaussian of finite width $\sigma$.
+Here, *V* is the volume of the supercell, *W_{if}* is the electron-phonon overlap and *ξ_{im}* and *ξ_{fn}* describe the wavefunctions of the $m^\mathrm{th}$ and $n^\mathrm{th}$ phonons in the initial *I* and final *f* potential. The delta function term serves to conserve energy and in practice is replaced by a smearing Gaussian of finite width *σ*.
 
 ## Extended Reading List
 
