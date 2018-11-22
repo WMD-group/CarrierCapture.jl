@@ -26,7 +26,7 @@ plot:
 potentials:
     - potential:
         name: EL+1+e
-        data: Potential_1_update.txt
+        data: Potential_1.csv
         nev: 40
         E0: 1.52
         function: 
@@ -37,7 +37,7 @@ potentials:
         color: "#b2182b"
     - potential:
         name: EL0*
-        data: Potential_2_update.csv
+        data: Potential_2.csv
         nev: 85
         E0: 0.832
         function:
