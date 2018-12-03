@@ -8,7 +8,7 @@ NQ: 3000
 plot:
     Qmin: 5
     Qmax: 35
-    Emin: 0.9
+    Emin: 0.7
     Emax: 3.2
     Cmin: 1E-14
     Cmax: 1E-8
@@ -26,25 +26,25 @@ plot:
 potentials:
     - potential:
         name: EL+1+e
-        data: Potential_1.csv
+        data: filtered_1.csv
         nev: 40
         E0: 1.52
         function: 
             type: polyfunc
-            p0: 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
+            p0: 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
             params: 
-                poly_order: 7
+                poly_order: 8
         color: "#b2182b"
     - potential:
         name: EL0*
-        data: Potential_2.csv
+        data: filtered_2.csv
         nev: 85
         E0: 0.832
         function:
             type: polyfunc
-            p0: 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
+            p0: 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
             params: 
-                poly_order: 7
+                poly_order: 8
                 etc: 2.0
         color: "#2166ac"
 
