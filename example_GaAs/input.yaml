@@ -17,11 +17,16 @@ plot:
 
 # POTENTIAL INPUT
 
+
 # potential:	potentials from files (e.g. Potential_1.csv and Potential_2.csv). Each potential is read from a file with Q and E in columns 1 and 2 respectively. 
 # poly_order:   order of the polynomial that you'd like to use to fit your potential data
 # nev: 		the number of energy levels to be solved for the potentials. 
 # E0: 		energy offset of potential minimum [eV]
-# p0: 		initial guesses for polynomial coefficients for fitting (must have poly_order + 1 entries)
+# p0: 		initial guesses for coefficients for fitting 
+#		for polynomial, must have poly_order + 1 entries 
+#		for Morse potential, must have 4 entries: De, a, minimum(Q), De + E0. 
+#		De is the height of the potential on the shallow side, 'a' is the narrowness of the potential, 
+#		minimum(Q) is the position of the minimum of the potential and De + E0 is the value of the minimum energy of the potential 
 
 potentials:
     - potential:
@@ -29,17 +34,20 @@ potentials:
         data: filtered_1.csv
         nev: 40
         E0: 1.52
-        function: 
-            type: polyfunc
-            p0: 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
-            params: 
-                poly_order: 8
+        #function: 
+        #    type: polyfunc
+        #    p0: 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
+        #    params: 
+        #        poly_order: 8
+        function:
+            type: morse
+            p0: 1.0 0.1 10.0 3.0        
         color: "#b2182b"
     - potential:
         name: EL0*
         data: filtered_2.csv
         nev: 85
-        E0: 0.832
+        E0: 0.795
         function:
             type: polyfunc
             p0: 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
@@ -68,7 +76,7 @@ captures:
     σ: 0.01
     ccs:
         - cc:
-            W: 6.4E-2
+            W: 0.3183
             g: 4
             initial: EL+1+e
             final: EL0*
