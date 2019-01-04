@@ -126,4 +126,8 @@ function polyfunc(x, coeffs; param)
     return y
 end
 
+function morse(x, coeffs)
+    return coeffs[1].*((1-exp.(-coeffs[2].*(x-coeffs[3]))).^2-1)+coeffs[4]
+end
+
 end # module
