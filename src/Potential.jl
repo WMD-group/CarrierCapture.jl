@@ -33,7 +33,7 @@ mutable struct potential
     #       Don't blame S. Kim.
     #       Blame JLD2
     potential() = new("", "black", DataFrame([0. 0.]), Inf, 
-                      "polyfunc", x->0, Dict(), [0.],  
+                      "func_type", x->0, Dict(), [0.],  
                       [], [], 
                       0, [], [[]])
 end
@@ -46,10 +46,13 @@ function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot.nev = cfg["nev"]
     pot.func_type = cfg["function"]["type"]
     pot.p0 =  parse.(Float64, split(cfg["function"]["p0"]))
-    pot.params = convert(Dict{String, Number}, cfg["function"]["params"])
     pot.E0 = get(cfg, "E0", Inf)
-    
     pot.QE_data = QE_data 
+
+    pot.params = get(cfg["function"], "params",  Dict("E0"=>pot.E0))
+    pot.params["E0"] = pot.E0
+    pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
+
     if pot.E0 < Inf
         pot.QE_data.E .+= - minimum(pot.QE_data.E) + pot.E0
     end
@@ -105,29 +108,46 @@ function sqwell(x, width, depth; x0=0.)
     return pot_well .* depth
 end
 
-function harmonic(x, ħω)
+function harmonic(x, ħω; param)
     # ev(amu)
     a = amu / 2. * (ħω/ħc/1E10)^2
     return a*x.*x
 end
 
-function double(x, ħω1, ħω2)
+function double(x, ħω1, ħω2; param)
     a1 = amu / 2. * (ħω1/ħc/1E10)^2
     a2 = amu / 2. * (ħω2/ħc/1E10)^2
     return - a1*x.*x + a2*x.*x.*x.*x
 end
 
 function polyfunc(x, coeffs; param)
+    E0 = param["E0"]
+    Q0 = param["Q0"]
     poly_order = Int(param["poly_order"])
     y = 0 .* x
-    for i = 1:poly_order + 1
-        y += coeffs[i].*x.^(i-1)
+    y += E0
+    for i = 2:poly_order + 1
+        y += coeffs[i].* (x - Q0) .^(i-1)
     end
     return y
 end
 
-function morse(x, coeffs)
-    return coeffs[1].*((1-exp.(-coeffs[2].*(x-coeffs[3]))).^2-1)+coeffs[4]
+function morse(x, coeffs; param)
+    E0 = param["E0"]
+    Q0 = param["Q0"]
+    return coeffs[1].*((1-exp.(-coeffs[2].*(x-Q0))).^2)+E0
 end
+
+function morse_harmonic(x, coeffs; param)
+    E0 = param["E0"]
+    Q0 = param["Q0"]
+    if coeffs[2]*(x - Q0) > 0
+        return coeffs[1].*((1-exp.(-coeffs[2].*(x-Q0))).^2)+E0
+    else
+        return coeffs[5].*(x-Q0)^2+E0
+    end
+end
+
+
 
 end # module
