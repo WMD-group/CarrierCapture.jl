@@ -3,7 +3,6 @@
 push!(LOAD_PATH,"../src/")
 module GetPotential
 using Potential
-using Plots, Plotter
 using ArgParse, YAML
 using CSV, DataFrames # consider CSVFiles
 # Native serialization in Julia works fine.
@@ -15,11 +14,19 @@ using Printf
 s = ArgParseSettings()
 @add_arg_table s begin
     "--input", "-i"
-        help = "input file in a yaml format (default:input.yaml)"
+        help = "Input file in a yaml format (default:input.yaml)"
         default = "input.yaml"
         arg_type = String
+    "--dryrun"
+    	help = "Turn off the Srödinger equation solver"
+    	action = :store_true
+    "--plot", "-p"
+    	help = "Plot potentials"
+    	action = :store_true
 end
-input = YAML.load(open(parse_args(ARGS, s)["input"]))
+args = parse_args(ARGS, s)
+
+input = YAML.load(open(args["input"]))
 
 # Set up global variables
 Qi, Qf, NQ = input["Qi"], input["Qf"], input["NQ"]
@@ -35,17 +42,21 @@ for potential in input["potentials"]
 	pot = pot_from_dict(QE_data, pot_cfg)
 	pots[pot.name] = pot
 	fit_pot!(pot, Q)
-	solve_pot!(pot)
+	if args["dryrun"] == false
+		solve_pot!(pot)
+	end
 end
 
 # print zero-phonon frequencies
-println("===========ħω0===========")
-for (name, pot) in pots
-	ϵ0 = pot.ϵ[1] - pot.E0
-	ħω0 = @sprintf("%.1f", 2*ϵ0*1000)
-	println("$(name): $(ħω0) meV")
+if args["dryrun"] == false
+	println("===========ħω0===========")
+	for (name, pot) in pots
+		ϵ0 = pot.ϵ[2] - pot.ϵ[1]
+		ħω0 = @sprintf("%.1f", ϵ0*1000)
+		println("$(name): $(ħω0) meV")
+	end
+	println("=========================")
 end
-println("=========================")
 
 # save potential structs
 open("potential.jld", "w") do file
@@ -53,13 +64,15 @@ open("potential.jld", "w") do file
 end
 
 # plot
-plot_cfg = get(input, "plot", Nothing)
-plot_pots(pots, plot_cfg)
+if args["plot"] == true
+	using Plotter
+	plot_cfg = get(input, "plot", Nothing)
+	plot_pots(pots, plot_cfg)
+end
 
 # write capture coefficient cvs
 for (name, pot) in pots
     CSV.write("eigval_$(name).csv", DataFrame([pot.ϵ .- pot.E0, pot.ϵ], [:ϵ_E0, :ϵ]))
 end
-
 
 end # module

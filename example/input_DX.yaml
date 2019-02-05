@@ -1,0 +1,43 @@
+# Qi and Qf [amu^(1/2)*Å] define the domain over which the potentials will be solved (Q ∈ [Qi, Qf]), discretised in `NQ` steps
+Qi: -5 
+Qf: 30
+NQ: 3000
+
+# PLOT INPUT
+# defining plot axes limits for the E vs Q (solving potentials) and the C vs 1/T (carrier capture rate vs inverse temperature) plots
+plot:
+    Qmin: -5
+    Qmax: 30
+    Emin: -0.2
+    Emax: 5
+    Cmin: 1E-20
+    Cmax: 1E-5
+    invTmin: 1
+    invTmax: 5
+
+# POTENTIAL INPUT
+
+# potential:	potentials from files (e.g. Potential_1.csv and Potential_2.csv). Each potential is read from a file with Q and E in columns 1 and 2 respectively. 
+# poly_order:   order of the polynomial that you'd like to use to fit your potential data
+# nev: 		the number of energy levels to be solved for the potentials. 
+# E0: 		energy offset of potential minimum [eV]
+# p0: 		initial guesses for polynomial coefficients for fitting (must have poly_order + 1 entries)
+potentials:
+
+    - potential:
+        name: d0
+        data: Potential_d0.csv
+        nev: 30
+        E0: 0
+        function: 
+            type: morse_quatic
+            p0: 3 0.3 -0.1 0.00001
+            params: 
+                poly_order: 4
+            # type: morse_poly
+            # p0: 3 1 -1 1 0.00000000001 0.000000000000001 0.001
+            # params: 
+            #     poly_order: 4
+        color: "#b2182b"
+# type: polyfunc
+# p0: 0.01 0.1 0.00001 0.1 0.0001 0.1 0.000001 0.1 
