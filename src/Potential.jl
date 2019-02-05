@@ -8,6 +8,7 @@ using Brooglie # Atomic unit
 using DataFrames
 using LsqFit
 # using JLD2
+using Polynomials
 
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
@@ -62,13 +63,25 @@ end
 
 
 function fit_pot!(pot::potential, Q)
-    # find func
+    """
+    """
+    pot.params["E0"] = pot.E0
+    pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
+
+    E_CUT = 3
+    e_cut_ind = pot.QE_data.E .< E_CUT
+
     func = @eval $(Symbol(pot.func_type))
     params = pot.params
-    fit = curve_fit((x,p) -> func.(x, Ref(p); param=params), pot.QE_data.Q, pot.QE_data.E, pot.p0)
+    fit = curve_fit((x,p) -> func.(x, Ref(p); param=params), pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], pot.p0)
     pot.Q = Q
     pot.E = func.(Q, Ref(fit.param); param=params)
     pot.func = x -> func.(x, Ref(fit.param); param=params)
+
+    println("===========Fit===========")
+    println("Function: $(pot.func_type)")
+    println("Best fit: $(fit.param)")
+    println("=========================")
 end
 
 
@@ -86,19 +99,6 @@ function solve1D_ev_amu(pot_ev_amu; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*N
                   N=NQ, a=Qi/factor^0.5, b=Qf/factor^0.5, m=1, nev=nev, maxiter=maxiter)
     return ϵ1, χ1/factor^0.25
 end
-
-
-# function plot_potential(Q, E, ϵ1, χ1; plt=Nothing, color="#bd0026", label="", scale_factor=2e-2)
-#     if plt == Nothing
-#        plt = plot()
-#     end
-#     plot!(plt, Q, E, lw=4, color=color, label=label)
-#     for i = 1:length(ϵ1)
-#         plot!(plt, Q, χ1[i]*scale_factor .+ ϵ1[i],
-#               fillrange=[χ1[i]*0 .+ ϵ1[i], χ1[i]*scale_factor .+ ϵ1[i]],
-#               color=color, alpha=0.5, label="")    
-#     end
-# end
 
 
 # Set of potentials
@@ -138,15 +138,56 @@ function morse(x, coeffs; param)
     return coeffs[1].*((1-exp.(-coeffs[2].*(x-Q0))).^2)+E0
 end
 
-function morse_harmonic(x, coeffs; param)
+function morse_quatic(x, coeffs; param)
     E0 = param["E0"]
     Q0 = param["Q0"]
-    if coeffs[2]*(x - Q0) > 0
-        return coeffs[1].*((1-exp.(-coeffs[2].*(x-Q0))).^2)+E0
-    else
-        return coeffs[5].*(x-Q0)^2+E0
-    end
+    m = Int(param["poly_order"])
+    
+    A = coeffs[1]^2
+    a = coeffs[2]
+    r0 = coeffs[3]
+    r1 = coeffs[4]
+    B = coeffs[5]^2
+
+    morse = A*(1-exp.(-a.*(x-Q0-r0))).^2 .- A*(1-exp.(a*r0)).^2
+    poly = B*(x-Q0-r1).^m - B*(-r1)^m
+    derv = 2*A*a*exp(a*r0)*(1-exp(a*r0)) + m*B*(-r1)^(m-1)
+    linear = - derv.*x + derv*Q0
+    return morse + poly + linear + E0
 end
+
+function morse_poly(x, coeffs; param)
+    E0 = param["E0"]
+    Q0 = param["Q0"]
+    m = Int(param["poly_order"])
+    A = coeffs[1]
+    a = coeffs[2]
+
+    r0 = coeffs[3]
+    r1 = coeffs[4]
+
+    morse = x -> A*(exp.(-2*a.*(x-Q0-r0)) - 2*exp.(-a.*(x-Q0-r0)))
+    
+    X = Poly([-Q0-r1, 1])
+    poly = coeffs[3+m]^2*X^m
+    slope = A*(-2a)*(exp(2*a*r0) - exp(a*r0)) + m*coeffs[3+m]*(-r1)^(m-1)
+    for i = 2:m-1
+        poly += coeffs[3+i]*X^i
+        slope += i*coeffs[3+i]*(-r1)^(i-1)
+    end
+    linear = -slope.*x .+ slope*Q0
+    return morse(x) + poly(x) + linear .+ E0 .- morse(Q0) .- poly(Q0)
+end
+
+# function morse_harmonic(x, coeffs; param)
+#     E0 = param["E0"]
+#     Q0 = param["Q0"]
+#     if coeffs[2]*(x - Q0) > 0
+#         return coeffs[1].*((1-exp.(-coeffs[2].*(x-Q0))).^2)+E0
+#     else
+#         return coeffs[5].*(x-Q0)^2+E0
+#     end
+# end
 
 
 
