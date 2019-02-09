@@ -70,6 +70,11 @@ if args["plot"] == true
 	plot_pots(pots, plot_cfg)
 end
 
+# write potential cvs
+for (name, pot) in pots
+    CSV.write("pot_fit_$(name).csv", DataFrame([pot.Q, pot.E], [:Q, :E]))
+end
+
 # write capture coefficient cvs
 for (name, pot) in pots
     CSV.write("eigval_$(name).csv", DataFrame([pot.ϵ .- pot.E0, pot.ϵ], [:ϵ_E0, :ϵ]))

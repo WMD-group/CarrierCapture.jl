@@ -4,11 +4,12 @@ push!(LOAD_PATH,"../src/")
 
 module Potential
 using Brooglie # Atomic unit
-# using Plots
 using DataFrames
 using LsqFit
 # using JLD2
 using Polynomials
+using Interpolations
+using Dierckx
 
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
@@ -23,14 +24,14 @@ mutable struct potential
     QE_data::DataFrame
     E0::Float64
     func_type::String
-    func::Function
-    params::Dict{String, Number}
+    func::Union{Function,Interpolations.ScaledInterpolation,Dierckx.Spline1D}
+    params::Dict{String, Any}
     p0::Array{Float64,1}
     Q::Array{Float64,1}; E::Array{Float64,1}
     nev::Int
     # ϵ includes E0
     ϵ::Array{Float64,1}; χ::Array{Array{Float64,1},1}
-    # TODO: JLD2
+    # TODO: JLD2 doesn't work
     #       Don't blame S. Kim.
     #       Blame JLD2
     potential() = new("", "black", DataFrame([0. 0.]), Inf, 
@@ -46,7 +47,7 @@ function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot.color = cfg["color"]
     pot.nev = cfg["nev"]
     pot.func_type = cfg["function"]["type"]
-    pot.p0 =  parse.(Float64, split(cfg["function"]["p0"]))
+    pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "0")))
     pot.E0 = get(cfg, "E0", Inf)
     pot.QE_data = QE_data 
 
@@ -68,34 +69,46 @@ function fit_pot!(pot::potential, Q)
     pot.params["E0"] = pot.E0
     pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
 
-    E_CUT = 3
-    e_cut_ind = pot.QE_data.E .< E_CUT
+    E_CUT = 2
+    e_cut_ind = pot.QE_data.E .< E_CUT + pot.E0
 
-    func = @eval $(Symbol(pot.func_type))
     params = pot.params
-    fit = curve_fit((x,p) -> func.(x, Ref(p); param=params), pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], pot.p0)
     pot.Q = Q
-    pot.E = func.(Q, Ref(fit.param); param=params)
-    pot.func = x -> func.(x, Ref(fit.param); param=params)
 
-    println("===========Fit===========")
-    println("Function: $(pot.func_type)")
-    println("Best fit: $(fit.param)")
-    println("=========================")
+    if pot.func_type == "bspline"
+        println("=========bspline=========")
+        bspline = get_bspline(pot.QE_data.Q, pot.QE_data.E, Q)
+        pot.E = bspline(Q)
+        pot.func = bspline
+    elseif pot.func_type == "spline"
+        println("=========spline==========")
+        spline = get_spline(pot.QE_data.Q, pot.QE_data.E, Q; param = params)
+        pot.E = spline(Q)
+        pot.func = spline
+    else
+        func = @eval $(Symbol(pot.func_type))
+        fit = curve_fit((x,p) -> func.(x, Ref(p); param=params), pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], pot.p0)
+        pot.E = func.(Q, Ref(fit.param); param=params)
+        pot.func = x -> func(x, fit.param; param=params)
+
+        println("===========Fit===========")
+        println("Function: $(pot.func_type)")
+        println("Best fit: $(fit.param)")
+        println("=========================")
+    end
 end
 
 
 function solve_pot!(pot::potential)
-    # solve
     pot.ϵ, pot.χ = solve1D_ev_amu(pot.func; 
         NQ=length(pot.Q), Qi=minimum(pot.Q), Qf=maximum(pot.Q), nev=pot.nev)
 end
 
 
-function solve1D_ev_amu(pot_ev_amu; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
+function solve1D_ev_amu(pot; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
     factor = (1/amu) * (ħc*1E10)^2
 
-    ϵ1, χ1 = solve1D(x->pot_ev_amu(x*factor^0.5);
+    ϵ1, χ1 = solve1D(x->pot.(x*factor^0.5);
                   N=NQ, a=Qi/factor^0.5, b=Qf/factor^0.5, m=1, nev=nev, maxiter=maxiter)
     return ϵ1, χ1/factor^0.25
 end
@@ -122,73 +135,87 @@ end
 
 function polyfunc(x, coeffs; param)
     E0 = param["E0"]
-    Q0 = param["Q0"]
+    Q₀ = param["Q0"]
     poly_order = Int(param["poly_order"])
     y = 0 .* x
     y += E0
     for i = 2:poly_order + 1
-        y += coeffs[i].* (x - Q0) .^(i-1)
+        y += coeffs[i].* (x - Q₀) .^(i-1)
     end
     return y
 end
 
 function morse(x, coeffs; param)
-    E0 = param["E0"]
-    Q0 = param["Q0"]
-    return coeffs[1].*((1-exp.(-coeffs[2].*(x-Q0))).^2)+E0
-end
-
-function morse_quatic(x, coeffs; param)
-    E0 = param["E0"]
-    Q0 = param["Q0"]
-    m = Int(param["poly_order"])
-    
-    A = coeffs[1]^2
-    a = coeffs[2]
-    r0 = coeffs[3]
-    r1 = coeffs[4]
-    B = coeffs[5]^2
-
-    morse = A*(1-exp.(-a.*(x-Q0-r0))).^2 .- A*(1-exp.(a*r0)).^2
-    poly = B*(x-Q0-r1).^m - B*(-r1)^m
-    derv = 2*A*a*exp(a*r0)*(1-exp(a*r0)) + m*B*(-r1)^(m-1)
-    linear = - derv.*x + derv*Q0
-    return morse + poly + linear + E0
+    E₀ = param["E0"]
+    Q₀ = param["Q0"]
+    return coeffs[1].*((1-exp.(-coeffs[2].*(x-Q₀))).^2)+E₀
 end
 
 function morse_poly(x, coeffs; param)
-    E0 = param["E0"]
-    Q0 = param["Q0"]
-    m = Int(param["poly_order"])
-    A = coeffs[1]
+    # TODO: CHECK # of coeffs and param["poly_order"], and give a WARNING
+    E₀ = param["E0"]
+    Q₀ = param["Q0"]
+    po = param["poly_order"]
+
+    orders = if (typeof(po) == Int64) Array([po]) else parse.(Int, split(po)) end
+
+    A = abs(coeffs[1])
     a = coeffs[2]
 
-    r0 = coeffs[3]
-    r1 = coeffs[4]
+    r₀ = coeffs[3]
 
-    morse = x -> A*(exp.(-2*a.*(x-Q0-r0)) - 2*exp.(-a.*(x-Q0-r0)))
-    
-    X = Poly([-Q0-r1, 1])
-    poly = coeffs[3+m]^2*X^m
-    slope = A*(-2a)*(exp(2*a*r0) - exp(a*r0)) + m*coeffs[3+m]*(-r1)^(m-1)
-    for i = 2:m-1
-        poly += coeffs[3+i]*X^i
-        slope += i*coeffs[3+i]*(-r1)^(i-1)
+    morse = x -> A*(exp(-2*a*(x-Q₀-r₀)) - 2*exp(-a*(x-Q₀-r₀)))
+
+    coeff = zeros(maximum(orders)+1)
+    for (index, poly_order) in enumerate(orders)
+        coeff[poly_order+1] = coeffs[3+index]
     end
-    linear = -slope.*x .+ slope*Q0
-    return morse(x) + poly(x) + linear .+ E0 .- morse(Q0) .- poly(Q0)
+
+    coeff[end] = abs(coeff[end])
+
+    poly = Poly(coeff)
+    tot_derv = polyder(poly, 1) -  A*(-2a)*(exp(2a*r₀) - exp(a*r₀))
+
+    r₁ = roots(tot_derv)
+    r₁ = real.(r₁[imag.(r₁) .== 0])
+    r₁ = r₁[argmin(abs.(r₁))]
+
+    return morse(x) + poly(x-Q₀-r₁) + E₀ - morse(Q₀) - poly(-r₁)
 end
 
-# function morse_harmonic(x, coeffs; param)
-#     E0 = param["E0"]
-#     Q0 = param["Q0"]
-#     if coeffs[2]*(x - Q0) > 0
-#         return coeffs[1].*((1-exp.(-coeffs[2].*(x-Q0))).^2)+E0
-#     else
-#         return coeffs[5].*(x-Q0)^2+E0
-#     end
-# end
+function get_spline(Qs, Es, Q; param)
+    weight = get(param, "weight", nothing)
+    smoothness = get(param, "smoothness", 0)
+    order = get(param, "order", 2)
 
+    if Qs[1] > Qs[end]
+        Qs = reverse(Qs)
+        Es = reverse(Es)
+    end
 
+    if weight == nothing
+        spl = Spline1D(Qs, Es, k=order, bc="extrapolate", s=smoothness)
+    else 
+        w = parse.(Float64, split(weight))
+        spl = Spline1D(Qs, Es, w=w, k=order, bc="extrapolate", s=smoothness)
+    end
+    return spl
+end
+
+function get_bspline(Qs, Es, Q)
+    # BSplines assume your data is uniformly spaced on the grid
+    # Qs, Es have to be eqaully-spaced (Range)
+    if Qs[1] > Qs[end]
+        Qs = reverse(Qs)
+        Es = reverse(Es)
+    end
+    Qs_range = range(Qs[1], stop=Qs[end], length=length(Qs)) 
+    
+    itp = interpolate(Es, BSpline(Quadratic(Line(OnCell()))))
+    etpf = extrapolate(itp, Line())
+    setpf = scale(etpf, Qs_range)
+
+    return setpf
+end
 
 end # module
