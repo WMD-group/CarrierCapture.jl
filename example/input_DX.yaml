@@ -1,19 +1,19 @@
 # Qi and Qf [amu^(1/2)*Å] define the domain over which the potentials will be solved (Q ∈ [Qi, Qf]), discretised in `NQ` steps
 Qi: -5 
-Qf: 30
-NQ: 3000
+Qf: 35
+NQ: 4000
 
 # PLOT INPUT
 # defining plot axes limits for the E vs Q (solving potentials) and the C vs 1/T (carrier capture rate vs inverse temperature) plots
 plot:
-    Qmin: -5
-    Qmax: 30
+    Qmin: 5
+    Qmax: 25
     Emin: -0.2
-    Emax: 5
+    Emax: 3.7
     Cmin: 1E-20
-    Cmax: 1E-5
+    Cmax: 1E-2
     invTmin: 1
-    invTmax: 5
+    invTmax: 17
 
 # POTENTIAL INPUT
 
@@ -23,21 +23,64 @@ plot:
 # E0: 		energy offset of potential minimum [eV]
 # p0: 		initial guesses for polynomial coefficients for fitting (must have poly_order + 1 entries)
 potentials:
-
+    - potential:
+        name: d0+e+h
+        data: Potential_d0.csv
+        nev: 20
+        E0: 1.8
+        function: 
+            type: bspline
+            # type: morse_poly
+            # p0: 1 0.5 -1 0.001 
+            # params: 
+            #     poly_order: 4 
+        color: "#b2182b"
+    - potential:
+        name: DX-+h
+        data: Potential_DX-.csv
+        nev: 50
+        E0: 1.6
+        function:
+            type: spline
+            params:
+                order: 2
+                smoothness: 0.005
+                weight: 1 1 1 1 1 0.5 0.5 0.5 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1   
+        # function:
+        #     type: morse_poly
+        #     p0: 2.87943 0.275482 -8.73539 -0.00288399 0.0825259 0.00530413 5.82053e-6
+        #     params: 
+        #         poly_order: 1 2 3 4
+        color: "#2166ac"
     - potential:
         name: d0
         data: Potential_d0.csv
-        nev: 30
+        nev: 100
         E0: 0
         function: 
-            type: morse_quatic
-            p0: 3 0.3 -0.1 0.00001
-            params: 
-                poly_order: 4
+            type: bspline
             # type: morse_poly
-            # p0: 3 1 -1 1 0.00000000001 0.000000000000001 0.001
+            # p0: 1 0.5 -1 0.001 
             # params: 
-            #     poly_order: 4
+            #     poly_order: 4 
         color: "#b2182b"
-# type: polyfunc
-# p0: 0.01 0.1 0.00001 0.1 0.0001 0.1 0.000001 0.1 
+
+captures:
+    Tmin: 10
+    Tmax: 800
+    NT: 100
+    Volume: 4.72276E-21
+    cut_off: 0.25
+    σ: 0.025
+    ccs:
+        - cc:
+            W: 6.4E-2
+            g: 1
+            initial: d0+e+h
+            final: DX-+h
+
+        - cc:
+            W: 6.4E-2
+            g: 1
+            initial: DX-+h
+            final: d0
