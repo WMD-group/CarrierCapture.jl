@@ -64,8 +64,8 @@ function plot_ccs(ccs::Array{conf_coord,1}, plot_cfg::Dict; output_fig="captcoef
     Cmax = get(plot_cfg, "Cmax", maximum(hcat([cc.capt_coeff for cc in ccs]...))*2.)
     ylims!(Cmin, Cmax)
 
-    invTmin = get(plot_cfg, "invTmin", 1000/maximum(hcat([cc.temp for cc in ccs]...)))
-    invTmax = get(plot_cfg, "invTmax", 1000/minimum(hcat([cc.temp for cc in ccs]...)))
+    invTmin = get(plot_cfg, "invTmin", 1000/maximum(hcat([cc.temperature for cc in ccs]...)))
+    invTmax = get(plot_cfg, "invTmax", 1000/minimum(hcat([cc.temperature for cc in ccs]...)))
     xlims!(invTmin, invTmax)
 
     savefig(plt, output_fig)
@@ -77,7 +77,7 @@ function plot_cc!(cc; plt=Nothing, color=Nothing, label="")
     end
     label = if label=="" cc.name else label end
     # color = if color==Nothing pot.color else color end
-    plot!(plt, 1000 ./ cc.temp, cc.capt_coeff, lw=4, label=cc.name)
+    plot!(plt, 1000 ./ cc.temperature, cc.capt_coeff, lw=4, label=cc.name)
     xaxis!(L"\ 1000\/T (K^{-1}) \ (^{}$$"); yaxis!(L"C (cm^{3}\/s) \ (^{}$$", :log10)
     return plt
 end
