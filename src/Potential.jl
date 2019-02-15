@@ -30,14 +30,14 @@ mutable struct potential
     Q::Array{Float64,1}; E::Array{Float64,1}
     nev::Int
     # ϵ includes E0
-    ϵ::Array{Float64,1}; χ::Array{Array{Float64,1},1}
+    ϵ::Array{Float64,1}; χ::Array{Float64,2}
     # TODO: JLD2 doesn't work
     #       Don't blame S. Kim.
     #       Blame JLD2
     potential() = new("", "black", DataFrame([0. 0.]), Inf, 
                       "func_type", x->0, Dict(), [0.],  
                       [], [], 
-                      0, [], [[]])
+                      0, [], Array{Float64}(undef, 0, 2))
 end
 
 
@@ -110,7 +110,7 @@ function solve1D_ev_amu(pot; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
 
     ϵ1, χ1 = solve1D(x->pot.(x*factor^0.5);
                   N=NQ, a=Qi/factor^0.5, b=Qf/factor^0.5, m=1, nev=nev, maxiter=maxiter)
-    return ϵ1, χ1/factor^0.25
+    return ϵ1, vcat(χ1'...)/factor^0.25
 end
 
 

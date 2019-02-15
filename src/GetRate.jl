@@ -31,24 +31,21 @@ input = YAML.load(open(parse_args(ARGS, s)["input"]))
 pot_path = parse_args(ARGS, s)["potential"]
 is_verbose = parse_args(ARGS, s)["verbose"]
 
-#   _____                _            _____            _
-#  / ____|              (_)          / ____|          | |
-# | |     __ _ _ __ _ __ _  ___ _ __| |     __ _ _ __ | |_ _   _ _ __ ___
-# | |    / _` | '__| '__| |/ _ \ '__| |    / _` | '_ \| __| | | | '__/ _ \
-# | |___| (_| | |  | |  | |  __/ |  | |___| (_| | |_) | |_| |_| | | |  __/
-#  \_____\__,_|_|  |_|  |_|\___|_|   \_____\__,_| .__/ \__|\__,_|_|  \___|
-#                                               | |
-#                                               |_|
-#   ____      _   ____       _
-#  / ___| ___| |_|  _ \ __ _| |_ ___
-# | |  _ / _ \ __| |_) / _` | __/ _ \
-# | |_| |  __/ |_|  _ < (_| | ||  __/
-#  \____|\___|\__|_| \_\__,_|\__\___|
-
-# Global variables
-# TODO: ? assert Q == Q in pots
-# Qi, Qf, NQ = input["Qi"], input["Qf"], input["NQ"]
-# Q = range(Qi, stop=Qf, length=NQ)
+println(raw"
+      _____                _            _____            _
+     / ____|              (_)          / ____|          | |
+    | |     __ _ _ __ _ __ _  ___ _ __| |     __ _ _ __ | |_ _   _ _ __ ___
+    | |    / _` | '__| '__| |/ _ \ '__| |    / _` | '_ \| __| | | | '__/ _ \
+    | |___| (_| | |  | |  | |  __/ |  | |___| (_| | |_) | |_| |_| | | |  __/
+     \_____\__,_|_|  |_|  |_|\___|_|   \_____\__,_| .__/ \__|\__,_|_|  \___|
+                                                  | |
+                                                  |_| v 0.1
+      ____      _   ____       _
+     / ___| ___| |_|  _ \ __ _| |_ ___
+    | |  _ / _ \ __| |_) / _` | __/ _ \
+    | |_| |  __/ |_|  _ < (_| | ||  __/
+     \____|\___|\__|_| \_\__,_|\__\___|
+")
 
 # capture variables
 input_capt = input["captures"]
@@ -90,9 +87,8 @@ end
 # write verbose ouput
 if is_verbose
     for (i, cc) in enumerate(ccs)
-        X = reshape(cc.partial_capt_coeff, 20, 50, 100)
-        h5open("partial_capt_coeff.hdf5","w") do file
-            write(file, "partial_capt_coeff_$(i)", collect(X))
+        h5open("partial_capt_coeff_$(i).hdf5","w") do file
+            write(file, "partial_capt_coeff", collect(cc.partial_capt_coeff))
         end
     end
 end
