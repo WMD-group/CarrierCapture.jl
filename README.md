@@ -76,15 +76,20 @@ The expected use case for this code is to ... 1D effective coordinate.
 
 ### Extended Reading List
 
-* [Heny and Lang, Nonradiative capture and recombination by multiphonon emission in GaAs and GaP (1977)](https://journals.aps.org/prb/pdf/10.1103/PhysRevB.15.989) **Seminal contribution that introduces many concepts**
+* [Heny and Lang, Nonradiative capture and recombination by multiphonon emission in GaAs and GaP (1977)](https://journals.aps.org/prb/pdf/10.1103/PhysRevB.15.989) 
+*Seminal contribution that introduces many important concepts*
 
-* [Huang, Adiabatic approximation theory and static coupling theory of nonradiative transition (1981)](http://engine.scichina.com/doi/10.1360/ya1981-24-1-27) **Useful context for the static approximation**
+* [Huang, Adiabatic approximation theory and static coupling theory of nonradiative transition (1981)](http://engine.scichina.com/doi/10.1360/ya1981-24-1-27) 
+*Context for the static approximation that we employ*
 
-* [Stoneham, Non-radiative transitions in semiconductors (1981)](http://iopscience.iop.org/article/10.1088/0034-4885/44/12/001/meta) **Review on models and theory**
+* [Stoneham, Non-radiative transitions in semiconductors (1981)](http://iopscience.iop.org/article/10.1088/0034-4885/44/12/001/meta) 
+*Review on theory and various models of recombination*
 
-* [Markvart, Determination of potential surfaces from multiphonon transition rates (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/15/002) **Treatment of anharmonicity**
+* [Markvart, Determination of potential surfaces from multiphonon transition rates (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/15/002) 
+*Discussion and treatment of anharmonicity*
 
-* [Markvart, Semiclassical theory of non-radiative transitions (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/29/006/meta) **Semiclassical treatment of matrix elements following Landau and Holstein**
+* [Markvart, Semiclassical theory of non-radiative transitions (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/29/006/meta) 
+*Semiclassical treatment of matrix elements following Landau and Holstein*
 
 ## TODO
 
