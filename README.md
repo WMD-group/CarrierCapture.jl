@@ -14,8 +14,8 @@ to also describe anharmonic potential energy surfaces.
 ## Installation
 
 The codes are written in [Julia](https://julialang.org), while the [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org), which are assumed to be installed.
-
-The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation and can be installed by:
+The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation. 
+The dependencies can be installed by:
 
 `Pkg.clone("https://github.com/RedPointyJackson/Brooglie")`  
 `Pkg.add("Plots")`  
