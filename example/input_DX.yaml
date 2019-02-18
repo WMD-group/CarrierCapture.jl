@@ -65,6 +65,11 @@ potentials:
             #     poly_order: 4 
         color: "#b2182b"
 
+findcross:
+    - crossing:
+        pot_name_1: d0+e+h
+        pot_name_2: DX-+h
+
 captures:
     Tmin: 10
     Tmax: 800

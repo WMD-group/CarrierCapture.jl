@@ -4,12 +4,11 @@ push!(LOAD_PATH,"../src/")
 module CaptureRate
 using Potential
 using Polynomials
-# using Plots
 
 export conf_coord, cc_from_dict, calc_overlap!, calc_capt_coeff!
 
 ħ = 6.582119514E-16 # eV⋅s
-kB = 8.6173303E-5 # eV⋅K⁻¹
+kB  = 8.6173303E-5 # eV⋅K⁻¹
 
 occ_cut_off = 1E-5
 
@@ -23,163 +22,73 @@ mutable struct conf_coord
     W::Float64; g::Int
     # vibrational wave function overlap integral
     # (initial state) phonon eigenvalue; phonon overlap; Gaussian function energy 
-    ϵ_list::Array{Float64,1}; overlap_list::Array{Float64,1}; δ_list::Array{Float64,1}
-    temp::Array{Float64,1}; capt_coeff::Array{Float64,1}
+    ϵ_matrix::Array{Float64,2}; overlap_matrix::Array{Float64,2}; δ_matrix::Array{Float64,2}
+    temperature::Array{Float64,1}; capt_coeff::Array{Float64,1}
+    partial_capt_coeff::Array{Float64, 3}
 end
-conf_coord(pot_i::potential, pot_f::potential) = conf_coord("", pot_i, pot_f, Inf, 1, [], [], [], [], [])
+conf_coord(pot_i::potential, pot_f::potential) = conf_coord("", pot_i, pot_f, Inf, 1, 
+           Array{Float64}(undef, 0, 0), Array{Float64}(undef, 0, 0), Array{Float64}(undef, 0, 0), 
+           [], [], Array{Float64}(undef, 0, 0, 0))
 
 
 function cc_from_dict(pot_i, pot_f, cfg::Dict)::conf_coord
-    name = cfg["initial"]*" => "*cfg["final"]
-    cc = conf_coord(name, pot_i, pot_f, cfg["W"], cfg["g"], [], [], [], [], [])
+    cc = conf_coord(pot_i, pot_f)
+    cc.name = "$(cfg["initial"]) => $(cfg["final"])"
+    cc.W = cfg["W"]
+    cc.g = cfg["g"]
     return cc
 end
 
-"""
-function calc_harm_wave_func(ħω1, ħω2, ΔQ, ΔE; Qi=-10, Qf=10, NQ=100, nev=20, nev2=Nothing)
-    if nev2 == Nothing
-        nev2 = nev
-    end
-
-    # potentials
-    x = range(Qi, stop=Qf, length=NQ)
-
-    # define potential
-    # Ground state
-    E1 = harmonic(x, ħω1)
-    V1 = potential(x, E1)
-    # Excited state
-    E2 = harmonic(x .- ΔQ, ħω2) .+ ΔE
-    V2 = potential(x, E2)
-
-    # solve Schrödinger equation
-    # Ground state
-    ϵ1, χ1 = solve1D_ev_amu(x->harmonic(x, ħω1), NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
-    # Excited state
-    ϵ2, χ2 = solve1D_ev_amu(x->harmonic(x .- ΔQ, ħω2), NQ=NQ, Qi=Qi, Qf=Qf, nev=nev2)
-    ϵ2 = ϵ2 .+ ΔE
-
-    # Assign
-    cc = CC()
-    cc.V1 = V1; cc.V2 = V2
-    cc.ϵ1 = ϵ1; cc.χ1 = χ1
-    cc.ϵ2 = ϵ2; cc.χ2 = χ2
-    cc
-end 
-
-
-function calc_poly_wave_func(potential_matrix_1, potential_matrix_2, poly_order, Qi=-10, Qf=10, NQ=100, nev=10, nev2=Nothing)
-    if nev2 == Nothing
-        nev2 = nev
-    end
-    ######################### Defining data ##########################
-    #     Q, Configuration coordinate
-    #     E, Energy
-
-    # data for first potential
-    Q1 = potential_matrix_1[:,1]
-    Energies_1 = potential_matrix_1[:,2]
-
-    # data for second potential
-    Q2 = potential_matrix_2[:,1]
-    Energies_2 = potential_matrix_2[:,2]
-
-    ######################### Polynomial fit #########################
-    # polynomial fitting for first potential
-    poly1 = polyfit(Q1, Energies_1, poly_order)
-    # polynomial coefficients
-    c1 = Polynomials.coeffs(poly1)
-
-    # polynomial fitting for second potential
-    poly2 = polyfit(Q2, Energies_2, poly_order)
-    # polynomial coefficients
-    c2 = Polynomials.coeffs(poly2)
-
-    # x coordinate vector
-    x = LinRange(Qi, Qf, NQ)
-
-    # define potential using coefficients (calls polyfunc from Potential)
-    E1 = polyfunc(x, c1, poly_order)
-    V1 = potential(x, E1)
-
-    E2 = polyfunc(x, c2, poly_order)
-    V2 = potential(x, E2)
-
-    # calculate ΔQ and ΔE here
-    Q1min = Q1[argmin(Energies_1)]
-    Q2min = Q2[argmin(Energies_2)]
-    ΔQ = Q2min - Q1min
-    ΔE = minimum(Energies_2) - minimum(Energies_1)
-
-    # solve Schrödinger equation
-    # Ground state
-    ϵ1, χ1 = solve1D_ev_amu(x->polyfunc(x, c1, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev)
-    # Excited state
-    ϵ2, χ2 = solve1D_ev_amu(x->polyfunc(x, c2, poly_order); NQ=NQ, Qi=Qi, Qf=Qf, nev=nev2)
-
-    # Assign
-    cc = CC()
-    cc.V1 = V1; cc.V2 = V2
-    cc.ϵ1 = ϵ1; cc.χ1 = χ1
-    cc.ϵ2 = ϵ2; cc.χ2 = χ2
-    cc
-end
-
-
-function plot_potentials(cc::CC; plt=Nothing, scale_factor=2e-2)
-    if plt == Nothing
-       plt = plot()
-    end
-    # Initial state
-    plot_potential(cc.V1.Q, cc.V1.E, cc.ϵ1, cc.χ1, plt=plt, color="#bd0026", scale_factor=scale_factor)
-
-    # Final state
-    plot_potential(cc.V2.Q, cc.V2.E, cc.ϵ2, cc.χ2, plt=plt, color="#4575b4", scale_factor=scale_factor)
-end
-"""
-
-function calc_overlap!(cc::conf_coord; cut_off=0.25, σ=0.025)
+function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
-    cc.ϵ_list = []
-    cc.overlap_list = []
-    cc.δ_list = []
+    cc.overlap_matrix = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ))
+    cc.δ_matrix = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ))
+
     for i in UnitRange(1, length(cc.V1.ϵ))
         for j in UnitRange(1, length(cc.V2.ϵ))
             Δϵ = abs(cc.V1.ϵ[i] - cc.V2.ϵ[j])
             if  Δϵ < cut_off
-                integrand = (cc.V1.χ[i] .* cc.V1.Q .* cc.V2.χ[j]) 
+                integrand = (cc.V1.χ[i, :] .* cc.V1.Q .* cc.V2.χ[j, :]) 
                 overlap = sum(integrand)*ΔL
 
-                append!(cc.ϵ_list, cc.V1.ϵ[i])
-                append!(cc.overlap_list, overlap)
-
-                append!(cc.δ_list, exp(-(Δϵ/σ)^2/2)/(σ*sqrt(2*π)))
+                cc.overlap_matrix[i, j] = overlap
+                cc.δ_matrix[i, j] = exp(-(Δϵ/σ)^2/2)/(σ*sqrt(2π))
             end
         end
     end
 end
 
-function calc_capt_coeff!(cc::conf_coord, V, temp)
+function calc_capt_coeff!(cc::conf_coord, V, temperature)
     # TODO:       convergence over σ
-    capt_coeff = zeros(length(temp))
-    Z = 0
-    β = 1 ./ (kB .* temp)
-    for ϵ in cc.V1.ϵ
-        Z = Z .+ exp.(-β*ϵ)
-    end
-    for var in zip(cc.ϵ_list, cc.overlap_list, cc.δ_list)
-        ϵ, overlap, δ = var
-        occ = exp.(-β*ϵ) ./ Z
-        capt_coeff += occ * overlap .* overlap * δ
-    end
-    capt_coeff = V*2*π/ħ*cc.g*cc.W^2 * capt_coeff
+    partial_capt_coeff = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ), length(temperature))
+    cc.capt_coeff = zeros(length(temperature))
+    Z = zeros(length(temperature)) # partition function
+    β = 1 ./ (kB * temperature)
 
-    occ_high = exp(-β[length(Z)]*cc.V1.ϵ[length(cc.V1.ϵ)] ./ Z[length(Z)])
+    for ϵ in cc.V1.ϵ
+        Z = Z + exp.(-β*ϵ)
+    end
+
+    for i in 1:length(cc.V1.ϵ)
+        for j in 1:length(cc.V2.ϵ)
+            ϵ = cc.V1.ϵ[i]
+            overlap = cc.overlap_matrix[i, j]
+            δ = cc.δ_matrix[i, j]
+            occ = exp.(-β*ϵ) ./ Z
+            partial_capt_coeff[i, j, :] = occ * overlap .* overlap * δ
+        end
+    end 
+    partial_capt_coeff = V*2π/ħ*cc.g*cc.W^2 * partial_capt_coeff
+
+    replace!(partial_capt_coeff, NaN => 0)
+    
+    occ_high = exp(-β[end]*cc.V1.ϵ[end]/Z[end])
     
     @assert occ_high < occ_cut_off "occ(ϵ_max, T_max): $occ_high should be less than $occ_cut_off"
     
-    cc.capt_coeff = capt_coeff
-    cc.temp = temp
+    cc.capt_coeff = dropdims(sum(partial_capt_coeff, dims = (1, 2)), dims = (1, 2))
+    cc.partial_capt_coeff = partial_capt_coeff
+    cc.temperature = temperature
 end
 
 
