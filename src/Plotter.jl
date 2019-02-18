@@ -1,9 +1,3 @@
-__precompile__()
-
-push!(LOAD_PATH,"../src/")
-module Plotter
-using Potential, CaptureRate
-using Plots, LaTeXStrings
 
 export plot_pots, plot_pot!, plot_ccs, plot_cc!
 
@@ -81,5 +75,3 @@ function plot_cc!(cc; plt=Nothing, color=Nothing, label="")
     xaxis!(L"\ 1000\/T (K^{-1}) \ (^{}$$"); yaxis!(L"C (cm^{3}\/s) \ (^{}$$", :log10)
     return plt
 end
-
-end # module
