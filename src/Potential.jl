@@ -35,8 +35,8 @@ mutable struct potential
     # TODO: JLD2 doesn't work
     #       Don't blame S. Kim.
     #       Blame JLD2
-    potential() = new("", "black", DataFrame([0. 0.]), Inf, 
-                      "func_type", x->0, Dict(), [0.],  
+    potential() = new("", "black", DataFrame([0 0]), Inf, 
+                      "func_type", x->0, Dict(), [0],  
                       [], [], 
                       0, [], Array{Float64}(undef, 0, 2))
 end
@@ -52,7 +52,7 @@ function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot.E0 = get(cfg, "E0", Inf)
     pot.QE_data = QE_data 
 
-    pot.params = get(cfg["function"], "params",  Dict("E0"=>pot.E0))
+    pot.params = get(cfg["function"], "params",  Dict("E0" => pot.E0))
     pot.params["E0"] = pot.E0
     pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
 
@@ -88,11 +88,16 @@ function fit_pot!(pot::potential, Q)
         spline = get_spline(pot.QE_data.Q, pot.QE_data.E, Q; param = params)
         pot.E = spline(Q)
         pot.func = spline
+    elseif pot.func_type == "harmonic"
+        println("========harmonic=========\n")
+        # func = x -> harmonic(x, params["hw"]; param = params)
+        pot.E = harmonic.(Q, params["hw"]; param = params)
+        pot.func = x -> harmonic(x, params["hw"]; param = params)
     else
         func = @eval $(Symbol(pot.func_type))
-        fit = curve_fit((x,p) -> func.(x, Ref(p); param=params), pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], pot.p0)
-        pot.E = func.(Q, Ref(fit.param); param=params)
-        pot.func = x -> func(x, fit.param; param=params)
+        fit = curve_fit((x, p) -> func.(x, Ref(p); param = params), pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], pot.p0)
+        pot.E = func.(Q, Ref(fit.param); param = params)
+        pot.func = x -> func(x, fit.param; param = params)
 
         println("===========Fit===========")
         println("Function: $(pot.func_type)")
@@ -108,10 +113,10 @@ function solve_pot!(pot::potential)
 end
 
 
-function solve1D_ev_amu(pot; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
+function solve1D_ev_amu(func; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
     factor = (1/amu) * (ħc*1E10)^2
 
-    ϵ1, χ1 = solve1D(x->pot.(x*factor^0.5);
+    ϵ1, χ1 = solve1D(x -> func.(x*factor^0.5);
                   N=NQ, a=Qi/factor^0.5, b=Qf/factor^0.5, m=1, nev=nev, maxiter=maxiter)
     return ϵ1, vcat(χ1'...)/factor^0.25
 end
@@ -134,9 +139,10 @@ function sqwell(x, width, depth; x0=0.)
 end
 
 function harmonic(x, ħω; param)
-    # ev(amu)
-    a = amu / 2. * (ħω/ħc/1E10)^2
-    return a*x.*x
+    E₀ = param["E0"]
+    Q₀ = param["Q0"]
+    a = amu/2 * (ħω/ħc/1E10)^2
+    return a*(x - Q₀)^2 + E₀
 end
 
 function double(x, ħω1, ħω2; param)
@@ -145,6 +151,7 @@ function double(x, ħω1, ħω2; param)
     return - a1*x.*x + a2*x.*x.*x.*x
 end
 
+# Set of potentials for fitting
 function polyfunc(x, coeffs; param)
     E0 = param["E0"]
     Q₀ = param["Q0"]
@@ -206,10 +213,10 @@ function get_spline(Qs, Es, Q; param)
     end
 
     if weight == nothing
-        spl = Spline1D(Qs, Es, k=order, bc="extrapolate", s=smoothness)
+        spl = Spline1D(Qs, Es, k = order, bc = "extrapolate", s = smoothness)
     else 
         w = parse.(Float64, split(weight))
-        spl = Spline1D(Qs, Es, w=w, k=order, bc="extrapolate", s=smoothness)
+        spl = Spline1D(Qs, Es, w = w, k = order, bc = "extrapolate", s = smoothness)
     end
     return spl
 end
@@ -221,7 +228,7 @@ function get_bspline(Qs, Es, Q)
         Qs = reverse(Qs)
         Es = reverse(Es)
     end
-    Qs_range = range(Qs[1], stop=Qs[end], length=length(Qs)) 
+    Qs_range = range(Qs[1], stop = Qs[end], length = length(Qs)) 
     
     itp = interpolate(Es, BSpline(Quadratic(Line(OnCell()))))
     etpf = extrapolate(itp, Line())

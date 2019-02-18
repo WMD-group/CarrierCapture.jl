@@ -37,8 +37,8 @@ function plot_pot!(pot::potential; lplt_wf=false, plt=Nothing, color=Nothing, la
     if lplt_wf
         ϵ = pot.ϵ; χ = pot.χ
         for i = 1:length(ϵ)
-            plot!(plt, pot.Q, χ[i]*scale_factor .+ ϵ[i], lw=0,
-                  fillrange=[χ[i]*0 .+ ϵ[i], χ[i]*scale_factor .+ ϵ[i]],
+            plot!(plt, pot.Q, χ[i, :]*scale_factor .+ ϵ[i], lw=0,
+                  fillrange=[χ[i, :]*0 .+ ϵ[i], χ[i, :]*scale_factor .+ ϵ[i]],
                   color=color, alpha=0.5, label="")    
         end
     end
