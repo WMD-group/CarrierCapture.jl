@@ -39,7 +39,7 @@ function cc_from_dict(pot_i, pot_f, cfg::Dict)::conf_coord
     return cc
 end
 
-function calc_overlap!(cc::conf_coord; cut_off=0.25, σ=0.025)
+function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
     cc.overlap_matrix = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ))
     cc.δ_matrix = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ))
@@ -48,20 +48,17 @@ function calc_overlap!(cc::conf_coord; cut_off=0.25, σ=0.025)
         for j in UnitRange(1, length(cc.V2.ϵ))
             Δϵ = abs(cc.V1.ϵ[i] - cc.V2.ϵ[j])
             if  Δϵ < cut_off
-                integrand = (cc.V1.χ[i] .* cc.V1.Q .* cc.V2.χ[j]) 
+                integrand = (cc.V1.χ[i, :] .* cc.V1.Q .* cc.V2.χ[j, :]) 
                 overlap = sum(integrand)*ΔL
 
-                # cc.ϵ_matrix[i, j] = vcat(cc.ϵ_matrix, [cc.V1.ϵ[i] cc.V2.ϵ[j]])
-                # append!(cc.overlap_matrix, overlap)
                 cc.overlap_matrix[i, j] = overlap
                 cc.δ_matrix[i, j] = exp(-(Δϵ/σ)^2/2)/(σ*sqrt(2π))
-                # append!(cc.δ_matrix, exp(-(Δϵ/σ)^2/2)/(σ*sqrt(2*π)))
             end
         end
     end
 end
 
-function calc_capt_coeff!(cc::conf_coord, V, temperature; verbose=false, verbose_temperature=300)
+function calc_capt_coeff!(cc::conf_coord, V, temperature)
     # TODO:       convergence over σ
     partial_capt_coeff = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ), length(temperature))
     cc.capt_coeff = zeros(length(temperature))
@@ -83,12 +80,13 @@ function calc_capt_coeff!(cc::conf_coord, V, temperature; verbose=false, verbose
     end 
     partial_capt_coeff = V*2π/ħ*cc.g*cc.W^2 * partial_capt_coeff
 
-    cc.capt_coeff = dropdims(sum(partial_capt_coeff, dims = (1, 2)), dims = (1, 2))
-
+    replace!(partial_capt_coeff, NaN => 0)
+    
     occ_high = exp(-β[end]*cc.V1.ϵ[end]/Z[end])
     
     @assert occ_high < occ_cut_off "occ(ϵ_max, T_max): $occ_high should be less than $occ_cut_off"
     
+    cc.capt_coeff = dropdims(sum(partial_capt_coeff, dims = (1, 2)), dims = (1, 2))
     cc.partial_capt_coeff = partial_capt_coeff
     cc.temperature = temperature
 end

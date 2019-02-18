@@ -87,21 +87,23 @@ if findcross != nothing
         Q_cross, E_cross = find_crossing(pots[crossing["pot_name_1"]], 
                                          pots[crossing["pot_name_2"]])
         println("=====Crossing Points=====")
-        println("===== $(crossing["pot_name_1"]) and $(crossing["pot_name_2"]) =====")
-        @printf "Q: %0.3f amu\n" Q_cross
-        @printf "E: %0.3f eV\n" E_cross 
+        println(": $(crossing["pot_name_1"]) and $(crossing["pot_name_2"]) ")
+        @printf "Q: %0.5f amu\n" Q_cross
+        @printf "E: %0.5f eV\n" E_cross 
         println("=========================\n")
     end
 end 
 
 # save potential structs
 open("potential.jld", "w") do file
+    println("====Saving potentials====\n")
     serialize(file, pots)
 end
 
 # plot
 if args["plot"] == true
 	using Plotter
+    println("====Ploting potentials====\n")
 	plot_cfg = get(input, "plot", Nothing)
 	plot_pots(pots, plot_cfg)
 end
