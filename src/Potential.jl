@@ -10,11 +10,12 @@ using LsqFit
 using Polynomials
 using Interpolations
 using Dierckx
+using Roots
 
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 
-export potential, pot_from_dict, fit_pot!, solve_pot!
+export potential, pot_from_dict, fit_pot!, solve_pot!, find_crossing
 export solve1D_ev_amu
 export sqwell, harmonic, double, polyfunc
 
@@ -24,7 +25,7 @@ mutable struct potential
     QE_data::DataFrame
     E0::Float64
     func_type::String
-    func::Union{Function,Interpolations.ScaledInterpolation,Dierckx.Spline1D}
+    func
     params::Dict{String, Any}
     p0::Array{Float64,1}
     Q::Array{Float64,1}; E::Array{Float64,1}
@@ -75,13 +76,15 @@ function fit_pot!(pot::potential, Q)
     params = pot.params
     pot.Q = Q
 
+    println("Potential fitting: $(pot.name)")
+
     if pot.func_type == "bspline"
-        println("=========bspline=========")
+        println("=========bspline=========\n")
         bspline = get_bspline(pot.QE_data.Q, pot.QE_data.E, Q)
         pot.E = bspline(Q)
         pot.func = bspline
     elseif pot.func_type == "spline"
-        println("=========spline==========")
+        println("=========spline==========\n")
         spline = get_spline(pot.QE_data.Q, pot.QE_data.E, Q; param = params)
         pot.E = spline(Q)
         pot.func = spline
@@ -94,7 +97,7 @@ function fit_pot!(pot::potential, Q)
         println("===========Fit===========")
         println("Function: $(pot.func_type)")
         println("Best fit: $(fit.param)")
-        println("=========================")
+        println("=========================\n")
     end
 end
 
@@ -113,7 +116,16 @@ function solve1D_ev_amu(pot; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
     return ϵ1, vcat(χ1'...)/factor^0.25
 end
 
+function find_crossing(pot_1::potential, pot_2::potential)
+    # find root of pot_1 - pot_2 = 0
+    diff_func = x-> pot_1.func(x) - pot_2.func(x)
+    Q = pot_1.Q
+    roots = find_zero(diff_func, Q[length(Q)÷2])
+    return roots, pot_1.func.(roots)
+end
 
+
+############################################################ 
 # Set of potentials
 function sqwell(x, width, depth; x0=0.)
     x = x .- x0

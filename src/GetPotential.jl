@@ -11,28 +11,6 @@ using Serialization
 using HDF5
 using Printf
 
-# read arguments and input file
-s = ArgParseSettings()
-@add_arg_table s begin
-    "--input", "-i"
-        help = "Input file in a yaml format (default:input.yaml)"
-        default = "input.yaml"
-        arg_type = String
-    "--dryrun"
-    	help = "Turn off the Srödinger equation solver"
-    	action = :store_true
-    "--plot", "-p"
-    	help = "Plot potentials"
-    	action = :store_true
-    "--verbose", "-v"
-    help = "write verbose capture coefficient"
-    action = :store_true
-end
-
-args = parse_args(ARGS, s)
-input = YAML.load(open(args["input"]))
-is_verbose = parse_args(ARGS, s)["verbose"]
-
 println(raw"
       _____                _            _____            _
      / ____|              (_)          / ____|          | |
@@ -48,6 +26,28 @@ println(raw"
     | |_| |  __/ |_|  __/ (_) | ||  __/ | | | |_| | (_| | |
      \____|\___|\__|_|   \___/ \__\___|_| |_|\__|_|\__,_|_|
 ")
+
+# read arguments and input file
+s = ArgParseSettings()
+@add_arg_table s begin
+    "--input", "-i"
+      help = "Input file in a yaml format (default:input.yaml)"
+      default = "input.yaml"
+      arg_type = String
+    "--dryrun"
+    	help = "Turn off the Srödinger equation solver"
+    	action = :store_true
+    "--plot", "-p"
+    	help = "Plot potentials"
+    	action = :store_true
+    "--verbose", "-v"
+      help = "write verbose capture coefficient"
+      action = :store_true
+end
+
+args = parse_args(ARGS, s)
+input = YAML.load(open(args["input"]))
+is_verbose = parse_args(ARGS, s)["verbose"]
 
 # Set up global variables
 Qi, Qf, NQ = input["Qi"], input["Qf"], input["NQ"]
@@ -76,8 +76,23 @@ if args["dryrun"] == false
 		ħω0 = @sprintf("%.1f", ϵ0*1000)
 		println("$(name): $(ħω0) meV")
 	end
-	println("=========================")
+	println("=========================\n")
 end
+
+# find crossing point 
+findcross = get(input, "findcross", nothing)
+if findcross != nothing
+    for crossing in findcross
+        crossing = crossing["crossing"]
+        Q_cross, E_cross = find_crossing(pots[crossing["pot_name_1"]], 
+                                         pots[crossing["pot_name_2"]])
+        println("=====Crossing Points=====")
+        println("===== $(crossing["pot_name_1"]) and $(crossing["pot_name_2"]) =====")
+        @printf "Q: %0.3f amu\n" Q_cross
+        @printf "E: %0.3f eV\n" E_cross 
+        println("=========================\n")
+    end
+end 
 
 # save potential structs
 open("potential.jld", "w") do file
