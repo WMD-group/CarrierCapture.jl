@@ -1,16 +1,3 @@
-__precompile__()
-
-push!(LOAD_PATH,"../src/")
-
-module Potential
-using Brooglie # Atomic unit
-using DataFrames
-using LsqFit
-# using JLD2
-using Polynomials
-using Interpolations
-using Dierckx
-using Roots
 
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
@@ -236,5 +223,3 @@ function get_bspline(Qs, Es, Q)
 
     return setpf
 end
-
-end # module

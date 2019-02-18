@@ -1,9 +1,3 @@
-__precompile__()
-
-push!(LOAD_PATH,"../src/")
-module CaptureRate
-using Potential
-using Polynomials
 
 export conf_coord, cc_from_dict, calc_overlap!, calc_capt_coeff!
 
@@ -90,6 +84,3 @@ function calc_capt_coeff!(cc::conf_coord, V, temperature)
     cc.partial_capt_coeff = partial_capt_coeff
     cc.temperature = temperature
 end
-
-
-end # module
