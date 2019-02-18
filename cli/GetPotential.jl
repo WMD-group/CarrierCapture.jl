@@ -1,15 +1,8 @@
 #!/usr/bin/env julia
 
-push!(LOAD_PATH,"../src/")
 module GetPotential
-using Potential
-using ArgParse, YAML
-using CSV, DataFrames # consider CSVFiles
-# Native serialization in Julia works fine.
-# using JLD2, FileIO
-using Serialization
-using HDF5
-using Printf
+
+using CarrierCapture
 
 println(raw"
       _____                _            _____            _
@@ -102,7 +95,6 @@ end
 
 # plot
 if args["plot"] == true
-	using Plotter
     println("====Ploting potentials====\n")
 	plot_cfg = get(input, "plot", Nothing)
 	plot_pots(pots, plot_cfg)

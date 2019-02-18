@@ -1,5 +1,18 @@
 julia 0.7
-Brooglie
-Plots
-Polynomials
+Reexport
+SparseArrays 
+Arpack 
+Polynomials 
+LsqFit 
+Interpolations 
+Dierckx 
+Roots 
+Plots 
+LaTeXStrings 
+CSV 
 DataFrames
+Serialization 
+HDF5 
+YAML 
+Printf 
+ArgParse 
