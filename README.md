@@ -1,7 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# carriercapture
-
 <center>
 <img src="schematics/Logo.png" width="400" />
 </center>
