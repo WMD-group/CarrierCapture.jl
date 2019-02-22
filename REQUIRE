@@ -1,5 +1,6 @@
 julia 0.7
 Reexport
+"https://github.com/RedPointyJackson/Brooglie.git"
 Arpack 
 Polynomials 
 LsqFit 

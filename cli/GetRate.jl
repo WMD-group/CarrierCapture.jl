@@ -11,18 +11,22 @@ s = ArgParseSettings()
         help = "input file in a yaml format"
         default = "input.yaml"
         arg_type = String
-    "--potential", "-p"
-        help = "potential file serialized"
-        default = "potential.jld"
+    "--wave", "-w"
+        help = "wave function file serialized"
+        default = "wave.jld"
         arg_type = String
+    "--plot", "-p"
+        help = "Plot potentials"
+        action = :store_true
     "--verbose", "-v"
         help = "write verbose capture coefficient"
         action = :store_true
 end
 
-input = YAML.load(open(parse_args(ARGS, s)["input"]))
-pot_path = parse_args(ARGS, s)["potential"]
-is_verbose = parse_args(ARGS, s)["verbose"]
+args = parse_args(ARGS, s)
+input = YAML.load(open(args["input"]))
+wave_path = args["wave"]
+is_verbose = args["verbose"]
 
 println(raw"
       _____                _            _____            _
@@ -46,11 +50,9 @@ V = input_capt["Volume"]
 Tmin, Tmax, NT = input_capt["Tmin"], input_capt["Tmax"], input_capt["NT"]
 temperature = range(Tmin, stop=Tmax, length=NT)
 
-# JLD2 has some problem with type
-# pots = jldopen(pot_path, "r")
 println("==============================")
-println("Read potential from <$(pot_path)>")
-file = open(pot_path, "r"); pots = deserialize(file); close(file)
+println("Read wave functions from <$(wave_path)>")
+file = open(wave_path, "r"); pots = deserialize(file); close(file)
 println(keys(pots))
 println("==============================")
 
@@ -69,8 +71,11 @@ for cc in input_capt["ccs"]
 end
 
 # plot
-plot_cfg = get(input, "plot", Dict())
-plot_ccs(ccs, plot_cfg)
+if args["plot"] == true
+    println("====Ploting capture rate====\n")
+    plot_cfg = get(input, "plot", Dict())
+    plot_ccs(ccs, plot_cfg)
+end
 
 # write capture coefficient into cvs files
 for (i, cc) in enumerate(ccs)
@@ -80,6 +85,9 @@ end
 # write verbose ouput
 if is_verbose
     for (i, cc) in enumerate(ccs)
+        h5open("overlap_$(i).hdf5", "w") do file
+            write(file, "overlap", collect(cc.overlap_matrix))
+        end
         h5open("partial_capt_coeff_$(i).hdf5","w") do file
             write(file, "partial_capt_coeff", collect(cc.partial_capt_coeff))
         end

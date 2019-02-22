@@ -103,7 +103,7 @@ end
 function solve1D_ev_amu(func; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
     factor = (1/amu) * (ħc*1E10)^2
 
-    ϵ1, χ1 = solve1D(x -> func.(x*factor^0.5);
+    ϵ1, χ1 = Brooglie.solve(x -> func.(x*factor^0.5);
                   N=NQ, a=Qi/factor^0.5, b=Qf/factor^0.5, m=1, nev=nev, maxiter=maxiter)
     return ϵ1, vcat(χ1'...)/factor^0.25
 end
@@ -182,7 +182,7 @@ function morse_poly(x, coeffs; param)
     poly = Poly(coeff)
     tot_derv = polyder(poly, 1) -  A*(-2a)*(exp(2a*r₀) - exp(a*r₀))
 
-    r₁ = roots(tot_derv)
+    r₁ = Polynomials.roots(tot_derv)
     r₁ = real.(r₁[imag.(r₁) .== 0])
     r₁ = r₁[argmin(abs.(r₁))]
 
