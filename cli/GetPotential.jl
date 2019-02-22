@@ -4,6 +4,16 @@ module GetPotential
 
 using CarrierCapture
 
+
+get_QE_data(data::String) = names!(CSV.read(data; allowmissing=:none), [:Q, :E])
+function get_QE_data(data::Dict) 
+    QE_data = DataFrame()
+    QE_data.Q = parse.(Float64, split(data["Q"]))
+    QE_data.E = parse.(Float64, split(data["E"]))
+    return QE_data
+end
+
+
 println(raw"
       _____                _            _____            _
      / ____|              (_)          / ____|          | |
@@ -52,7 +62,8 @@ for potential in input["potentials"]
 	pot_cfg = potential["potential"]
 	# TODO: make CSV.read compatable with a format "-.30073981E+03"
 	#       consider <CSVFiles> package
-	QE_data = names!(CSV.read(pot_cfg["data"]; allowmissing=:none), [:Q, :E])
+    QE_data = get_QE_data(pot_cfg["data"])
+
 	pot = pot_from_dict(QE_data, pot_cfg)
 	pots[pot.name] = pot
 	fit_pot!(pot, Q)
@@ -88,8 +99,8 @@ if findcross != nothing
 end 
 
 # save potential structs
-open("potential.jld", "w") do file
-    println("====Saving potentials====\n")
+open("wave.jld", "w") do file
+    println("====Saving wave functions====\n")
     serialize(file, pots)
 end
 

@@ -33,6 +33,7 @@ function cc_from_dict(pot_i, pot_f, cfg::Dict)::conf_coord
     return cc
 end
 
+
 function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
     cc.overlap_matrix = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ))
@@ -51,6 +52,7 @@ function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
         end
     end
 end
+
 
 function calc_capt_coeff!(cc::conf_coord, V, temperature)
     # TODO:       convergence over σ
