@@ -88,13 +88,3 @@ captures:
             g: 2
             initial: GeIII+h
             final: GeVI
-
-# # Sommerfeld-factor.ipynb requires:
-# m_e_CZTS = 0.18
-# m_h_CZTS = 0.40
-# m_e_CZTSe = 0.10
-# m_h_CZTSe = 0.23
-# ϵ_0_CZTS = 9.9
-# ϵ_0_CZTSe = 11.4
-
-
