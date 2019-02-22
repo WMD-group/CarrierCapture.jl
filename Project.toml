@@ -4,6 +4,7 @@ authors = ["Sunghyun Kim <frssp.kim@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+Brooglie = "27fd86ca-cf72-5217-b258-9c5faa73fb09"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
