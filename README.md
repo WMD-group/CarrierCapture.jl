@@ -1,5 +1,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://travis-ci.com/WMD-group/CarrierCapture.jl.svg?token=CitxNu7FxpXMrM4zyBn5&branch=master)](https://travis-ci.com/WMD-group/CarrierCapture.jl)
+[![codecov](https://codecov.io/gh/WMD-group/CarrierCapture.jl/branch/master/graph/badge.svg?token=7jzuwloNvs)](https://codecov.io/gh/WMD-group/CarrierCapture.jl)
 
 <center>
 <img src="schematics/Logo.png" width="400" />
