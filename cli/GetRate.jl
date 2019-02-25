@@ -87,6 +87,7 @@ if is_verbose
     for (i, cc) in enumerate(ccs)
         h5open("overlap_$(i).hdf5", "w") do file
             write(file, "overlap", collect(cc.overlap_matrix))
+            write(file, "delta_Eij", collect(cc.δ_matrix))
         end
         h5open("partial_capt_coeff_$(i).hdf5","w") do file
             write(file, "partial_capt_coeff", collect(cc.partial_capt_coeff))
