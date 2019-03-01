@@ -17,7 +17,7 @@ The codes are written in [Julia](https://julialang.org), while the [Jupyter Note
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation. 
 The dependencies can be installed by:
 
-`Pkg.add("https://github.com/RedPointyJackson/Brooglie")`  
+`Pkg.add(PackageSpec(url="https://github.com/RedPointyJackson/Brooglie"))`
 
 Install the package by 
 `Pkg.add("https://github.com/WMD-group/CarrierCapture.jl.git")`.
