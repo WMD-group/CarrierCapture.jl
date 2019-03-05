@@ -80,6 +80,7 @@ function calc_capt_coeff!(cc::conf_coord, V, temperature)
             partial_capt_coeff[i, j, :] = occ * overlap .* overlap * δ
         end
     end
+    # term in capture rate expression prior to summation
     partial_capt_coeff = V*2π/ħ*cc.g*cc.W^2 * partial_capt_coeff
 
     replace!(partial_capt_coeff, NaN => 0)
