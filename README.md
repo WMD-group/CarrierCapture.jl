@@ -39,7 +39,7 @@ Run single-point energy calculations on these structures, and extract the total 
 Solve the 1D Schrödinger equation for each PES to obtain their phonon (nuclear) wavefunctions.
 
 <center>
-<img src="schematics/carrier_capture_sketch.pdf" width="400" />
+<img src="schematics/carrier_capture_sketch.png" width="400" />
 </center>
 
 3. Calculate the wavefunction overlap between each PES, which forms part of the temperature-dependent capture coefficient that is obtained using `GetRate.jl`.
