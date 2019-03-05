@@ -1,4 +1,4 @@
-
+# defining constants
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 
@@ -6,6 +6,7 @@ export potential, pot_from_dict, fit_pot!, solve_pot!, find_crossing
 export solve1D_ev_amu
 export sqwell, harmonic, double, polyfunc
 
+# set up potential structure
 mutable struct potential
     name::String
     color::String
@@ -22,13 +23,13 @@ mutable struct potential
     # TODO: JLD2 doesn't work
     #       Don't blame S. Kim.
     #       Blame JLD2
-    potential() = new("", "black", DataFrame([0 0]), Inf, 
-                      "func_type", x->0, Dict(), [0],  
-                      [], [], 
+    potential() = new("", "black", DataFrame([0 0]), Inf,
+                      "func_type", x->0, Dict(), [0],
+                      [], [],
                       0, [], Array{Float64}(undef, 0, 2))
 end
 
-
+# read potential
 function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot = potential()
     pot.name = cfg["name"]
@@ -37,7 +38,7 @@ function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot.func_type = cfg["function"]["type"]
     pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "0")))
     pot.E0 = get(cfg, "E0", Inf)
-    pot.QE_data = QE_data 
+    pot.QE_data = QE_data
 
     pot.params = get(cfg["function"], "params",  Dict("E0" => pot.E0))
     pot.params["E0"] = pot.E0
@@ -50,14 +51,14 @@ function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     return pot
 end
 
-
+# fitting potential
 function fit_pot!(pot::potential, Q)
     """
     """
     pot.params["E0"] = pot.E0
     pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
 
-    E_CUT = 2
+    E_CUT = 2 # defines upper energy limit on data used for fitting
     e_cut_ind = pot.QE_data.E .< E_CUT + pot.E0
 
     params = pot.params
@@ -95,7 +96,7 @@ end
 
 
 function solve_pot!(pot::potential)
-    pot.ϵ, pot.χ = solve1D_ev_amu(pot.func; 
+    pot.ϵ, pot.χ = solve1D_ev_amu(pot.func;
         NQ=length(pot.Q), Qi=minimum(pot.Q), Qf=maximum(pot.Q), nev=pot.nev)
 end
 
@@ -117,7 +118,7 @@ function find_crossing(pot_1::potential, pot_2::potential)
 end
 
 
-############################################################ 
+############################################################
 # Set of potentials
 function sqwell(x, width, depth; x0=0.)
     x = x .- x0
@@ -201,7 +202,7 @@ function get_spline(Qs, Es, Q; param)
 
     if weight == nothing
         spl = Spline1D(Qs, Es, k = order, bc = "extrapolate", s = smoothness)
-    else 
+    else
         w = parse.(Float64, split(weight))
         spl = Spline1D(Qs, Es, w = w, k = order, bc = "extrapolate", s = smoothness)
     end
@@ -215,8 +216,8 @@ function get_bspline(Qs, Es, Q)
         Qs = reverse(Qs)
         Es = reverse(Es)
     end
-    Qs_range = range(Qs[1], stop = Qs[end], length = length(Qs)) 
-    
+    Qs_range = range(Qs[1], stop = Qs[end], length = length(Qs))
+
     itp = interpolate(Es, BSpline(Quadratic(Line(OnCell()))))
     etpf = extrapolate(itp, Line())
     setpf = scale(etpf, Qs_range)

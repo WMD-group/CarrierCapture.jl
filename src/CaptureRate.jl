@@ -26,7 +26,7 @@ conf_coord(pot_i::potential, pot_f::potential) = conf_coord("", pot_i, pot_f, In
            Array{Float64}(undef, 0, 0), Array{Float64}(undef, 0, 0), Array{Float64}(undef, 0, 0),
            [], [], Array{Float64}(undef, 0, 0, 0))
 
-
+# importing parameters
 function cc_from_dict(pot_i, pot_f, cfg::Dict)::conf_coord
     cc = conf_coord(pot_i, pot_f)
     cc.name = "$(cfg["initial"]) => $(cfg["final"])"
