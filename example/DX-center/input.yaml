@@ -23,7 +23,11 @@ plot:
 # E0: 		    energy offset of potential minimum with respoect to zero [eV]
 # function:     defines the type and the parameters of function used to fit the potential
 
-# spline and bspline: bspline assumes the data is uniformly spaced on the grid
+# spline and bspline fits:
+# piecewise polynomial fitting, polynomials described by "order" and "smoothness"
+# weight: relative importance of data, here some points are 0.4 to account for the
+# noise (wiggle) of the CBM-defect level crossing point
+# bspline assumes the data is uniformly spaced on the grid
 potentials:
     - potential:
         name: d0+e+h
