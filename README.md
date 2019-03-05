@@ -6,26 +6,26 @@
 <img src="schematics/Logo.png" width="400" />
 </center>
 
-A set of codes to compute carrier capture and recombination rates in semiconducting compounds. 
-This topic has a rich history starting from the work by [Huang and Rhys](http://rspa.royalsocietypublishing.org/content/204/1078/406.short). 
+A set of codes to compute carrier capture and recombination rates in semiconducting compounds.
+This topic has a rich history starting from the work by [Huang and Rhys](http://rspa.royalsocietypublishing.org/content/204/1078/406.short).
 Our implementation was inspired by the approach (and FORTRAN code) employed by [Alkauskas and coworkers](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202), but has been adapted
-to also describe anharmonic potential energy surfaces. 
+to also describe anharmonic potential energy surfaces.
 
 ## Installation
 
 The codes are written in [Julia](https://julialang.org), while the [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org), which are assumed to be installed.
-The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation. 
+The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation.
 The dependencies can be installed by:
 
 `Pkg.add(PackageSpec(url="https://github.com/RedPointyJackson/Brooglie"))`
 
-Install the package by 
+Install the package by
 `Pkg.add("https://github.com/WMD-group/CarrierCapture.jl.git")`.
 
 ## Development
 
-The project is hosted on [Github](https://github.com/WMD-group/carriercapture). 
-Please use the [issue tracker](https://github.com/WMD-group/carriercapture/issues/) for feature requests, bug reports and more general questions. 
+The project is hosted on [Github](https://github.com/WMD-group/carriercapture).
+Please use the [issue tracker](https://github.com/WMD-group/carriercapture/issues/) for feature requests, bug reports and more general questions.
 If you would like to contribute, please do so via a pull request.
 
 ## Usage
@@ -35,11 +35,11 @@ A typical workflow will consist of four steps, implemented in a series of short 
 1. Prepare a sequence of atomic structure models with displacements that interpolate between two defect configurations (e.g. a site vacancy in charge states q=0 and q=+1).
 Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing may be found in XXX.
 
-2. Generate configuration coordinate diagrams with functional fits to the two potential energy surfaces (PES) using `GetPotential.jl`. 
+2. Generate configuration coordinate diagrams with functional fits to the two potential energy surfaces (PES) using `GetPotential.jl`.
 Solve the 1D Schrödinger equation for each PES to obtain their phonon (nuclear) wavefunctions.
 
 <center>
-<img src="example_GaAs/cc_example_labelled_potentials.png" width="400" />
+<img src="schematics/carrier_capture_sketch.pdf" width="400" />
 </center>
 
 3. Calculate the wavefunction overlap between each PES, which forms part of the temperature-dependent capture coefficient that is obtained using `GetRate.jl`.
@@ -48,7 +48,7 @@ Solve the 1D Schrödinger equation for each PES to obtain their phonon (nuclear)
 
 The following examples are provided to illustrate some of the applications of these codes:
 
-* GaAs defect (./example_GaAs) 
+* GaAs defect (./example_GaAs)
 
 ## Theory
 
@@ -70,19 +70,19 @@ The expected use case for this code is to ... 1D effective coordinate.
 
 ### Extended Reading List
 
-* [Heny and Lang, Nonradiative capture and recombination by multiphonon emission in GaAs and GaP (1977)](https://journals.aps.org/prb/pdf/10.1103/PhysRevB.15.989) 
+* [Heny and Lang, Nonradiative capture and recombination by multiphonon emission in GaAs and GaP (1977)](https://journals.aps.org/prb/pdf/10.1103/PhysRevB.15.989)
 *Seminal contribution that introduces many important concepts*
 
-* [Huang, Adiabatic approximation theory and static coupling theory of nonradiative transition (1981)](http://engine.scichina.com/doi/10.1360/ya1981-24-1-27) 
+* [Huang, Adiabatic approximation theory and static coupling theory of nonradiative transition (1981)](http://engine.scichina.com/doi/10.1360/ya1981-24-1-27)
 *Context for the static approximation that we employ*
 
-* [Stoneham, Non-radiative transitions in semiconductors (1981)](http://iopscience.iop.org/article/10.1088/0034-4885/44/12/001/meta) 
+* [Stoneham, Non-radiative transitions in semiconductors (1981)](http://iopscience.iop.org/article/10.1088/0034-4885/44/12/001/meta)
 *Review on theory and various models of recombination*
 
-* [Markvart, Determination of potential surfaces from multiphonon transition rates (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/15/002) 
+* [Markvart, Determination of potential surfaces from multiphonon transition rates (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/15/002)
 *Discussion and treatment of anharmonicity*
 
-* [Markvart, Semiclassical theory of non-radiative transitions (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/29/006/meta) 
+* [Markvart, Semiclassical theory of non-radiative transitions (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/29/006/meta)
 *Semiclassical treatment of matrix elements following Landau and Holstein*
 
 ## TODO
