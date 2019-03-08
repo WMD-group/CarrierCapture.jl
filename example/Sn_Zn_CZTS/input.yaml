@@ -23,7 +23,6 @@ plot:
 # E0: 		energy offset of potential minimum [eV]
 # p0: 		initial guesses for polynomial coefficients for fitting (must have poly_order + 1 entries)
 potentials:
-
     - potential:
         name: SnII+e+h
         data:

@@ -115,7 +115,11 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
       done
       ```
 
-   3. Calculate the rate of change in overlap between initial and final wavefunctions `<ψ_i0|ψ_f(𝛥Q)>` as the geometry changes `𝛥Q`. The overlap can be calculated by using `get_overlap?.py`.
+   3. Calculate the rate of change in overlap between initial and final wavefunctions `<ψ_i0|ψ_f(𝛥Q)>` as the geometry changes `𝛥Q`. 
+      `W_if = (ϵ_f - ϵ_i) d<ψ_i0|ψ_f(𝛥Q)> / d𝛥Q`
 
-   4. ```W_if = (ϵ_f - ϵ_i) d<ψ_i0|ψ_f(𝛥Q)> / d𝛥Q```
+      That  can be calculated by using `e-ph.py`.
 
+      ```bash
+      e-ph.py -i wf_i.npy -f wf_D_-02.npy wf_D_-01.npy wf_D_00{0..6}.npy -d <delta_eig (ϵ_i - ϵ_f)> -z <index_of_Q0> 
+      ```
