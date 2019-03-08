@@ -48,6 +48,8 @@ println(raw"
 input_capt = input["captures"]
 V = input_capt["Volume"]
 Tmin, Tmax, NT = input_capt["Tmin"], input_capt["Tmax"], input_capt["NT"]
+cut_off = input_capt["cut_off"]
+σ = input_capt["σ"]
 temperature = range(Tmin, stop=Tmax, length=NT)
 
 println("==============================")
@@ -65,7 +67,7 @@ for cc in input_capt["ccs"]
     pot_i = pots[cc_cfg["initial"]]
     pot_f = pots[cc_cfg["final"]]
     cc = cc_from_dict(pot_i, pot_f, cc_cfg)
-    calc_overlap!(cc)
+    calc_overlap!(cc, cut_off = cut_off, σ = σ)
     calc_capt_coeff!(cc, V, temperature)
     append!(ccs, [cc])
 end
