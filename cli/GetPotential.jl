@@ -8,8 +8,13 @@ using CarrierCapture
 get_QE_data(data::String) = names!(CSV.read(data; allowmissing=:none), [:Q, :E])
 function get_QE_data(data::Dict)
     QE_data = DataFrame()
-    QE_data.Q = parse.(Float64, split(data["Q"]))
-    QE_data.E = parse.(Float64, split(data["E"]))
+    Q = data["Q"]; E = data["E"]
+    if Q isa Number
+        QE_data.Q = Q; QE_data.E = E
+    else
+        QE_data.Q = parse.(Float64, split(Q))
+        QE_data.E = parse.(Float64, split(E))
+    end
     return QE_data
 end
 
@@ -92,7 +97,7 @@ if findcross != nothing
                                          pots[crossing["pot_name_2"]])
         println("=====Crossing Points=====")
         println(": $(crossing["pot_name_1"]) and $(crossing["pot_name_2"]) ")
-        @printf "Q: %0.5f amu\n" Q_cross
+        @printf "Q: %0.5f amu^-1/2 Å\n" Q_cross
         @printf "E: %0.5f eV\n" E_cross
         println("=========================\n")
     end
