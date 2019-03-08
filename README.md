@@ -48,7 +48,8 @@ Solve the 1D Schrödinger equation for each PES to obtain their phonon (nuclear)
 
 The following examples are provided to illustrate some of the applications of these codes:
 
-* GaAs defect (./example_GaAs)
+* [Sn_Zn](./example/Sn_Zn_CZTS): Harmonic approximation
+* [DX-center](./example/DX-center): Anharmonic fitting
 
 ## Theory
 

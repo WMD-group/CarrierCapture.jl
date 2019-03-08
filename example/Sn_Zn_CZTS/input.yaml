@@ -23,40 +23,41 @@ plot:
 # E0: 		energy offset of potential minimum [eV]
 # p0: 		initial guesses for polynomial coefficients for fitting (must have poly_order + 1 entries)
 potentials:
-
     - potential:
-        name: GeVI+e+h
-        data: Potential_1.csv
-        nev: 30
-        E0: 1.4
+        name: SnII+e+h
+        data:
+            E: 1.46
+            Q: 0
+        nev: 40 
+        E0: 1.46
         function:
-            type: polyfunc
-            p0: 0.1 0.1 0.1 0.1 0.1 0.1
+            type: harmonic
             params:
-                poly_order: 2
+                hw: 0.0288945775003
         color: "#b2182b"
     - potential:
-        name: GeIII+h
-        data: Potential_2.csv
-        nev: 85
-        E0: 0.36523
+        name: SnIII+h
+        data:
+            E: 0.585005
+            Q: 1.90291674728
+        nev: 60
+        E0: 0.585005
         function:
-            type: polyfunc
-            p0: 0.1 0.1 0.1 0.1 0.1 0.1
+            type: harmonic
             params:
-                poly_order: 2
-                etc: 2.0
+                hw: 0.0281812646475
         color: "#2166ac"
     - potential:
-        name: GeVI
-        data: Potential_1.csv
+        name: SnII
+        data:
+            E: 0
+            Q: 0 
         nev: 50
         E0: 0
         function:
-            type: polyfunc
-            p0: 0.1 0.1 0.1 0.1 0.1 0.1
+            type: harmonic
             params:
-                poly_order: 2
+                hw: 0.0288945775003
         color: "#b2182b"
 
 # CAPTURE INPUT
@@ -74,17 +75,17 @@ captures:
     Tmin: 10
     Tmax: 800
     NT: 100
-    Volume: 1.1E-21
+    Volume: 1.28463E-21
     cut_off: 0.25
-    σ: 0.025
+    σ: 0.0075
     ccs:
         - cc:
-            W: 6.4E-2
+            W: 0.204868962802
             g: 1
-            initial: GeVI+e+h
-            final: GeIII+h
+            initial: SnII+e+h
+            final: SnIII+h
         - cc:
-            W: 6.4E-2
+            W: 0.204868962802
             g: 2
-            initial: GeIII+h
-            final: GeVI
+            initial: SnIII+h
+            final: SnII
