@@ -35,7 +35,7 @@ If you would like to contribute, please do so via a pull request.
 A typical workflow will consist of several steps, implemented in a series of short programs, which may be run from the command line. Input for the calculations is provided in `input.yaml`.
 
 1. Prepare a sequence of atomic structure models with displacements that interpolate between two defect configurations (e.g. a site vacancy in charge states q=0 and q=+1).
-Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing may be found in [[script]].
+Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing may be found in [script](./script/).
 
 2. Generate configuration coordinate diagrams with fits to the two potential energy surfaces (PES) using `GetPotential.jl`.
 Solve the 1D Schrödinger equation for each PES to obtain their phonon (nuclear) wavefunctions.
