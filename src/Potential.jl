@@ -11,7 +11,7 @@ mutable struct potential
     name::String
     color::String
     QE_data::DataFrame
-    E0::Float64
+    E0::Float64; Q0::Float64
     func_type::String
     func
     params::Dict{String, Any}
@@ -23,7 +23,7 @@ mutable struct potential
     # TODO: JLD2 doesn't work
     #       Don't blame S. Kim.
     #       Blame JLD2
-    potential() = new("", "black", DataFrame([0 0]), Inf,
+    potential() = new("", "black", DataFrame(), Inf, 0,
                       "func_type", x->0, Dict(), [0],
                       [], [],
                       0, [], Array{Float64}(undef, 0, 2))
@@ -41,8 +41,8 @@ function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot.QE_data = QE_data
 
     pot.params = get(cfg["function"], "params",  Dict("E0" => pot.E0))
-    pot.params["E0"] = pot.E0
-    pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
+
+    pot.Q0 = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
 
     if pot.E0 < Inf
         pot.QE_data.E .+= - minimum(pot.QE_data.E) + pot.E0
@@ -55,8 +55,8 @@ end
 function fit_pot!(pot::potential, Q)
     """
     """
-    pot.params["E0"] = pot.E0
-    pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
+    # pot.params["E0"] = pot.E0
+    # pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
 
     E_CUT = 2 # defines upper energy limit on data used for fitting
     e_cut_ind = pot.QE_data.E .< E_CUT + pot.E0
@@ -79,11 +79,17 @@ function fit_pot!(pot::potential, Q)
     elseif pot.func_type == "harmonic"
         println("========harmonic=========\n")
         # func = x -> harmonic(x, params["hw"]; param = params)
-        pot.E = harmonic.(Q, params["hw"]; param = params)
-        pot.func = x -> harmonic(x, params["hw"]; param = params)
+        pot.E = harmonic.(Q, params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
+        pot.func = x -> harmonic(x, params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
     else
-        func = @eval $(Symbol(pot.func_type))
-        fit = curve_fit((x, p) -> func.(x, Ref(p); param = params), pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], pot.p0)
+        if pot.func_type == "polyfunc"
+            func = polyfunc
+        elseif pot.func_type == "morse_poly"
+            func = (x, p) -> morse_poly(x, Ref(p); E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
+        else
+            func = (x, p) -> polyfunc(x, Ref(p); E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
+        end
+        fit = curve_fit((x, p) -> func.(x, p), pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], pot.p0)
         pot.E = func.(Q, Ref(fit.param); param = params)
         pot.func = x -> func(x, fit.param; param = params)
 
@@ -126,9 +132,7 @@ function sqwell(x, width, depth; x0=0.)
     return pot_well .* depth
 end
 
-function harmonic(x, ħω; param)
-    E₀ = param["E0"]
-    Q₀ = param["Q0"]
+function harmonic(x, ħω; E₀, Q₀)
     a = amu/2 * (ħω/ħc/1E10)^2
     return a*(x - Q₀)^2 + E₀
 end
@@ -140,10 +144,10 @@ function double(x, ħω1, ħω2; param)
 end
 
 # Set of potentials for fitting
-function polyfunc(x, coeffs; param)
-    E0 = param["E0"]
-    Q₀ = param["Q0"]
-    poly_order = Int(param["poly_order"])
+function polyfunc(x, coeffs; E₀, Q₀, poly_order)
+    # E0 = param["E0"]
+    # Q₀ = param["Q0"]
+    # poly_order = Int(param["poly_order"])
     y = 0 .* x
     y += E0
     for i = 2:poly_order + 1
@@ -152,17 +156,15 @@ function polyfunc(x, coeffs; param)
     return y
 end
 
-function morse(x, coeffs; param)
-    E₀ = param["E0"]
-    Q₀ = param["Q0"]
+function morse(x, coeffs; E₀, Q₀)
     return coeffs[1].*((1-exp.(-coeffs[2].*(x-Q₀))).^2)+E₀
 end
 
-function morse_poly(x, coeffs; param)
+function morse_poly(x, coeffs; E₀, Q₀, poly_order)
     # TODO: CHECK # of coeffs and param["poly_order"], and give a WARNING
-    E₀ = param["E0"]
-    Q₀ = param["Q0"]
-    po = param["poly_order"]
+    # E₀ = param["E0"]
+    # Q₀ = param["Q0"]
+    # po = param["poly_order"]
 
     orders = if (typeof(po) == Int64) Array([po]) else parse.(Int, split(po)) end
 

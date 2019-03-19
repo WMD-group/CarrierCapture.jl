@@ -39,7 +39,7 @@ end
 # cut_off:    energetic difference criteria for overlap of phonons [eV]
 # σ:          amount of smearing of delta functions for determining phonon overlap
 function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
-    Q₀ = cc.V1.params["Q0"]
+    Q₀ = cc.V1.Q0
     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
     cc.overlap_matrix = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ))
     cc.δ_matrix = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ))

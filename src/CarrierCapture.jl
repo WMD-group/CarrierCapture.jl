@@ -4,8 +4,7 @@ module CarrierCapture
     using LsqFit, Polynomials, Dierckx, Interpolations, Roots
 
     @reexport using Plots, LaTeXStrings
-    @reexport using CSV, DataFrames, Serialization, HDF5, YAML
-    @reexport using ArgParse, Printf
+    @reexport using DataFrames
 
     include("Potential.jl")
     include("CaptureRate.jl")

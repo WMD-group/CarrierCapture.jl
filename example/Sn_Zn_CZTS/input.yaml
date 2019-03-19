@@ -80,12 +80,12 @@ captures:
     σ: 0.0075
     ccs:
         - cc:
-            W: 0.204868962802
+            W: 0.205
             g: 1
             initial: SnII+e+h
             final: SnIII+h
         - cc:
-            W: 0.204868962802
+            W: 0.178
             g: 2
             initial: SnIII+h
             final: SnII
