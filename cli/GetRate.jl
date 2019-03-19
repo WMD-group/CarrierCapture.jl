@@ -2,6 +2,9 @@
 
 module GetRate
 
+using CSV, DataFrames, Serialization, HDF5, YAML
+using ArgParse, Printf
+
 using CarrierCapture
 
 # read arguments and input file

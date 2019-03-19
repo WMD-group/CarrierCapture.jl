@@ -40,8 +40,9 @@ function plot_pot!(pot::potential; lplt_wf=false, plt=Nothing, color=Nothing, la
     # plot function
     plot!(plt, pot.Q, pot.E, lw=4, color=color, label=label)
     # plot data
-    scatter!(plt, pot.QE_data.Q, pot.QE_data.E, color=color, label="")
-
+    if size(pot.QE_data)[1] > 0 
+        scatter!(plt, pot.QE_data.Q, pot.QE_data.E, color=color, label="")
+    end
     xaxis!(L"\ Q (amu^{1\/2} Å) \ (^{}$$"); yaxis!(L"\ Energy  (eV) \ (^{}$$")
 
     return plt
@@ -71,7 +72,7 @@ function plot_cc!(cc; plt=Nothing, color=Nothing, label="")
     end
     label = if label=="" cc.name else label end
     # color = if color==Nothing pot.color else color end
-    plot!(plt, 1000 ./ cc.temperature, cc.capt_coeff, lw=4, label=cc.name)
+    plot!(plt, 1000 ./ cc.temperature, cc.capt_coeff, lw=4, label=label)
     xaxis!(L"\ 1000\/T (K^{-1}) \ (^{}$$"); yaxis!(L"C (cm^{3}\/s) \ (^{}$$", :log10)
     return plt
 end
