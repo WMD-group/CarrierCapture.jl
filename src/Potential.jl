@@ -5,6 +5,7 @@ amu = 931.4940954E6   # eV / c^2
 export potential, pot_from_dict, fit_pot!, solve_pot!, find_crossing
 export solve1D_ev_amu
 export sqwell, harmonic, double, polyfunc
+export get_bspline, get_spline
 
 # set up potential structure
 mutable struct potential
@@ -68,12 +69,16 @@ function fit_pot!(pot::potential, Q)
 
     if pot.func_type == "bspline"
         println("=========bspline=========\n")
-        bspline = get_bspline(pot.QE_data.Q, pot.QE_data.E, Q)
+        bspline = get_bspline(pot.QE_data.Q, pot.QE_data.E)
         pot.E = bspline(Q)
         pot.func = bspline
     elseif pot.func_type == "spline"
         println("=========spline==========\n")
-        spline = get_spline(pot.QE_data.Q, pot.QE_data.E, Q; param = params)
+        weight = get(params, "weight", nothing)
+        weight = parse.(Float64, split(weight))
+        smoothness = get(params, "smoothness", 0)
+        order = get(params, "order", 2)
+        spline = get_spline(pot.QE_data.Q, pot.QE_data.E; weight = weight, smoothness = smoothness, order = order)
         pot.E = spline(Q)
         pot.func = spline
     elseif pot.func_type == "harmonic"
@@ -192,11 +197,7 @@ function morse_poly(x, coeffs; E₀, Q₀, poly_order)
     return morse(x) + poly(x-Q₀-r₁) + E₀ - morse(Q₀) - poly(-r₁)
 end
 
-function get_spline(Qs, Es, Q; param)
-    weight = get(param, "weight", nothing)
-    smoothness = get(param, "smoothness", 0)
-    order = get(param, "order", 2)
-
+function get_spline(Qs, Es; weight = nothing, smoothness = 0, order = 2)
     if Qs[1] > Qs[end]
         Qs = reverse(Qs)
         Es = reverse(Es)
@@ -205,13 +206,12 @@ function get_spline(Qs, Es, Q; param)
     if weight == nothing
         spl = Spline1D(Qs, Es, k = order, bc = "extrapolate", s = smoothness)
     else
-        w = parse.(Float64, split(weight))
-        spl = Spline1D(Qs, Es, w = w, k = order, bc = "extrapolate", s = smoothness)
+        spl = Spline1D(Qs, Es, w = weight, k = order, bc = "extrapolate", s = smoothness)
     end
     return spl
 end
 
-function get_bspline(Qs, Es, Q)
+function get_bspline(Qs, Es)
     # BSplines assume your data is uniformly spaced on the grid
     # Qs, Es have to be eqaully-spaced (Range)
     if Qs[1] > Qs[end]
