@@ -2,6 +2,7 @@
 [![made-with-julia](https://img.shields.io/badge/Made%20with-Julia-ff69bf.svg)](https://julialang.org)
 [![Build Status](https://travis-ci.com/WMD-group/CarrierCapture.jl.svg?token=CitxNu7FxpXMrM4zyBn5&branch=master)](https://travis-ci.com/WMD-group/CarrierCapture.jl)
 [![codecov](https://codecov.io/gh/WMD-group/CarrierCapture.jl/branch/master/graph/badge.svg?token=7jzuwloNvs)](https://codecov.io/gh/WMD-group/CarrierCapture.jl)
+[![DOI](https://zenodo.org/badge/130691083.svg)](https://zenodo.org/badge/latestdoi/130691083)
 
 <center>
 <img src="schematics/Logo.png" width="400" />
