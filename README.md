@@ -61,7 +61,7 @@ Solve the 1D Schrödinger equation for each PES to obtain their phonon (nuclear)
 
 ## Examples
 
-The following examples are provided to illustrate some of the applications of these codes. The input data has been generated from density functional theory (DFT) using [VASP](https://www.vasp.at), but the framework can easily be adapted to accept input from other DFT calculators. 
+The following examples are provided to illustrate some of the applications of these codes. The input data has been generated from density functional theory (DFT) using [VASP](https://www.vasp.at), but the framework can easily be adapted to accept output from other electronic structure calculators. 
 
 * [Sn<sub>Zn</sub> in Cu<sub>2</sub>ZnSnS<sub>4</sub>](./example/Sn_Zn_CZTS): Harmonic approximation
 
