@@ -4,11 +4,11 @@ A typical usage will consist of about three steps, implemented in a series of sh
 
 ## 1. Preparation
 
-Before `CarrierCapture`, you need to calculate potential energy surfaces of atomic vibrations (one-dimential Configuration Coordinate diagram; `1D-CC`) and _e-ph_ coupling matrix element (`W_if`). Prepare a sequence of structures with displacements which interpolate between two defect states. Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing can be found in `/script` which require a python library [`pymatgen`](http://pymatgen.org). Find more [details](../README.md).
+Before `CarrierCapture`, you need to calculate potential energy surfaces of atomic vibrations (one-dimensional Configuration Coordinate diagram; `1D-CC`) and _e-ph_ coupling matrix element (`W_if`). Prepare a sequence of structures with displacements that interpolate between two defect states. Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing can be found in `/script` which require a python library [`pymatgen`](http://pymatgen.org). Find more [details](../README.md).
 
 ## 2. Potential
 
-1. Generate configuration coordinate diagrams with polynomial fits to the data (`GetPotential.jl`). Solve these potential energy surfaces for the phonon wavefunctions for each defect. See the sample input file `example/DX-center/input.yaml` and `example/DX-center/potential_<>.csv`. Example `input.yaml`:
+1. Generate CC diagrams with polynomial fits to the data (`GetPotential.jl`). Solve these potential energy surfaces for the phonon wavefunctions for each defect. See the sample input file `example/DX-center/input.yaml` and `example/DX-center/potential_<>.csv`. Example `input.yaml`:
 
     ```yaml
     potentials:
@@ -54,11 +54,11 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
     <img src="potential.png" width="500" />
     </center>
 
-2. Make sure your best-fit curves describe the crossing point well and number of eigenvalues `nev` are large enough. Find `potential.pdf`.
+2. Make sure that your best-fit curves describe the crossing point well and number of eigenvalues `nev` are large enough. Find `potential.pdf`.
 
 ## 3. Capture rate
 
-1. Calculate the overlap between vibrational wavefunctions of initial and fianal potentials to give the capture coefficient for a given temperature range (`GetRate.jl`). You need `potential.jld` calculated by `GetPotential.jl` in [the previous step](#2.-Potential). Example `input.yaml`:
+1. Calculate the overlap between vibrational wavefunctions of initial and fianal potentials to give the capture coefficient for a specified temperature range (`GetRate.jl`). You need `potential.jld` calculated by `GetPotential.jl` in [the previous step](#2.-Potential). Example `input.yaml`:
 
     ```yaml
     # Qi and Qf [amu^(1/2)*Å] define the domain over which the potentials will be solved (Q ∈ [Qi, Qf]), discretised in `NQ` steps
@@ -109,4 +109,3 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
     </center>
 
 2.  Calculate the lifetimes and rates for a given defect. You may need more tools. 😼
-
