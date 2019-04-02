@@ -1,54 +1,28 @@
-#!/usr/bin/env python3
-# -*- coding=utf-8 -*-
+from pawpyseed.core.projector import * # also imports the wavefunction module
+print('read wfs')
+wf_02 = Wavefunction.from_directory('DISP_-02', setup_projectors=False)
 
-import sys
-import argparse
-import numpy as np
-from pymatgen.io.vasp.outputs import Wavecar
+wf_01 = Wavefunction.from_directory('DISP_-01', setup_projectors=False)
+wf000 = Wavefunction.from_directory('DISP_000', setup_projectors=False)
+wf001 = Wavefunction.from_directory('DISP_001', setup_projectors=False)
+wf002 = Wavefunction.from_directory('DISP_002', setup_projectors=False)
+wf003 = Wavefunction.from_directory('DISP_003', setup_projectors=False)
+wf004 = Wavefunction.from_directory('DISP_004', setup_projectors=False)
+print('realspace')
 
-def read_WAVECAR(file='WAVECAR', ks=0, bs=1, s=0, output='wf'):
-    # The list of coefficients for each k-point and band for reconstructing the wavefunction. 
-    # For non-spin-polarized, the first index corresponds to the kpoint and the second corresponds to the band 
-    # (e.g. self.coeffs[kp][b] corresponds to k-point kp and band b). 
-    # For spin-polarized calculations, the first index is for the spin.
-    wavecar = Wavecar(file)
-    for k in ks:
-        for b in bs:
-            #wf = wavecar.fft_mesh(kpoint=k, band=b-1)
-            coeffs = np.array(wavecar.coeffs)
-            if coeffs.ndim == 3:
-                wf = coeffs[s][k][b]
-            else:
-                wf = coeffs[k][b]
-            print('wf.shape', wf.shape)
-            print('wavecar.kpoints', wavecar.kpoints)
-            np.save('{}_k{}b{}.npy'.format(output, k, b), wf)
+wf_CBM = wf000.write_state_realspace(433, 0, 0, dim=[336, 336, 336])
+np.save('CBM.npy', wf_CBM)
+print('CBM')
+wf_VBM = wf000.write_state_realspace(431, 0, 0, dim=[336, 336, 336])
+np.save('VBM.npy', wf_VBM)
+print('VBM')
 
-
-def main(file, s, k, b, output):
-    read_WAVECAR(file, k, b, s, output)
-
-
-if __name__ == '__main__':
-    '''
-    '''
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-f","--file",
-                        help="VASP WAVECAR ", default="./WAVECAR")
-    parser.add_argument("-o","--output", 
-                    help="save ", default="wf")
-    parser.add_argument("-b","--band", type=int, nargs='+',
-                        help="band index starting from 1", default=[1])
-    parser.add_argument("-k","--kpoint", type=int, nargs='+',
-                        help="kpoint index starting from 0", default=[0])
-    parser.add_argument("-s","--spin", default=0, type=int,
-                        help="spin index 1 or 0",)
-
-    args = parser.parse_args()
-    file = args.file
-    output = args.output
-    band = args.band
-    kpoint = args.kpoint
-    spin = args.spin
-    main(file, spin, kpoint, band, output)
-
+wf_defects = [ wf.write_state_realspace(432, 0, 0, dim=[336, 336, 336]) for wf in [wf_02, wf_01, wf000, wf001, wf002, wf003, wf004]]
+print('DEFECTS')
+np.save('D_-02.npy', wf_defects[0])
+np.save('D_-01.npy', wf_defects[1])
+np.save('D_000.npy', wf_defects[2])
+np.save('D_001.npy', wf_defects[3])
+np.save('D_002.npy', wf_defects[4])
+np.save('D_003.npy', wf_defects[5])
+np.save('D_004.npy', wf_defects[6])
