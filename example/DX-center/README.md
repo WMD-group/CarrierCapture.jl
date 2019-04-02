@@ -4,7 +4,7 @@ A typical usage will consist of about three steps, implemented in a series of sh
 
 ## 1. Preparation
 
-Before `CarrierCapture`, you need to calculate potential energy surfaces of atomic vibrations (one-dimential Configuration Coordinate diagram; `1D-CC`) and _e-ph_ coupling matrix element (`W_if`). Prepare a sequence of structures with displacements which interpolate between two defect states. Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing can be found in `/script` which require a python library [`pymatgen`](http://pymatgen.org). Find more [details](../README.md).
+Before `CarrierCapture`, you need to calculate potential energy surfaces of atomic vibrations (one-dimensional Configuration Coordinate diagram; `1D-CC`) and _e-ph_ coupling matrix element (`W_if`). Prepare a sequence of structures with displacements which interpolate between two defect states. Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing can be found in `/script` which require a python library [`pymatgen`](http://pymatgen.org). Find more [details](../README.md).
 
 ## 2. Potential
 
