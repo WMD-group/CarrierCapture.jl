@@ -23,7 +23,7 @@ The dependencies can be installed by:
 
 Install the package by:
 
-`Pkg.add("https://github.com/WMD-group/CarrierCapture.jl.git")`.
+`Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))`.
 
 Add `/cli` in to your `PATH` so that you can use `GetPotential.jl` and `GetRate.jl` in your work directory.
 
