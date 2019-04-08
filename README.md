@@ -106,6 +106,8 @@ In addition, the alignment of energy surfaces for defects in different charge st
 
 #### Applications
 
+* [Kim et al, Anharmonic Lattice Relaxation during Non-radiative Carrier Capture](https://arxiv.org/abs/1904.01348)
+
 * [Kim et al, Lone-pair effect on carrier capture in Cu<sub>2</sub>ZnSnS<sub>4</sub> solar cells (2019)](https://pubs.rsc.org/en/content/articlehtml/2019/ta/c8ta10130b)
 
 * [Kim et al, Identification of killer defects in kesterite thin-film solar cells (2018)](https://pubs.acs.org/doi/abs/10.1021/acsenergylett.7b01313)
