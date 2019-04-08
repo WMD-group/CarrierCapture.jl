@@ -19,11 +19,18 @@ The codes are written in [Julia](https://julialang.org), while the scripts and [
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation.
 The dependencies can be installed by:
 
-`Pkg.add(PackageSpec(url="https://github.com/RedPointyJackson/Brooglie"))`
+```bash
+$ julia
+
+julia> using Pkg
+julia> Pkg.add(PackageSpec(url="https://github.com/RedPointyJackson/Brooglie"))
+```
 
 Install the package by:
 
-`Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))`.
+```julia
+Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
+```
 
 Add `/cli` in to your `PATH` so that you can use `GetPotential.jl` and `GetRate.jl` in your work directory.
 
