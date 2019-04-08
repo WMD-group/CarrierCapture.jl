@@ -86,7 +86,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
 ## 3. Capture rate
 
-1. Calculate the overlap between vibrational wavefunctions of initial and fianal potentials to give the capture coefficient for a given temperature range (`GetRate.jl`). You need `potential.jld` calculated by `GetPotential.jl` in [the previous step](#2.-Potential). Example `input.yaml`:
+1. Calculate the overlap between vibrational wavefunctions of initial and fianal potentials to give the capture coefficient for a given temperature range (`GetRate.jl`). You need `wave.jld` calculated by `GetPotential.jl` in [the previous step](#2.-Potential). Example `input.yaml`:
 
     ```yaml
     # Qi and Qf [amu^(1/2)*Å] define the domain over which the potentials will be solved (Q ∈ [Qi, Qf]), discretised in `NQ` steps
