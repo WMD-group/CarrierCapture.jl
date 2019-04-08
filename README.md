@@ -15,7 +15,7 @@ to also describe anharmonic potential energy surfaces.
 
 ## Installation
 
-The codes are written in [Julia](https://julialang.org), while the scripts and [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org) and use [pymatgen](http://pymatgen.org), which are assumed to be installed.
+The codes are written in [Julia](https://julialang.org), while the scripts and [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org) and use [pymatgen](http://pymatgen.org) and [pawpyseed](https://github.com/kylebystrom/pawpyseed), which are assumed to be installed.
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation.
 The dependencies can be installed by:
 
@@ -106,7 +106,7 @@ In addition, the alignment of energy surfaces for defects in different charge st
 
 #### Applications
 
-* [Kim et al, Anharmonic Lattice Relaxation during Non-radiative Carrier Capture](https://arxiv.org/abs/1904.01348)
+* [Kim et al, Anharmonic Lattice Relaxation during Non-radiative Carrier Capture (2019)](https://arxiv.org/abs/1904.01348)
 
 * [Kim et al, Lone-pair effect on carrier capture in Cu<sub>2</sub>ZnSnS<sub>4</sub> solar cells (2019)](https://pubs.rsc.org/en/content/articlehtml/2019/ta/c8ta10130b)
 
