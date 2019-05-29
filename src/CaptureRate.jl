@@ -48,7 +48,7 @@ function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
         for j in UnitRange(1, length(cc.V2.ϵ))
             Δϵ = abs(cc.V1.ϵ[i] - cc.V2.ϵ[j])
             if  Δϵ < cut_off
-                integrand = (cc.V1.χ[i, :] .* (cc.V1.Q .- Q₀) .* cc.V2.χ[j, :]) 
+                integrand = (cc.V1.χ[i, :] .* (cc.V1.Q .- Q₀) .* cc.V2.χ[j, :])
                 overlap = sum(integrand)*ΔL
 
                 cc.overlap_matrix[i, j] = overlap
@@ -86,7 +86,7 @@ function calc_capt_coeff!(cc::conf_coord, V, temperature)
 
     replace!(partial_capt_coeff, NaN => 0)
 
-    occ_high = exp(-β[end]*cc.V1.ϵ[end]/Z[end])
+    occ_high = exp(-β[end]*cc.V1.ϵ[end]) ./ Z[end]
 
     @assert occ_high < occ_cut_off "occ(ϵ_max, T_max): $occ_high should be less than $occ_cut_off"
 
