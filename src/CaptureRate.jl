@@ -88,7 +88,9 @@ function calc_capt_coeff!(cc::conf_coord, V, temperature)
 
     occ_high = exp(-β[end]*cc.V1.ϵ[end]) / Z[end]
 
-    replace!(occ_high, NaN => 0)
+    if isnan(occ_high)
+        occ_high = 0
+    end
 
     @assert occ_high < occ_cut_off "occ(ϵ_max, T_max): $occ_high should be less than $occ_cut_off"
 
