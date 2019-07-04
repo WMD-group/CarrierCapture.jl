@@ -154,7 +154,7 @@ function polyfunc(x, coeffs; E₀, Q₀, poly_order)
     # Q₀ = param["Q0"]
     # poly_order = Int(param["poly_order"])
     y = 0 .* x
-    y += E0
+    y += E₀
     for i = 2:poly_order + 1
         y += coeffs[i].* (x - Q₀) .^(i-1)
     end
