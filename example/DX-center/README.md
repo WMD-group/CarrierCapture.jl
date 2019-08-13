@@ -82,7 +82,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
     <img src="potential.png" width="500" />
     </center>
 
-2. Make sure your best-fit curves describe the crossing point well and number of eigenvalues `nev` are large enough. Find `potential.pdf`.
+2. Make sure your best-fit curves describe the crossing point well and number of eigenvalues `nev` are large enough. Find `potential.pdf` (run `GetPotential.jl -p` to enable plotting).
 
 ## 3. Capture rate
 
