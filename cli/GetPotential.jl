@@ -8,7 +8,7 @@ using ArgParse, Printf
 using CarrierCapture
 
 # reading potential energy surface data 
-get_QE_data(data::String) = names!(CSV.read(data; copycols=True), [:Q, :E])
+get_QE_data(data::String) = names!(CSV.read(data; copycols=true), [:Q, :E])
 function get_QE_data(data::Dict)
     QE_data = DataFrame()
     Q = data["Q"]; E = data["E"]
