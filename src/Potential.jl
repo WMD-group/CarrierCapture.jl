@@ -37,7 +37,7 @@ function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot.color = cfg["color"]
     pot.nev = cfg["nev"]
     pot.func_type = cfg["function"]["type"]
-    pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "0")))
+    pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "1 1 1 1")))
     pot.E0 = get(cfg, "E0", Inf)
     pot.QE_data = QE_data
 
@@ -54,13 +54,11 @@ end
 
 # fitting potential
 function fit_pot!(pot::potential, Q)
-    """
-    """
     # pot.params["E0"] = pot.E0
     # pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
 
     E_CUT = 2 # defines upper energy limit on data used for fitting
-    e_cut_ind = pot.QE_data.E .< E_CUT + pot.E0
+    e_cut_ind = pot.QE_data.E .< E_CUT + pot.E0 # boolean
 
     params = pot.params
     pot.Q = Q
@@ -88,15 +86,18 @@ function fit_pot!(pot::potential, Q)
         pot.func = x -> harmonic(x, params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
     else
         if pot.func_type == "polyfunc"
-            func = (x, p) -> polyfunc(x, Ref(p); E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
+            println("========polynomial========\n")
+            func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
         elseif pot.func_type == "morse_poly"
-            func = (x, p) -> morse_poly(x, Ref(p); E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
-        else
-            func = (x, p) -> polyfunc(x, Ref(p); E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
+            println("========morse polynomial========\n")
+            func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
+        elseif pot.func_type == "morse"
+            func = (x, p) -> morse(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
         end
-        fit = curve_fit((x, p) -> func.(x, p), pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], pot.p0)
-        pot.E = func.(Q, Ref(fit.param); param = params)
-        pot.func = x -> func(x, fit.param; param = params)
+
+        fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], pot.p0) # curve_fit : model, x data, y data, p0
+        pot.E = func.(Q, Ref(fit.param)) # when calling function, need to Ref() so that it can deal with array mismatch
+        pot.func = x -> func(x, fit.param)
 
         println("===========Fit===========")
         println("Function: $(pot.func_type)")
@@ -124,8 +125,13 @@ function find_crossing(pot_1::potential, pot_2::potential)
     # find root of pot_1 - pot_2 = 0
     diff_func = x-> pot_1.func(x) - pot_2.func(x)
     Q = pot_1.Q
-    roots = find_zero(diff_func, Q[length(Q)÷2])
-    return roots, pot_1.func.(roots)
+    try
+        rts = find_zero(diff_func, Q[length(Q)÷2])
+        return rts, pot_1.func.(rts)
+    catch
+        return nothing, nothing # sometimes no zeros
+    end
+
 end
 
 
@@ -153,16 +159,23 @@ function polyfunc(x, coeffs; E₀, Q₀, poly_order)
     # E0 = param["E0"]
     # Q₀ = param["Q0"]
     # poly_order = Int(param["poly_order"])
-    y = 0 .* x
-    y += E₀
+    y = 0 .* x # array of size x
+    y = y .+ E₀
+
     for i = 2:poly_order + 1
-        y += coeffs[i].* (x - Q₀) .^(i-1)
+        y = y .+ coeffs[i].* (x .- Q₀) .^(i-1)
     end
+
     return y
 end
 
 function morse(x, coeffs; E₀, Q₀)
-    return coeffs[1].*((1-exp.(-coeffs[2].*(x-Q₀))).^2)+E₀
+    y = 0 .* x # array of size x
+    y = y .+ E₀
+
+    y = y .+ coeffs[1] .* ((1 .- exp.(-coeffs[2].*(x.-Q₀))).^2)
+
+    return y
 end
 
 function morse_poly(x, coeffs; E₀, Q₀, poly_order)
