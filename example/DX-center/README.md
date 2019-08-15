@@ -104,7 +104,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
     # CAPTURE INPUT
 
-    # V: 	volume of supercell [m³]
+    # V: 	volume of supercell [cm³]
     # g: 	configurational degeneracy 
     # W: 	electron-phonon coupling matrix element [ev/(amu^(1/2)*Å)]
     # Tmin, Tmax: temperature range for calculating capture coefficient [K]
