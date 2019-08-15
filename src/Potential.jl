@@ -37,7 +37,7 @@ function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot.color = cfg["color"]
     pot.nev = cfg["nev"]
     pot.func_type = cfg["function"]["type"]
-    pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "1 1 1 1")))
+    pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
     pot.E0 = get(cfg, "E0", Inf)
     pot.QE_data = QE_data
 
