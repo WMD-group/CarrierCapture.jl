@@ -4,7 +4,7 @@ amu = 931.4940954E6   # eV / c^2
 
 export potential, pot_from_dict, fit_pot!, solve_pot!, find_crossing
 export solve1D_ev_amu
-export sqwell, harmonic, double, polyfunc
+export sqwell, harmonic, double, polyfunc, morse
 export get_bspline, get_spline
 
 # set up potential structure
