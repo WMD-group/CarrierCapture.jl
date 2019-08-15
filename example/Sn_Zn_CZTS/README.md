@@ -8,7 +8,17 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
 ## 2. Potential
 
-1. Generate CC diagrams with polynomial fits to the data (`GetPotential.jl`). Solve these potential energy surfaces for the phonon wavefunctions for each defect. See the sample input file `example/DX-center/input.yaml` and `example/DX-center/potential_<>.csv`. Example `input.yaml`:
+1. Generate CC diagrams with polynomial fits to the data. Solve these potential energy surfaces for the phonon wavefunctions for each defect. Use `GetPotential.jl` as follows,
+```
+GetPotential.jl [-i INPUT] [--dryrun] [-p] [-v] 
+optional arguments:
+-i, --input INPUT     INPUT = input file in yaml format (default:input.yaml)
+--dryrun              Turn off the Schroedinger equation solver
+-p, --plot            Plot potentials (saved as potential.pdf)
+-v, --verbose         Write verbose capture coefficient
+```
+
+See the sample input file `example/DX-center/input.yaml` and `example/DX-center/potential_<>.csv`. Example `input.yaml`:
 
     ```yaml
     potentials:
@@ -58,7 +68,17 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
 ## 3. Capture rate
 
-1. Calculate the overlap between vibrational wavefunctions of initial and fianal potentials to give the capture coefficient for a specified temperature range (`GetRate.jl`). You need `potential.jld` calculated by `GetPotential.jl` in [the previous step](#2.-Potential). Example `input.yaml`:
+1. Calculate the overlap between vibrational wavefunctions of initial and fianal potentials to give the capture coefficient for a specified temperature range (`GetRate.jl`). Usage is as follows,
+```
+GetRate.jl [-i INPUT] [-w] [-p] [-v]
+optional arguments:
+-i, --input INPUT     INPUT = input file in yaml format (default:input.yaml)
+-w, --wave WAVE       WAVE = wave function serialized (default:wave.jld)
+-p, --plot            plot potentials 
+-v, --verbose         write verbose capture coefficient
+```
+
+You need `potential.jld` calculated by `GetPotential.jl` in [the previous step](#2.-Potential). Example `input.yaml`:
 
     ```yaml
     # Qi and Qf [amu^(1/2)*Å] define the domain over which the potentials will be solved (Q ∈ [Qi, Qf]), discretised in `NQ` steps
