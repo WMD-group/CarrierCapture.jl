@@ -58,8 +58,8 @@ function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
     end
 end
 
-# calculating carrier capture rate for a given:
-# V: 	  volume of supercell [m³]
+# calculating carrier capture rate in units cm³/s for a given:
+# V: 	  volume of supercell [cm³]
 # temperature: range from Tmin to Tmax for NT steps
 function calc_capt_coeff!(cc::conf_coord, V, temperature)
     # TODO:       convergence over σ
