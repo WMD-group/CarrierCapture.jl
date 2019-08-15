@@ -88,7 +88,7 @@ function fit_pot!(pot::potential, Q)
         pot.func = x -> harmonic(x, params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
     else
         if pot.func_type == "polyfunc"
-            func = polyfunc
+            func = (x, p) -> polyfunc(x, Ref(p); E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
         elseif pot.func_type == "morse_poly"
             func = (x, p) -> morse_poly(x, Ref(p); E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
         else
