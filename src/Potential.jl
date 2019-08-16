@@ -129,7 +129,7 @@ function find_crossing(pot_1::potential, pot_2::potential)
         rts = find_zero(diff_func, Q[length(Q)÷2])
         return rts, pot_1.func.(rts)
     catch
-        return nothing, nothing # sometimes no zeros
+        return 5000, 5000 # sometimes no zeros
     end
 
 end
