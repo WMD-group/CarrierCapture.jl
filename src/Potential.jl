@@ -125,13 +125,8 @@ function find_crossing(pot_1::potential, pot_2::potential)
     # find root of pot_1 - pot_2 = 0
     diff_func = x-> pot_1.func(x) - pot_2.func(x)
     Q = pot_1.Q
-    try
-        rts = find_zero(diff_func, Q[length(Q)÷2])
-        return rts, pot_1.func.(rts)
-    catch
-        return 5000, 5000 # sometimes no zeros
-    end
-
+    rts = find_zero(diff_func, Q[length(Q)÷2])
+    return rts, pot_1.func.(rts)
 end
 
 
