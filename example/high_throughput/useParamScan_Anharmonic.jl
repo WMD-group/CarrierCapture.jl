@@ -5,7 +5,7 @@ addprocs(length(Sys.cpu_info())-1) # use all cores
 @everywhere using SharedArrays
 
 # params
-@everywhere a_i = 11.7442 # Hz (s^-1)
+@everywhere a_i = 11.7442
 @everywhere a_f = 4.71261
 @everywhere b_i = 0.0147757
 @everywhere b_f = -0.0333741
