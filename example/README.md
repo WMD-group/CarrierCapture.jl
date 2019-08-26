@@ -1,4 +1,4 @@
-# Usage
+# Typical Usage
 
 A typical usage will consist of about three steps, implemented in a series of short programs which may be run from the command line. Input for the calculations is provided in `input.yaml`.
 
@@ -8,12 +8,12 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
 1. **Generate `1D-CC`**
 
-   1. Calculate equilibirum geometries and total energies of defective supercells with charge states `q`(initial) and `q±1`(final) denoted `Conf.(q)` and `Conf.(q±1)`, respectively. 
+   1. Calculate equilibirum geometries and total energies of defective supercells with charge states `q`(initial) and `q±1`(final) denoted `Conf.(q)` and `Conf.(q±1)`, respectively.
 
    2. Generate interpolated and extrapolated structures between `Conf.(q)` (`POSCAR_i`) and `Conf.(q±1)` (`POSCAR_f`). You may use `gen_cc_struct.py`:
 
       ```bash
-      $ gen_cc_struct.py -i POSCAR_i -f POSCAR_f -d -1 -0.6 -0.4 -0.2 -0.1 0 0.1 0.2 0.4 0.6 1.0 
+      $ gen_cc_struct.py -i POSCAR_i -f POSCAR_f -d -1 -0.6 -0.4 -0.2 -0.1 0 0.1 0.2 0.4 0.6 1.0
       $ ls
       disp_dir_i
       disp_dir_f
@@ -48,7 +48,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
       ```bash
       #!/bin/bash -l
-      
+
       for NUM in {-14,-13,-12,-11,-10,-09,-08,-07,-06,-05,-04,-03,-02,-01,000,001,002,003,004,005,006,007,008,009,010,011,012,013,014}
       do
          #if [ ! -d DISP_$NUM ]
@@ -67,7 +67,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
       ```bash
       #!/bin/bash -l
-      
+
       echo Q, E
       for NUM in {-14,-13,-12,-11,-10,-09,-08,-07,-06,-05,-04,-03,-02,-01,000,001,002,003,004,005,006,007,008,009,010,011,012,013,014}
       do
@@ -88,7 +88,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
       0.0, -0.28566641E+03
       ```
 
-      
+
 
 2. **Calcuate _e-ph_ coupling matrix element `W_if`** <a name="wif"></a>
 
@@ -100,12 +100,12 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
       ```bash
       #!/bin/bash -l
-      
+
       # Initial: VBM (hole capture)/CBM (electron capture)
       get_wf.py -f DISP_000/WAVECAR -k 0 -b <band_index_for_VBMorCBM> -s <spin_index(0or1)> -o wf
-      
+
       mv wf_k0b<band_index>.npy wf_i.npy
-      
+
       # Final: localized defect wavefucntion
       NBAND=<band_index_for_defect_wf>
       for NUM in {-10,-06,-04,-02,-01,000,001,002,004,006,010}
@@ -115,11 +115,21 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
       done
       ```
 
-   3. Calculate the rate of change in overlap between initial and final wavefunctions `<ψ_i0|ψ_f(𝛥Q)>` as the geometry changes `𝛥Q`. 
+   3. Calculate the rate of change in overlap between initial and final wavefunctions `<ψ_i0|ψ_f(𝛥Q)>` as the geometry changes `𝛥Q`.
       `W_if = (ϵ_f - ϵ_i) d<ψ_i0|ψ_f(𝛥Q)> / d𝛥Q`
 
       That  can be calculated by using `e-ph.py`.
 
       ```bash
-      e-ph.py -i wf_i.npy -f wf_D_-02.npy wf_D_-01.npy wf_D_00{0..6}.npy -d <delta_eig (ϵ_i - ϵ_f)> -z <index_of_Q0> 
+      e-ph.py -i wf_i.npy -f wf_D_-02.npy wf_D_-01.npy wf_D_00{0..6}.npy -d <delta_eig (ϵ_i - ϵ_f)> -z <index_of_Q0>
       ```
+
+# High-Throughput Usage
+High-throughput usage is possible by preparing files in a similar method to the examples, `useParamScan_Harmonic.jl` and `useParamScan_Anharmonic.jl`. It is recommended that a high-performance computer rather than a personal machine is used, depending on how many calculations are performed. The code can then be run remotely using `nohup julia useParamScan_Harmonic &`.
+
+The steps are as follows,
+1. Define the parameters for which capture coefficient C will be calculated.
+
+2. Calculate C for these parameters, in parallel over the largest parameter range (usually ΔQ)
+
+3. Find `ccArray.npz` to analyse the capture coefficient as a function of its parameters.
