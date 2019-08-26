@@ -41,50 +41,34 @@ function getMorseQ_m(a, b, E0)
     return Q_m
 end
 
-function fitHarmonicParams(ħω_i, ħω_f, Q0, E0)
-    """
-    This function fits the parameters to the harmonic potential energy surfaces and
-    solves the potentials using a 1D S.E. solver
+function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
+        # set nev
+        nev_excited = 180
+        nf_min = (1/(ħω_f))*((nev_excited+0.5)ħω_i+2ΔE)-0.5
+        nev_relaxed = floor(nf_min+1)
 
-    Parameters
-    ----------
-    ħω_i: energy of vibration of the initial state, in eV
-    ħω_f: energy of vibration of the final state, in eV
-    Q0 : horizontal shift between the PES', in amu^0.5 Å^-1
-    E0 : vertical shift between the PES', in eV
-
-    Returns
-    -------
-    poti, potf: potential of initial and final states
-    """
-
-        # set number of eigenvalues (nev) to solve for in potential
-        nev_excited = 80
-        nf_min = (1/(ħω_f))*((nev_excited+0.5)ħω_i+2E0)-0.5 # ensure max(ε_f) - max(ε_i) > E0
-        nev_relaxed = floor(nf_min+1) # minimum number of eigenvalues solved
-
-        Q = range(-20-Q0, stop=20+Q0, length=5000) # ensure high enough to get good harmonic fit
+        Q = range(-20-ΔQ, stop=20+ΔQ, length=5000) # ensure high enough to get good harmonic fit
 
         # potential 1
         potf = potential(); potf.name = "Relaxed state"
-        potf.Q0 = Q0; potf.E0 = 0
-        potf.nev = nev_relaxed
+        potf.Q0 = ΔQ; potf.E0 = 0
+        potf.nev = nev_relaxed # must overlap with initial excited state
         potf.func = x -> harmonic(x, ħω_f; E₀ = potf.E0, Q₀ = potf.Q0)
         potf.params["ħω"]= ħω_f
-        potf.params["Q0"]= Q0
-	potf.Q = Q
+        potf.params["Q₀"]= ΔQ
+	    potf.Q = Q
         potf.E = potf.func.(Q)
         solve_pot!(potf)
 
         # potential 2
         poti = potential(); poti.name = "Excited state"
-        poti.Q0 = 0; poti.E0 = E0;
+        poti.Q0 = 0; poti.E0 = ΔE;
         poti.nev = nev_excited # must be converged for partition function
         poti.func = x -> harmonic(x, ħω_i; E₀ = poti.E0, Q₀ = poti.Q0)
         poti.Q = Q
         poti.E = poti.func.(Q)
         poti.params["ħω"]= ħω_i
-        poti.params["E0"]= E0
+        poti.params["ΔE"]= ΔE
 	solve_pot!(poti)
         println("parameters fit to potentials")
         return poti, potf
