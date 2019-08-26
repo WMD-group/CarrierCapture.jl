@@ -42,6 +42,22 @@ function getMorseQ_m(a, b, E0)
 end
 
 function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
+    """
+    This function fits the parameters to the harmonic potential energy surfaces and
+    solves the potentials using a 1D S.E. solver
+
+    Parameters
+    ----------
+    ħω_i: energy of vibration of the initial state
+    ħω_f: energy of vibration of the final state
+
+    ΔQ : horizontal shift between the PES', in amu^0.5 Å^-1
+    ΔE : vertical shift between the PES', in eV
+
+    Returns
+    -------
+    poti, potf: potential of initial and final states
+    """
         # set nev
         nev_excited = 180
         nf_min = (1/(ħω_f))*((nev_excited+0.5)ħω_i+2ΔE)-0.5
@@ -67,7 +83,7 @@ function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
         poti.Q = Q
         poti.E = poti.func.(Q)
         poti.params["ħω"]= ħω_i
-	solve_pot!(poti)
+	    solve_pot!(poti)
         println("parameters fit to potentials")
         return poti, potf
 end
@@ -100,7 +116,7 @@ function fitMorseParams(a_i, a_f, b_i, b_f, Q0, E0)
     poti = potential(); poti.name = "Excited state"
     poti.Q0 = 0; poti.E0 = E0;
     poti.nev = nev_excited
-    poti.func = x -> morse(x, [a_i, b_i]; E0 = poti.E0, Q0 = poti.Q0)
+    poti.func = x -> morse(x, [a_i, b_i]; E₀ = poti.E0, Q₀ = poti.Q0)
     poti.Q = Q
     poti.E = poti.func.(Q)
     poti.params["a"]= a_i
@@ -111,7 +127,7 @@ function fitMorseParams(a_i, a_f, b_i, b_f, Q0, E0)
     potf = potential(); potf.name = "Relaxed state"
     potf.Q0 = Q0; potf.E0 = 0
     potf.nev = nev_relaxed # must overlap with initial excited state
-    potf.func = x -> morse(x, [a_f, b_f]; E0 = potf.E0, Q0 = potf.Q0)
+    potf.func = x -> morse(x, [a_f, b_f]; E₀ = potf.E0, Q₀ = potf.Q0)
     potf.params["a"]= a_f
     potf.params["b"]= b_f
     potf.Q = Q
