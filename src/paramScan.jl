@@ -71,8 +71,8 @@ function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
         potf.nev = nev_relaxed
         potf.func = x -> harmonic(x, ħω_f; E₀ = potf.E0, Q₀ = potf.Q0)
         potf.params["ħω"]= ħω_f
-        potf.params["Q₀"]= ΔQ
-	    potf.Q = Q
+        potf.params["Q0"]= ΔQ
+	potf.Q = Q
         potf.E = potf.func.(Q)
         solve_pot!(potf)
 
@@ -84,8 +84,8 @@ function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
         poti.Q = Q
         poti.E = poti.func.(Q)
         poti.params["ħω"]= ħω_i
-        poti.params["ΔE"]= ΔE
-	    solve_pot!(poti)
+        poti.params["E0"]= ΔE
+	solve_pot!(poti)
         println("parameters fit to potentials")
         return poti, potf
 end
@@ -121,7 +121,7 @@ function fitMorseParams(a_i, a_f, b_i, b_f, ΔQ, ΔE)
     poti.func = x -> morse(x, [a_i, b_i]; E₀ = poti.E0, Q₀ = poti.Q0)
     poti.Q = Q
     poti.E = poti.func.(Q)
-    poti.params["dE"]=ΔE
+    poti.params["E0"]=ΔE
     poti.params["a"]= a_i
     poti.params["b"]= b_i
     solve_pot!(poti)
@@ -133,7 +133,7 @@ function fitMorseParams(a_i, a_f, b_i, b_f, ΔQ, ΔE)
     potf.func = x -> morse(x, [a_f, b_f]; E₀ = potf.E0, Q₀ = potf.Q0)
     potf.params["a"]= a_f
     potf.params["b"]= b_f
-    potf.params["dQ"]=ΔQ
+    potf.params["Q0"]=ΔQ
     potf.Q = Q
     potf.E = potf.func.(Q)
     solve_pot!(potf)
@@ -163,9 +163,9 @@ function getHarmonicCapture(poti, potf)
     temperature = [300]
 
     ħω= potf.params["ħω"]
-    ΔE = poti.params["ΔE"]
+    ΔE = poti.params["E0"]
     Q_m = getQ_m(ħω, ΔE)
-    ΔQ = potf.params["Q₀"]
+    ΔQ = potf.params["Q0"]
     W = 0.068/(ΔQ-Q_m) # e-ph coupling
 
     cc = conf_coord(poti, potf) # i, f
@@ -213,8 +213,8 @@ function getMorseCapture(poti, potf)
     g = 1 # degeneracy
     temperature = [300]
 
-    ΔQ = potf.params["dQ"]
-    ΔE = poti.params["dE"]
+    ΔQ = potf.params["Q0"]
+    ΔE = poti.params["E0"]
     a = potf.params["a"]
     b = potf.params["b"]
     Q_m = getMorseQ_m(a, b, ΔE)
