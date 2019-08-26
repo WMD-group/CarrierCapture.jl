@@ -1,6 +1,6 @@
 export getHarmonicQ_m, getMorseQ_m, fitHarmonicParams, fitMorseParams, getHarmonicCapture, getMorseCapture
 
-function getHarmonicQ_m(ħω,ΔE)
+function getHarmonicQ_m(ħω,E0)
     """
     This function gets the value of ΔQ corresponding to an activationless
     Marcus regime (Q_m) for two harmonic potential energy surfaces
@@ -8,7 +8,7 @@ function getHarmonicQ_m(ħω,ΔE)
     Parameters
     -----------
     ħω : energy of vibration of the initial state, in eV
-    ΔE : vertical shift between PES, in eV
+    E0 : vertical shift between PES, in eV
 
     Returns
     -------
@@ -18,12 +18,12 @@ function getHarmonicQ_m(ħω,ΔE)
     ħc = 0.19732697E-6    # eV m
 
     a = amu/2 * (ħω/ħc/1E10)^2
-    return (ΔE/a)^0.5
+    return (E0/a)^0.5
 end
 
-function getMorseQ_m(a, b, ΔE)
+function getMorseQ_m(a, b, E0)
     """
-    This function gets the value of ΔQ corresponding to an activationless
+    This function gets the value of Q corresponding to an activationless
     Marcus regime (Q_m) for two Morse potentials
 
     Parameters
@@ -37,11 +37,11 @@ function getMorseQ_m(a, b, ΔE)
     Q_m : The value of ΔQ corresponding to an activationless Marcus regime, in amu^0.5 Å^-1
     """
 
-    Q_m = (1/b)*log(1-(ΔE/a)^0.5)
+    Q_m = (1/b)*log(1-(E0/a)^0.5)
     return Q_m
 end
 
-function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
+function fitHarmonicParams(ħω_i, ħω_f, Q0, E0)
     """
     This function fits the parameters to the harmonic potential energy surfaces and
     solves the potentials using a 1D S.E. solver
@@ -50,8 +50,8 @@ function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
     ----------
     ħω_i: energy of vibration of the initial state, in eV
     ħω_f: energy of vibration of the final state, in eV
-    ΔQ : horizontal shift between the PES', in amu^0.5 Å^-1
-    ΔE : vertical shift between the PES', in eV
+    Q0 : horizontal shift between the PES', in amu^0.5 Å^-1
+    E0 : vertical shift between the PES', in eV
 
     Returns
     -------
@@ -60,37 +60,37 @@ function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
 
         # set number of eigenvalues (nev) to solve for in potential
         nev_excited = 80
-        nf_min = (1/(ħω_f))*((nev_excited+0.5)ħω_i+2ΔE)-0.5 # ensure max(ε_f) - max(ε_i) > ΔE
+        nf_min = (1/(ħω_f))*((nev_excited+0.5)ħω_i+2E0)-0.5 # ensure max(ε_f) - max(ε_i) > E0
         nev_relaxed = floor(nf_min+1) # minimum number of eigenvalues solved
 
-        Q = range(-20-ΔQ, stop=20+ΔQ, length=5000) # ensure high enough to get good harmonic fit
+        Q = range(-20-Q0, stop=20+Q0, length=5000) # ensure high enough to get good harmonic fit
 
         # potential 1
         potf = potential(); potf.name = "Relaxed state"
-        potf.Q0 = ΔQ; potf.E0 = 0
+        potf.Q0 = Q0; potf.E0 = 0
         potf.nev = nev_relaxed
         potf.func = x -> harmonic(x, ħω_f; E₀ = potf.E0, Q₀ = potf.Q0)
         potf.params["ħω"]= ħω_f
-        potf.params["Q0"]= ΔQ
+        potf.params["Q0"]= Q0
 	potf.Q = Q
         potf.E = potf.func.(Q)
         solve_pot!(potf)
 
         # potential 2
         poti = potential(); poti.name = "Excited state"
-        poti.Q0 = 0; poti.E0 = ΔE;
+        poti.Q0 = 0; poti.E0 = E0;
         poti.nev = nev_excited # must be converged for partition function
         poti.func = x -> harmonic(x, ħω_i; E₀ = poti.E0, Q₀ = poti.Q0)
         poti.Q = Q
         poti.E = poti.func.(Q)
         poti.params["ħω"]= ħω_i
-        poti.params["E0"]= ΔE
+        poti.params["E0"]= E0
 	solve_pot!(poti)
         println("parameters fit to potentials")
         return poti, potf
 end
 
-function fitMorseParams(a_i, a_f, b_i, b_f, ΔQ, ΔE)
+function fitMorseParams(a_i, a_f, b_i, b_f, Q0, E0)
     """
     This function fits the parameters to the Morse potential energy surfaces and
     solves the potentials using a 1D S.E. solver
@@ -101,8 +101,8 @@ function fitMorseParams(a_i, a_f, b_i, b_f, ΔQ, ΔE)
     a_f: first parameter of the Morse potential of the final state
     b_i: second parameter of the Morse potential of the initial state
     b_f: seond parameter of the Morse potential of the final state
-    ΔQ : horizontal shift between the PES', in amu^0.5 Å^-1
-    ΔE : vertical shift between the PES', in eV
+    Q0 : horizontal shift between the PES', in amu^0.5 Å^-1
+    E0 : vertical shift between the PES', in eV
 
     Returns
     -------
@@ -110,30 +110,30 @@ function fitMorseParams(a_i, a_f, b_i, b_f, ΔQ, ΔE)
     """
     # set number of eigenvalues (nev) to solve for in potential
     nev_excited = 180 # must be converged for partition function
-    nev_relaxed = 800 # ensure max(ε_f) - max(ε_i) > ΔE
+    nev_relaxed = 800 # ensure max(ε_f) - max(ε_i) > E0
 
-    Q = range(-20-ΔQ, stop=20+ΔQ, length=5000) # ensure high enough to get good harmonic fit
+    Q = range(-20-Q0, stop=20+Q0, length=5000) # ensure high enough to get good harmonic fit
 
     # potential 1
     poti = potential(); poti.name = "Excited state"
-    poti.Q0 = 0; poti.E0 = ΔE;
+    poti.Q0 = 0; poti.E0 = E0;
     poti.nev = nev_excited
-    poti.func = x -> morse(x, [a_i, b_i]; E₀ = poti.E0, Q₀ = poti.Q0)
+    poti.func = x -> morse(x, [a_i, b_i]; E0 = poti.E0, Q0 = poti.Q0)
     poti.Q = Q
     poti.E = poti.func.(Q)
-    poti.params["E0"]=ΔE
+    poti.params["E0"]=E0
     poti.params["a"]= a_i
     poti.params["b"]= b_i
     solve_pot!(poti)
 
     # potential 2
     potf = potential(); potf.name = "Relaxed state"
-    potf.Q0 = ΔQ; potf.E0 = 0
+    potf.Q0 = Q0; potf.E0 = 0
     potf.nev = nev_relaxed # must overlap with initial excited state
-    potf.func = x -> morse(x, [a_f, b_f]; E₀ = potf.E0, Q₀ = potf.Q0)
+    potf.func = x -> morse(x, [a_f, b_f]; E0 = potf.E0, Q0 = potf.Q0)
     potf.params["a"]= a_f
     potf.params["b"]= b_f
-    potf.params["Q0"]=ΔQ
+    potf.params["Q0"]=Q0
     potf.Q = Q
     potf.E = potf.func.(Q)
     solve_pot!(potf)
@@ -163,10 +163,10 @@ function getHarmonicCapture(poti, potf)
     temperature = [300]
 
     ħω= potf.params["ħω"]
-    ΔE = poti.params["E0"]
-    Q_m = getQ_m(ħω, ΔE)
-    ΔQ = potf.params["Q0"]
-    W = 0.068/(ΔQ-Q_m) # e-ph coupling
+    E0 = poti.params["E0"]
+    Q_m = getQ_m(ħω, E0)
+    Q0 = potf.params["Q0"]
+    W = 0.068/(Q0-Q_m) # e-ph coupling
 
     cc = conf_coord(poti, potf) # i, f
     println("conf coordinate fitted")
@@ -213,13 +213,13 @@ function getMorseCapture(poti, potf)
     g = 1 # degeneracy
     temperature = [300]
 
-    ΔQ = potf.params["Q0"]
-    ΔE = poti.params["E0"]
+    Q0 = potf.params["Q0"]
+    E0 = poti.params["E0"]
     a = potf.params["a"]
     b = potf.params["b"]
-    Q_m = getMorseQ_m(a, b, ΔE)
+    Q_m = getMorseQ_m(a, b, E0)
 
-    W = 0.068/(ΔQ-Q_m) # e-ph coupling
+    W = 0.068/(Q0-Q_m) # e-ph coupling
 
     cc = conf_coord(poti, potf) # i, f
     println("conf coordinate fitted")
