@@ -8,7 +8,23 @@ kB  = 8.6173303E-5 # eV⋅K⁻¹
 # (should be small to ensure convergence of partition function)
 occ_cut_off = 1E-5
 
-# set up structure for parameters
+
+"""
+Stores two `potential`s with e-ph coupling constant `W` to calculate the capture coefficient `capt_coeff`(`temperature`).
+
+## Fields
+
+- `name` -- the name of conf_coord.
+- `V1` and `V2` -- the initial and fianal potentials.
+- `W` -- the e-ph coupling matrix element.
+- `g` -- the degeneracy.
+- `temperature` -- the temperature range where `capt_coeff` is calculated.
+- `capt_coeff` -- the capture coefficient.
+
+## Constructor
+    conf_coord(pot_i::potential, pot_f::potential)
+
+"""
 mutable struct conf_coord
     # Configuration coordinate
     name::String
