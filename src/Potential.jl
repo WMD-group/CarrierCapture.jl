@@ -4,10 +4,28 @@ amu = 931.4940954E6   # eV / c^2
 
 export potential, pot_from_dict, fit_pot!, solve_pot!, find_crossing
 export solve1D_ev_amu
-export sqwell, harmonic, double, polyfunc, morse
+export sqwell, harmonic, double_well, polyfunc, morse
 export get_bspline, get_spline
 
-# set up potential structure
+"""
+Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and fitting function func.
+
+## Fields
+
+- `name` -- the name of potential.
+- `color`  -- the color for plotting.
+- `QE_data`   -- the (n X 2) DataFrame of data points (Q vs Energy). 
+- `func_type`     -- the type of fitting function ("bspline", "spline", "harmonic", "polyfunc", "morse_poly", "morse").
+- `params`    -- the list of hyper paramters for the fitting function.
+- `p0`  -- the initial paramters for the fitting function.
+- `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`.
+- `neV`  -- the number of eigenvalues to be evaluated.
+- `ϵ` -- the list of eigenvalues 
+
+## Constructor
+    potential()
+
+"""
 mutable struct potential
     name::String
     color::String
@@ -21,9 +39,6 @@ mutable struct potential
     nev::Int
     # ϵ includes E0
     ϵ::Array{Float64,1}; χ::Array{Float64,2}
-    # TODO: JLD2 doesn't work
-    #       Don't blame S. Kim.
-    #       Blame JLD2
     potential() = new("", "black", DataFrame(), Inf, 0,
                       "func_type", x->0, Dict(), [0],
                       [], [],
@@ -106,12 +121,10 @@ function fit_pot!(pot::potential, Q)
     end
 end
 
-
 function solve_pot!(pot::potential)
     pot.ϵ, pot.χ = solve1D_ev_amu(pot.func;
         NQ=length(pot.Q), Qi=minimum(pot.Q), Qf=maximum(pot.Q), nev=pot.nev)
 end
-
 
 function solve1D_ev_amu(func; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
     factor = (1/amu) * (ħc*1E10)^2
@@ -143,7 +156,7 @@ function harmonic(x, ħω; E₀, Q₀)
     return a*(x - Q₀)^2 + E₀
 end
 
-function double(x, ħω1, ħω2; param)
+function double_well(x, ħω1, ħω2; param)
     a1 = amu / 2. * (ħω1/ħc/1E10)^2
     a2 = amu / 2. * (ħω2/ħc/1E10)^2
     return - a1*x.*x + a2*x.*x.*x.*x
