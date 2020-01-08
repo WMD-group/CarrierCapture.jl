@@ -11,14 +11,14 @@ makedocs(
         "Home" => "index.md",
         "Library" => Any[
             "Public" => "lib/public.md",
-            "Internals" => "lib/public.md"
         ],
     ]
 )
 
-# Documenter can also automatically deploy documentation to gh-pages.
-# See "Hosting Documentation" and deploydocs() in the Documenter manual
-# for more information.
-#=deploydocs(
-    repo = "<repository url>"
-)=#
+deploydocs(
+    target = "build",
+    repo   = "https://github.com/WMD-group/CarrierCapture.jl.git",
+    branch = "gh-pages",
+    deps   = nothing,
+    make   = nothing
+)
