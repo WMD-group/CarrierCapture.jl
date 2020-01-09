@@ -16,13 +16,14 @@ $(EXPORTS)
 module CarrierCapture
     using DocStringExtensions
     using Reexport
-    using Brooglie
     using LsqFit, Polynomials, Dierckx, Interpolations, Roots
 
     using Plots, LaTeXStrings
     using DataFrames
     # @reexport using Plots, LaTeXStrings
     # @reexport using DataFrames
+
+    include("Brooglie.jl")
 
     include("Potential.jl")
     include("CaptureRate.jl")
