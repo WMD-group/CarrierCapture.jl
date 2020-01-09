@@ -1,5 +1,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![made-with-julia](https://img.shields.io/badge/Made%20with-Julia-ff69bf.svg)](https://julialang.org)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://wmd-group.github.io/CarrierCapture.jl/dev/)
 [![Build Status](https://travis-ci.org/WMD-group/CarrierCapture.jl.svg?branch=master)](https://travis-ci.org/WMD-group/CarrierCapture.jl)
 [![codecov](https://codecov.io/gh/WMD-group/CarrierCapture.jl/branch/master/graph/badge.svg?token=7jzuwloNvs)](https://codecov.io/gh/WMD-group/CarrierCapture.jl)
 [![DOI](https://zenodo.org/badge/130691083.svg)](https://zenodo.org/badge/latestdoi/130691083)
@@ -17,14 +18,6 @@ to also describe anharmonic potential energy surfaces.
 
 The codes are written in [Julia](https://julialang.org), while the scripts and [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org) and use [pymatgen](http://pymatgen.org) and [pawpyseed](https://github.com/kylebystrom/pawpyseed), which are assumed to be installed.
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation.
-The dependencies can be installed by:
-
-```bash
-$ julia
-
-julia> using Pkg
-julia> Pkg.add(PackageSpec(url="https://github.com/RedPointyJackson/Brooglie"))
-```
 
 Install the package by:
 
