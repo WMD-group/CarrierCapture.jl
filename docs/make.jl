@@ -18,7 +18,4 @@ makedocs(
 deploydocs(
     target = "build",
     repo   = "https://github.com/WMD-group/CarrierCapture.jl.git",
-    branch = "gh-pages",
-    deps   = nothing,
-    make   = nothing
 )
