@@ -18,7 +18,7 @@ env:
 
 script: # the default script is equivalent to the following
  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
- - julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/RedPointyJackson/Brooglie.git"))'
+ # - julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/RedPointyJackson/Brooglie.git"))'
  - julia -e 'using Pkg; Pkg.build();'
  - julia -e 'using Pkg; Pkg.test("CarrierCapture"; coverage=true)';
 
@@ -31,6 +31,7 @@ jobs:
       julia: 1.0
       os: linux
       script:
+        #- julia --project=docs/ -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/RedPointyJackson/Brooglie.git"))'
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
                                                 Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
