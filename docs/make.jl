@@ -18,5 +18,5 @@ makedocs(
 
 deploydocs(
     target = "build",
-    repo   = "https://github.com/WMD-group/CarrierCapture.jl.git",
+    repo   = "github.com/WMD-group/CarrierCapture.jl.git",
 )
