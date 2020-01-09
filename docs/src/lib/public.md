@@ -2,8 +2,6 @@
 
 Documentation for `CarrierCapture.jl`'s public interface.
 
-See the Internals section of the manual for internal package docs covering all submodules.
-
 ## Contents
 
 ```@contents
@@ -17,6 +15,8 @@ Pages = ["public.md"]
 ```
 
 ## Public Interface
+
+- link to [Brooglie.jl Documentation](brooglie.html)
 
 ```@docs
 CarrierCapture
