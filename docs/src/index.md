@@ -5,7 +5,6 @@ Documentation for CarrierCapture.jl
 
 ![Logo](https://github.com/WMD-group/CarrierCapture.jl/blob/master/schematics/Logo.png?raw=true)
 
-
 A set of codes to compute carrier capture and recombination rates in semiconducting compounds.
 This topic has a rich history starting from the work by [Huang and Rhys](http://rspa.royalsocietypublishing.org/content/204/1078/406.short).
 Our implementation was inspired by the approach (and FORTRAN code) employed by [Alkauskas and coworkers](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202), but has been adapted
@@ -15,14 +14,6 @@ to also describe anharmonic potential energy surfaces.
 
 The codes are written in [Julia](https://julialang.org), while the scripts and [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org) and use [pymatgen](http://pymatgen.org) and [pawpyseed](https://github.com/kylebystrom/pawpyseed), which are assumed to be installed.
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation.
-The dependencies can be installed by:
-
-```bash
-$ julia
-
-julia> using Pkg
-julia> Pkg.add(PackageSpec(url="https://github.com/RedPointyJackson/Brooglie"))
-```
 
 Install the package by:
 
@@ -80,7 +71,7 @@ The capture of electrons or holes by point defects in a crystalline materials re
 
 The capture coefficient between an initial and final state for this computational set up is given by (eq. 22 in [Alkauskas and coworkers](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202)):
 
- ![equation](https://latex.codecogs.com/gif.latex?\dpi{300}&space;C_p&space;=&space;V&space;\frac{2\pi}{\hbar}&space;g&space;W_{if}^2&space;\sum_m&space;w_m&space;\sum_n&space;|\langle&space;\xi_{im}|&space;Q&space;-&space;Q_0&space;|&space;\xi_{fn}\rangle|^2&space;\delta(\Delta&space;E&space;&plus;&space;m\hbar\Omega_i&space;-n\hbar\Omega_f "equation")
+![equation](https://latex.codecogs.com/gif.latex?\dpi{300}&space;C_p&space;=&space;V&space;\frac{2\pi}{\hbar}&space;g&space;W_{if}^2&space;\sum_m&space;w_m&space;\sum_n&space;|\langle&space;\xi_{im}|&space;Q&space;-&space;Q_0&space;|&space;\xi_{fn}\rangle|^2&space;\delta%281\Delta&space;E&space;&plus;&space;m\hbar\Omega_i&space;-n\hbar\Omega_f%29)
 
 Here, *V* is the volume of the supercell, *W<sub>if</sub>* is the electron-phonon overlap and *ξ<sub>im</sub>* and *ξ<sub>fn</sub>* describe the wavefunctions of the *m<sup>th</sup>* and *n<sup>th</sup>* phonons in the initial *i* and final *f* states. The final delta-function term serves to conserve energy and in practice is replaced by a smearing Gaussian of finite width *σ*.
 
