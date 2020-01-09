@@ -14,6 +14,10 @@ to also describe anharmonic potential energy surfaces.
 The codes are written in [Julia](https://julialang.org), while the scripts and [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org) and use [pymatgen](http://pymatgen.org) and [pawpyseed](https://github.com/kylebystrom/pawpyseed), which are assumed to be installed.
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation.
 
+Install the package by:
+
+Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
+
 Add `/cli` in to your `PATH` so that you can use `GetPotential.jl` and `GetRate.jl` in your work directory.
 
 ```bash
