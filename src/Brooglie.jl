@@ -1,5 +1,7 @@
 """
-A copy of https://github.com/RedPointyJackson/Brooglie
+
+A copy of [https://github.com/RedPointyJackson/Brooglie](https://github.com/RedPointyJackson/Brooglie)
+
 """
 module Brooglie
 
