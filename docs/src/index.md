@@ -2,7 +2,6 @@
 
 Documentation for CarrierCapture.jl
 
-
 ![Logo](https://github.com/WMD-group/CarrierCapture.jl/blob/master/schematics/Logo.png?raw=true)
 
 A set of codes to compute carrier capture and recombination rates in semiconducting compounds.
@@ -14,12 +13,6 @@ to also describe anharmonic potential energy surfaces.
 
 The codes are written in [Julia](https://julialang.org), while the scripts and [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org) and use [pymatgen](http://pymatgen.org) and [pawpyseed](https://github.com/kylebystrom/pawpyseed), which are assumed to be installed.
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation.
-
-Install the package by:
-
-```julia
-Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
-```
 
 Add `/cli` in to your `PATH` so that you can use `GetPotential.jl` and `GetRate.jl` in your work directory.
 
