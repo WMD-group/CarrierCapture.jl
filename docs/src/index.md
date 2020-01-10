@@ -16,7 +16,9 @@ The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to 
 
 Install the package by:
 
+```
 Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
+```
 
 Add `/cli` in to your `PATH` so that you can use `GetPotential.jl` and `GetRate.jl` in your work directory.
 
@@ -68,9 +70,12 @@ The capture of electrons or holes by point defects in a crystalline materials re
 
 The capture coefficient between an initial and final state for this computational set up is given by (eq. 22 in [Alkauskas and coworkers](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202)):
 
-![equation](https://latex.codecogs.com/gif.latex?\dpi{300}&space;C_p&space;=&space;V&space;\frac{2\pi}{\hbar}&space;g&space;W_{if}^2&space;\sum_m&space;w_m&space;\sum_n&space;|\langle&space;\xi_{im}|&space;Q&space;-&space;Q_0&space;|&space;\xi_{fn}\rangle|^2&space;\delta%281\Delta&space;E&space;&plus;&space;m\hbar\Omega_i&space;-n\hbar\Omega_f%29)
+```math
+C_p = V \frac{2\pi}{\hbar} g W_{if}^2 \sum_m w_m \sum_n |\langle \xi_{im}| Q - Q_0 | \xi_{fn}\rangle|^2 \delta (\Delta E + m\hbar\Omega_i -n\hbar\Omega_f )
+```
 
-Here, *V* is the volume of the supercell, *W<sub>if</sub>* is the electron-phonon overlap and *ξ<sub>im</sub>* and *ξ<sub>fn</sub>* describe the wavefunctions of the *m<sup>th</sup>* and *n<sup>th</sup>* phonons in the initial *i* and final *f* states. The final delta-function term serves to conserve energy and in practice is replaced by a smearing Gaussian of finite width *σ*.
+
+Here, ``V`` is the volume of the supercell, ``W_{if}`` is the electron-phonon overlap and ``ξ_{im}`` and ``ξ_{fn}`` describe the wavefunctions of the ``m^{th}`` and ``n^{th}`` phonons in the initial ``i`` and final ``f`` states. The final delta-function term serves to conserve energy and in practice is replaced by a smearing Gaussian of finite width ``σ``.
 
 ### User Warning
 
@@ -101,7 +106,7 @@ In addition, the alignment of energy surfaces for defects in different charge st
 
 * [Kim et al, Anharmonic Lattice Relaxation during Non-radiative Carrier Capture (2019)](https://arxiv.org/abs/1904.01348)
 
-* [Kim et al, Lone-pair effect on carrier capture in Cu<sub>2</sub>ZnSnS<sub>4</sub> solar cells (2019)](https://pubs.rsc.org/en/content/articlehtml/2019/ta/c8ta10130b)
+* [Kim et al, Lone-pair effect on carrier capture in Cu2ZnSnS4 solar cells (2019)](https://pubs.rsc.org/en/content/articlehtml/2019/ta/c8ta10130b)
 
 * [Kim et al, Identification of killer defects in kesterite thin-film solar cells (2018)](https://pubs.acs.org/doi/abs/10.1021/acsenergylett.7b01313)
 
