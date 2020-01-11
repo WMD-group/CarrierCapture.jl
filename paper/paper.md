@@ -13,7 +13,6 @@ authors:
     orcid: 0000-0001-9815-6289
     affiliation: 1  
   - name: Puck van Gerwen 
-    orcid: 
     affiliation: 1        
   - name: Lucy D. Whalley
     orcid: 0000-0002-2992-9871
@@ -21,16 +20,14 @@ authors:
   - name: Aron Walsh
     orcid: 0000-0001-5460-7033
     affiliation: "1, 2"
-    
 affiliations:
   - name: Department of Materials, Imperial College London, London, UK
     index: 1
   - name: Department of Materials Science and Engineering, Yonsei University, Seoul, Korea
     index: 2
-date: 01 September 2019
+date: 31 January 2020
 bibliography: paper.bib
 ---
-
 The modern theory of defects in semiconducting materials allows for the accurate prediction of equilibrium point defect concentrations and transitions levels within the band gap from first-principles quantum mechanical simulations [@park2018point]. The procedures for such calculations are now well established [@freysoldt2014first].
 
 Beyond an equilibrium description, the operation and performance of optoelectronic devices, including solar cells and light-emitting diodes, relies on the interaction of points defects with non-equilibrium populations of electrons and holes. The non-radiataive capture of charge carriers by lattice defects results in efficiency loss, which can range from supressing luminesence to irrereversible chemical degradation [@stoneham1981non].
@@ -55,3 +52,4 @@ The development of this code has benefited through discussions with and contribu
 Ji-Sang Park, Jarvist M. Frost, and Zijuan Xie, as well as John Buckeridge and Alexey A. Sokol from University College London. 
 
 # References
+
