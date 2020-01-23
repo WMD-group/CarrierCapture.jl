@@ -34,17 +34,16 @@ Beyond an equilibrium description, the operation and performance of optoelectron
 
 `CarrierCapture.jl` is designed to calculate the rates of carrier capture by point defects from first-principles data. It builds on a large body of well established theory [@stoneham1981non], which was recently adapted to be compatible with quantities accessible from density functional theory (DFT) calculations [@alkauskas2014first]. In our implementation, we remove the harmonic approximation for the potential energy surfaces, which can be strongly asymmetric [@kim2019anham].
 
-**Core components:** Sunghyun 
-
-**Standard workflow:** Sunghyun
-
-**High-throughput workflows:** Puck
+A standard workflow involves building potentials and calculating electron-transfer rates.  `potential` stores essential information of a potential energy surface of a defect and offers various fitting schemes. `confi_coord` consists of two `potential`s and calculates the overlap between thier wave functions and the rate of electron transfer.
+Common computational workflows that reproduce published examples [@Kim2019kesterite; @kim2019anham] are available on Github pages. 
+The API documentation including the guide to the intallation is also up-to-date on GitHub pages. 
 
 **Interfacing to other codes:** A range of input paramaters are required to describe the bulk and defective properties of the material. Scripts are provided to extract these from DFT calculations using `VASP`, but these can easily be modified to read data from other packages. Caution should to be taken in checking covergence with respect to calculation settings, e.g. basis sets and k-point sampling, as small errors in relative energies can change the resulting carrier capture cross-sections by orders of magnitude. 
 
+
 # Author contributions
 
-[SK](https://github.com/frssp) wrote the majority of the code base with contributions from [SH](https://github.com/PaleBlueSam). [LW](https://github.com/lucydot) and [PvG](https://github.com/puckvg) performed detailed code testing and contributed to the example and test suite. All authors along with [AW](https://github.com/aronwalsh) made decisions about code design and feature implementation. This manuscript was written with input from all co-authours.
+[Sunghyun Kim](https://github.com/frssp) wrote the majority of the code base with contributions from [Samanth N. Hood](https://github.com/PaleBlueSam). [Lucy D. Whalley](https://github.com/lucydot) and [Puck van Gerwen](https://github.com/puckvg) performed detailed code testing and contributed to the example and test suite. All authors along with [Aron Walsh](https://github.com/aronwalsh) made decisions about code design and feature implementation. This manuscript was written with input from all co-authours.
 
 # Acknowledgements
 
