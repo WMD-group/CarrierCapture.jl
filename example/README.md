@@ -106,7 +106,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
       mv wf_k0b<band_index>.npy wf_i.npy
 
-      # Final: localized defect wavefucntion
+      # Final: localized defect wavefunction
       NBAND=<band_index_for_defect_wf>
       for NUM in {-10,-06,-04,-02,-01,000,001,002,004,006,010}
       do
