@@ -7,6 +7,7 @@ Two structs are exported from this module for public use:
 
 - [`potential`](@ref). Potential.
 - [`conf_coord`](@ref). Configuration coordinate.
+- [`Plotter`](@ref). Auxiliary submodule for plotting.
 
 # Exports
 
@@ -15,10 +16,10 @@ $(EXPORTS)
 """
 module CarrierCapture
     using DocStringExtensions
-    using Reexport
+    # using Reexport
     using LsqFit, Polynomials, Dierckx, Interpolations, Roots
 
-    using Plots, LaTeXStrings
+    # using Plots, LaTeXStrings
     using DataFrames
     # @reexport using Plots, LaTeXStrings
     # @reexport using DataFrames
