@@ -111,6 +111,7 @@ function calc_capt_coeff!(cc::conf_coord, V, temperature)
     @assert occ_high < occ_cut_off "occ(ϵ_max, T_max): $occ_high should be less than $occ_cut_off"
 
     cc.capt_coeff = dropdims(sum(partial_capt_coeff, dims = (1, 2)), dims = (1, 2))
+    replace!(cc.capt_coeff, 0=>1E-127)
     cc.partial_capt_coeff = partial_capt_coeff
     cc.temperature = temperature
 end

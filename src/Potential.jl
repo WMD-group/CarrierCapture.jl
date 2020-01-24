@@ -3,9 +3,10 @@ amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 
 export potential, pot_from_dict, fit_pot!, solve_pot!, find_crossing
+export Plotter
 export solve1D_ev_amu
-export sqwell, harmonic, double_well, polyfunc, morse
-export get_bspline, get_spline
+# export sqwell, harmonic, double_well, polyfunc, morse
+# export get_bspline, get_spline
 
 """
 Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and fitting function func.
@@ -13,7 +14,6 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 ## Fields
 
 - `name` -- the name of potential.
-- `color`  -- the color for plotting.
 - `QE_data`   -- the (n X 2) DataFrame of data points (Q vs Energy). 
 - `func_type`     -- the type of fitting function ("bspline", "spline", "harmonic", "polyfunc", "morse_poly", "morse").
 - `params`    -- the list of hyper paramters for the fitting function.
@@ -28,18 +28,17 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 """
 mutable struct potential
     name::String
-    color::String
     QE_data::DataFrame
     E0::Float64; Q0::Float64
     func_type::String
-    func
+    func # can be either Function or Interpolations.ScaledInterpolation
     params::Dict{String, Any}
     p0::Array{Float64,1}
     Q::Array{Float64,1}; E::Array{Float64,1}
     nev::Int
     # ϵ includes E0
     ϵ::Array{Float64,1}; χ::Array{Float64,2}
-    potential() = new("", "black", DataFrame(), Inf, 0,
+    potential() = new("", DataFrame([0 0], [:Q, :E]), Inf, 0,
                       "func_type", x->0, Dict(), [0],
                       [], [],
                       0, [], Array{Float64}(undef, 0, 2))
@@ -49,7 +48,6 @@ end
 function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot = potential()
     pot.name = cfg["name"]
-    pot.color = cfg["color"]
     pot.nev = cfg["nev"]
     pot.func_type = cfg["function"]["type"]
     pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
@@ -68,37 +66,46 @@ function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
 end
 
 # fitting potential
-function fit_pot!(pot::potential, Q)
+function fit_pot!(pot::potential, Q; params = nothing)
     # pot.params["E0"] = pot.E0
     # pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
 
     E_CUT = 2 # defines upper energy limit on data used for fitting
     e_cut_ind = pot.QE_data.E .< E_CUT + pot.E0 # boolean
 
-    params = pot.params
+    params = if params == nothing pot.params else params end
     pot.Q = Q
 
     println("Potential fitting: $(pot.name)")
 
     if pot.func_type == "bspline"
         println("=========bspline=========\n")
+
         bspline = get_bspline(pot.QE_data.Q, pot.QE_data.E)
         pot.E = bspline(Q)
         pot.func = bspline
+
     elseif pot.func_type == "spline"
         println("=========spline==========\n")
+
         weight = get(params, "weight", nothing)
-        weight = parse.(Float64, split(weight))
+        if isa(weight, String) 
+            weight = parse.(Float64, split(weight)) 
+        end
+        weight = vec(weight)
         smoothness = get(params, "smoothness", 0)
         order = get(params, "order", 2)
+
         spline = get_spline(pot.QE_data.Q, pot.QE_data.E; weight = weight, smoothness = smoothness, order = order)
         pot.E = spline(Q)
         pot.func = spline
+
     elseif pot.func_type == "harmonic"
         println("========harmonic=========\n")
         # func = x -> harmonic(x, params["hw"]; param = params)
         pot.E = harmonic.(Q, params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
         pot.func = x -> harmonic(x, params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
+
     else
         if pot.func_type == "polyfunc"
             println("========polynomial========\n")
