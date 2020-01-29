@@ -47,17 +47,19 @@ If you would like to contribute, please do so via a pull request.
 
 A typical workflow will consist of several steps, implemented in a series of short programs, which may be run from the command line. Input for the calculations is provided in `input.yaml`.
 
-1. Prepare a sequence of atomic structure models with displacements that interpolate between two defect configurations (e.g. a site vacancy in charge states q=0 and q=+1).
-Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing may be found in [script](./script/).
+ 0. Prepare a sequence of atomic structure models with displacements that interpolate between two defect configurations (e.g. a site vacancy in charge states q=0 and q=+1).
+    Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing may be found in `script`.
 
-2. Generate configuration coordinate diagrams with fits to the two potential energy surfaces (PES) using `GetPotential.jl`.
-Solve the 1D Schrödinger equation for each PES to obtain their phonon (nuclear) wavefunctions.
+ 1. Find a best fit for the energy calculations of the deferomed structures (`potential`) to generate potential energy surfaces (PES).
+    Solve the 1D Schrödinger equation for each PES to obtain their phonon (nuclear) wavefunctions.
 
-<center>
-<img src="schematics/carrier_capture_sketch.png" width="400" />
-</center>
+ 3. Constructe configuration coordinate (`conf_coord`) to calculate the wavefunction overlap between each PES, 
+    which forms part of the temperature-dependent capture coefficient.
 
-3. Calculate the wavefunction overlap between each PES, which forms part of the temperature-dependent capture coefficient that is obtained using `GetRate.jl`.
+![schematics](https://github.com/WMD-group/CarrierCapture.jl/blob/master/schematics/carrier_capture_sketch.png?raw=true "schematics")
+
+The command-line interface (`GetPotential.jl` and `GetRate.jl`) is depreciated.
+Use [Jupyter Notebook](http://jupyter.org) [examples](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/) as a template.
 
 ## Examples
 
@@ -66,6 +68,8 @@ The following examples are provided to illustrate some of the applications of th
 * [Sn<sub>Zn</sub> in Cu<sub>2</sub>ZnSnS<sub>4</sub>](./example/Sn_Zn_CZTS): Harmonic approximation
 
 * [DX-center in GaAs](./example/DX-center): Anharmonic fitting
+
+* [Electron-phonon coupling](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/e-ph.ipynb): Electron-phonon coupling matrix element
 
 ## Theory
 
