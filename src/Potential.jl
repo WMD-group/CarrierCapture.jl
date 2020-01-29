@@ -92,7 +92,9 @@ function fit_pot!(pot::potential, Q; params = nothing)
         if isa(weight, String) 
             weight = parse.(Float64, split(weight)) 
         end
-        weight = vec(weight)
+        if weight ≠ nothing
+            weight = vec(weight)
+        end
         smoothness = get(params, "smoothness", 0)
         order = get(params, "order", 2)
 
