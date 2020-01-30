@@ -20,17 +20,6 @@ Install the package by:
 Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
 ```
 
-Add `/cli` in to your `PATH` so that you can use `GetPotential.jl` and `GetRate.jl` in your work directory.
-
-```bash
-$ julia
-
-julia> using CarrierCapture
-julia> pathof(CarrierCapture)
-"<YOUR_PATH_TO_PACKAGE>/src/CarrierCapture.jl"
-
-$ export PATH=<YOUR_PATH_TO_PACKAGE>/cli;$PATH
-```
 
 ## Development
 
@@ -45,13 +34,16 @@ A typical workflow will consist of several steps, implemented in a series of sho
  0. Prepare a sequence of atomic structure models with displacements that interpolate between two defect configurations (e.g. a site vacancy in charge states q=0 and q=+1).
     Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing may be found in `script`.
 
- 1. Generate configuration coordinate diagrams with fits to the two potential energy surfaces (PES) using `GetPotential.jl`.
+ 1. Find a best fit for the energy calculations of the deferomed structures (`potential`) to generate potential energy surfaces (PES).
     Solve the 1D Schrödinger equation for each PES to obtain their phonon (nuclear) wavefunctions.
 
-
- 2. Calculate the wavefunction overlap between each PES, which forms part of the temperature-dependent capture coefficient that is obtained using `GetRate.jl`.
+ 3. Constructe configuration coordinate (`conf_coord`) to calculate the wavefunction overlap between each PES, 
+    which forms part of the temperature-dependent capture coefficient.
 
 ![schematics](https://github.com/WMD-group/CarrierCapture.jl/blob/master/schematics/carrier_capture_sketch.png?raw=true "schematics")
+
+The command-line interface (`GetPotential.jl` and `GetRate.jl`) is depreciated.
+Use [Jupyter Notebook](http://jupyter.org) [examples](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/) as a template.
 
 
 ## Examples
@@ -61,6 +53,9 @@ The following examples are provided to illustrate some of the applications of th
 * [Sn_Zn in CZTS](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Harmonic%20(Sn_Zn).ipynb): Harmonic approximation
 
 * [DX-center in GaAs](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Anharmonic%20(DX%20center).ipynb): Anharmonic fitting
+
+* [Electron-phonon coupling](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/e-ph.ipynb): Electron-phonon coupling matrix element
+
 
 ## Theory
 

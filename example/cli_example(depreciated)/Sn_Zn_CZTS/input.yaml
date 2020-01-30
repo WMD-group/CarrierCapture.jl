@@ -1,0 +1,91 @@
+# Qi and Qf [amu^(1/2)*Å] define the domain over which the potentials will be solved (Q ∈ [Qi, Qf]), discretised in `NQ` steps
+Qi: -25
+Qf: 35
+NQ: 2000
+
+# PLOT INPUT
+# defining plot axes limits for the E vs Q (solving potentials) and the C vs 1/T (carrier capture rate vs inverse temperature) plots
+plot:
+    Qmin: -5
+    Qmax: 10
+    Emin: -0.2
+    Emax: 2
+    Cmin: 1E-20
+    Cmax: 1E-5
+    invTmin: 1
+    invTmax: 5
+
+# POTENTIAL INPUT
+
+# potential:	potentials from files (e.g. Potential_1.csv and Potential_2.csv). Each potential is read from a file with Q and E in columns 1 and 2 respectively.
+# poly_order:   order of the polynomial that you'd like to use to fit your potential data
+# nev: 		the number of energy levels to be solved for the potentials.
+# E0: 		energy offset of potential minimum [eV]
+# p0: 		initial guesses for polynomial coefficients for fitting (must have poly_order + 1 entries)
+potentials:
+    - potential:
+        name: SnII+e+h
+        data:
+            E: 1.46
+            Q: 0
+        nev: 40 
+        E0: 1.46
+        function:
+            type: harmonic
+            params:
+                hw: 0.0288945775003
+        color: "#b2182b"
+    - potential:
+        name: SnIII+h
+        data:
+            E: 0.585005
+            Q: 1.90291674728
+        nev: 60
+        E0: 0.585005
+        function:
+            type: harmonic
+            params:
+                hw: 0.0281812646475
+        color: "#2166ac"
+    - potential:
+        name: SnII
+        data:
+            E: 0
+            Q: 0 
+        nev: 50
+        E0: 0
+        function:
+            type: harmonic
+            params:
+                hw: 0.0288945775003
+        color: "#b2182b"
+
+# CAPTURE INPUT
+
+# V: 	volume of supercell [m³]
+# g: 	configurational degeneracy 
+# W: 	electron-phonon coupling matrix element [ev/(amu^(1/2)*Å)]
+# Tmin, Tmax: temperature range for calculating capture coefficient [K]
+# NT: 	number of grid points for temperature dependent calculations
+
+# cut_off: energetic difference criteria for overlap of phonons (Δϵ < cut_off) [eV]
+# σ: amount of smearing of delta functions for determining phonon overlap
+
+captures:
+    Tmin: 10
+    Tmax: 800
+    NT: 100
+    Volume: 1.28463E-21
+    cut_off: 0.25
+    σ: 0.0075
+    ccs:
+        - cc:
+            W: 0.205
+            g: 1
+            initial: SnII+e+h
+            final: SnIII+h
+        - cc:
+            W: 0.178
+            g: 2
+            initial: SnIII+h
+            final: SnII
