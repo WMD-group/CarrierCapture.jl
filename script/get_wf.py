@@ -1,28 +1,40 @@
 from pawpyseed.core.projector import * # also imports the wavefunction module
-print('read wfs')
-wf_02 = Wavefunction.from_directory('DISP_-02', setup_projectors=False)
+import numpy as np#
+np.set_printoptions(4)
 
-wf_01 = Wavefunction.from_directory('DISP_-01', setup_projectors=False)
-wf000 = Wavefunction.from_directory('DISP_000', setup_projectors=False)
-wf001 = Wavefunction.from_directory('DISP_001', setup_projectors=False)
-wf002 = Wavefunction.from_directory('DISP_002', setup_projectors=False)
-wf003 = Wavefunction.from_directory('DISP_003', setup_projectors=False)
-wf004 = Wavefunction.from_directory('DISP_004', setup_projectors=False)
-print('realspace')
+import argparse
+parser = argparse.ArgumentParser(description='Pawpyseed wrapper: calculating overlap between wave functions \
+    e.g. python get_wf.py   -d 288 -b 291  -D DISP_000 -i DISP_-02 DISP_-01 DISP_001 DISP_002 ')
 
-wf_CBM = wf000.write_state_realspace(433, 0, 0, dim=[336, 336, 336])
-np.save('CBM.npy', wf_CBM)
-print('CBM')
-wf_VBM = wf000.write_state_realspace(431, 0, 0, dim=[336, 336, 336])
-np.save('VBM.npy', wf_VBM)
-print('VBM')
+parser.add_argument('-D','--dir_init', help='directory for the initial state', type=str, required=True, default="DISP_000")
+parser.add_argument('-i','--input', help='defect for deformed structures', type=str, nargs='+', required=True)
 
-wf_defects = [ wf.write_state_realspace(432, 0, 0, dim=[336, 336, 336]) for wf in [wf_02, wf_01, wf000, wf001, wf002, wf003, wf004]]
-print('DEFECTS')
-np.save('D_-02.npy', wf_defects[0])
-np.save('D_-01.npy', wf_defects[1])
-np.save('D_000.npy', wf_defects[2])
-np.save('D_001.npy', wf_defects[3])
-np.save('D_002.npy', wf_defects[4])
-np.save('D_003.npy', wf_defects[5])
-np.save('D_004.npy', wf_defects[6])
+parser.add_argument('-b','--band', help='band index for a initial state', nargs='+', type=int, required=True)
+parser.add_argument('-d','--defect', help='band index for a final state', type=int, required=True)
+args = parser.parse_args()
+
+
+band_indice = args.band
+defect_ind = args.defect
+
+wf_list = []
+overlap_list = []
+
+wf_basis = Wavefunction.from_directory(args.dir_init, setup_projectors=False)
+kpt_len = len(wf_basis.kpts)
+
+for dir_name in ["{}".format(_) for _ in args.input]:
+    wf_trap = Wavefunction.from_directory(dir_name, setup_projectors=False)
+    pr = Projector(wf_trap, wf_basis)
+    result = pr.single_band_projection(band_num=defect_ind)
+
+    # result = result.reshape((kpt_len, int(len(result)/kpt_len)))
+    result = result.reshape((int(len(result)/kpt_len), kpt_len))
+    result = result[:, 0]
+    overlap_list.append(result[band_indice])
+
+print("\n\n\n")
+print("=================================")
+print("----------- Overlaps ------------")
+print("=================================")
+print(np.abs(np.array(overlap_list)))
