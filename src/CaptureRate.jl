@@ -75,16 +75,16 @@ end
 # V: 	  volume of supercell [cm³]
 # temperature: range from Tmin to Tmax for NT steps
 """
-    calc_capt_coeff!(cc::conf_coord, V, temperature)
+    calc_capt_coeff!(cc::conf_coord, V::Float64, temperature)
 
-Calculte the capture coefficient `cc.capt_coeff` as a function of `temperature`.
+Calculte the capture coefficient `cc.capt_coeff` as a function of `temperature` which is a `UnitRange`.
 `V` is a volume where the electron-phonon coupling matrix element `cc.W` is calculated.
 The lowest thermal occupation number of the eigenstate must be lower than `occ_cut_off = 1E-5`.
 
     @assert occ_high < occ_cut_off "occ(ϵ_max, T_max): \$occ_high should be less than $occ_cut_off"
 
 """
-function calc_capt_coeff!(cc::conf_coord, V, temperature)
+function calc_capt_coeff!(cc::conf_coord, V::Float64, temperature)
     # TODO:       convergence over σ
     partial_capt_coeff = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ), length(temperature))
     cc.capt_coeff = zeros(length(temperature))
