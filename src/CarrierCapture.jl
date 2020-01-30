@@ -5,20 +5,18 @@ Main module for `CarrierCapture.jl` -- A set of codes to compute carrier capture
 
 Two structs are exported from this module for public use:
 
-- [`potential`](@ref). Potential.
-- [`conf_coord`](@ref). Configuration coordinate.
-
-# Exports
-
-$(EXPORTS)
+- [`potential`](@ref): Potential.
+- [`conf_coord`](@ref): Configuration coordinate.
+- [`Plotter`](@ref): Auxiliary submodule for plotting.
+- [`Brooglie`](@ref): 1D Shrödinger equation solver.
 
 """
 module CarrierCapture
     using DocStringExtensions
-    using Reexport
+    # using Reexport
     using LsqFit, Polynomials, Dierckx, Interpolations, Roots
 
-    using Plots, LaTeXStrings
+    # using Plots, LaTeXStrings
     using DataFrames
     # @reexport using Plots, LaTeXStrings
     # @reexport using DataFrames
