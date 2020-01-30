@@ -18,7 +18,6 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 - `E0`, `Q0`  -- the minimum point of the potential [`Q0`, `E0`].
 - `func_type`     -- the type of fitting function ("bspline", "spline", "harmonic", "polyfunc", "morse_poly", "morse").
 - `params`    -- the list of hyper paramters for the fitting function.
-- `p0`  -- the initial paramters for the fitting function.
 - `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`.
 - `nev`  -- the number of eigenvalues to be evaluated.
 - `ϵ` -- the list of eigenvalues 
@@ -34,41 +33,16 @@ mutable struct potential
     func_type::String
     func # can be either Function or Interpolations.ScaledInterpolation
     params::Dict{String, Any}
-    p0::Array{Float64,1}
     Q::Array{Float64,1}; E::Array{Float64,1}
     nev::Int
     # ϵ includes E0
     ϵ::Array{Float64,1}; χ::Array{Float64,2}
     potential() = new("", DataFrame([0 0], [:Q, :E]), Inf, 0,
-                      "func_type", x->0, Dict(), [0],
+                      "func_type", x->0, Dict(),
                       [], [],
                       0, [], Array{Float64}(undef, 0, 2))
 end
 
-# read potential
-"""
-Depreciated.  
-Construct `potential` from `QE_data` and configure dictionalry `cfg`.
-"""
-function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
-    pot = potential()
-    pot.name = cfg["name"]
-    pot.nev = cfg["nev"]
-    pot.func_type = cfg["function"]["type"]
-    pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
-    pot.E0 = get(cfg, "E0", Inf)
-    pot.QE_data = QE_data
-
-    pot.params = get(cfg["function"], "params",  Dict("E0" => pot.E0))
-
-    pot.Q0 = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
-
-    if pot.E0 < Inf
-        pot.QE_data.E .+= - minimum(pot.QE_data.E) + pot.E0
-    end
-
-    return pot
-end
 
 """ 
     fit_pot!(pot::potential, Q; params = nothing)
@@ -108,7 +82,7 @@ Fit a function `pot.func_type` to `QE_data` on the domain `Q`.
     Polynomial function;  
         `y = E₀ + Σ coeffs[i].* (x .- Q₀) .^(i-1)`.   
     - `poly_order`: the maximum order of polynomials.
-
+    - `p0`: the initial paramters for the fitting function.
 
 ## Example
 - Spline fit
@@ -116,13 +90,13 @@ Fit a function `pot.func_type` to `QE_data` on the domain `Q`.
 nev = 60
 name = "DX-+h"
 
-Q2 = [30.66721918 29.860133 29.05306268 28.24612992 27.43911044 26.63197583 25.82507425 25.01797262 24.21096115 23.40387798 22.59690043 21.78991117 20.98281579 20.17570172 19.36884219 18.56169249 17.75463179 16.94772679 16.14061031 15.33347439 14.52663309 13.71945696 12.91240658 12.10544441 11.29841968 10.4913338 9.684370388 8.877289725 8.070184138]
-E2 = [8.0902 7.5970 7.0749 6.5242 5.9461 5.3451 4.7300 4.1147 3.5182 2.9637 2.4769 2.0819 1.7972 1.6315 1.5800 1.6237 1.7301 1.8586 1.9687 2.0283 2.0190 2.0673 1.9910 2.0528 1.9730 2.0857 2.4550 3.1653 4.3448]
+Q1 = [30.66721918 29.860133 29.05306268 28.24612992 27.43911044 26.63197583 25.82507425 25.01797262 24.21096115 23.40387798 22.59690043 21.78991117 20.98281579 20.17570172 19.36884219 18.56169249 17.75463179 16.94772679 16.14061031 15.33347439 14.52663309 13.71945696 12.91240658 12.10544441 11.29841968 10.4913338 9.684370388 8.877289725 8.070184138]
+E1 = [8.0902 7.5970 7.0749 6.5242 5.9461 5.3451 4.7300 4.1147 3.5182 2.9637 2.4769 2.0819 1.7972 1.6315 1.5800 1.6237 1.7301 1.8586 1.9687 2.0283 2.0190 2.0673 1.9910 2.0528 1.9730 2.0857 2.4550 3.1653 4.3448]
 
 pot = potential(); pot.name = name
 pot.nev = nev
-pot.Q0 = Q2[findmin(E1)[2]]; pot.E0 = 1.69834
-pot.QE_data = DataFrame(Q = Q2[:], E = E2[:])
+pot.Q0 = Q1[findmin(E1)[2]]; pot.E0 = 1.69834
+pot.QE_data = DataFrame(Q = Q1[:], E = E1[:])
 pot.QE_data.E .+= - minimum(pot.QE_data.E) + pot.E0
 pot.Q = Q
 
@@ -203,7 +177,7 @@ function fit_pot!(pot::potential, Q; params = nothing)
             func = (x, p) -> morse(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
         end
 
-        fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], pot.p0) # curve_fit : model, x data, y data, p0
+        fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(params["p0"])) # curve_fit : model, x data, y data, p0
         pot.E = func.(Q, Ref(fit.param)) # when calling function, need to Ref() so that it can deal with array mismatch
         pot.func = x -> func(x, fit.param)
 
@@ -227,22 +201,22 @@ function solve_pot!(pot::potential)
     pot.ϵ, pot.χ = solve1D_ev_amu(pot.func, pot.Q; nev=pot.nev)
 end
 
+
 """
 Solve 1D Shrödinger equation. The Brooglie wrapper in the unit of `eV` and `amu`.
 """
-function solve1D_ev_amu(func, Q; nev=30, maxiter=nev*NQ)
+function solve1D_ev_amu(func, Q::AbstractArray{<:Real,1}; nev=30, maxiter=nev*length(Q))
     NQ=length(Q); Qi=minimum(Q); Qf=maximum(Q)
     return solve1D_ev_amu(func, NQ, Qi, Qf; nev=nev, maxiter=maxiter)
 end
 
-function solve1D_ev_amu(func, NQ, Qi, Qf; nev=30, maxiter=nev*NQ)
+function solve1D_ev_amu(func, NQ::Int, Qi::Real, Qf::Real; nev=30, maxiter=nev*length(Q))
     factor = (1/amu) * (ħc*1E10)^2
 
     ϵ1, χ1 = Brooglie.solve(x -> func.(x*factor^0.5);
                   N=NQ, a=Qi/factor^0.5, b=Qf/factor^0.5, m=1, nev=nev, maxiter=maxiter)
     return ϵ1, vcat(χ1'...)/factor^0.25
 end
-
 
 
 """
@@ -260,6 +234,32 @@ function find_crossing(pot_1::potential, pot_2::potential)
 end
 
 
+# read potential
+"""
+Depreciated.  
+Construct `potential` from `QE_data` and configure dictionalry `cfg`.
+"""
+function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
+    pot = potential()
+    pot.name = cfg["name"]
+    pot.nev = cfg["nev"]
+    pot.func_type = cfg["function"]["type"]
+    # pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
+    pot.E0 = get(cfg, "E0", Inf)
+    pot.QE_data = QE_data
+
+    pot.params = get(cfg["function"], "params",  Dict("E0" => pot.E0))
+    pot.params["p0"] =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
+
+    pot.Q0 = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
+
+    if pot.E0 < Inf
+        pot.QE_data.E .+= - minimum(pot.QE_data.E) + pot.E0
+    end
+
+    return pot
+end
+
 ############################################################
 # Set of potentials
 function sqwell(x, width, depth; x0=0.)
@@ -273,14 +273,14 @@ function harmonic(x, ħω; E₀, Q₀)
     return a*(x - Q₀)^2 + E₀
 end
 
-function double_well(x, ħω1, ħω2; param)
+function double_well(x, ħω1::Real, ħω2::Real; param)
     a1 = amu / 2. * (ħω1/ħc/1E10)^2
     a2 = amu / 2. * (ħω2/ħc/1E10)^2
     return - a1*x.*x + a2*x.*x.*x.*x
 end
 
 # Set of potentials for fitting
-function polyfunc(x, coeffs; E₀, Q₀, poly_order)
+function polyfunc(x, coeffs; E₀::Real, Q₀::Real, poly_order::Int)
     # E0 = param["E0"]
     # Q₀ = param["Q0"]
     # poly_order = Int(param["poly_order"])
