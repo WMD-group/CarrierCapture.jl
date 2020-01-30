@@ -16,10 +16,13 @@ Pages = ["public.md"]
 
 ## Public Interface
 
-- link to [Brooglie.jl Documentation](brooglie.html)
-
 ```@docs
 CarrierCapture
 potential
+fit_pot!
+solve_pot!
+find_crossing
 conf_coord
+calc_overlap!
+calc_capt_coeff!
 ```

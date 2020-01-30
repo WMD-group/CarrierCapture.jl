@@ -11,7 +11,8 @@ makedocs(
         "Home" => "index.md",
         "Library" => Any[
             "Public" => "lib/public.md",
-            "Brooglie" => "lib/brooglie.md"
+            "Brooglie" => "lib/brooglie.md",
+            "Plotter" => "lib/plotter.md"
         ],
     ]
 )

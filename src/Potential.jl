@@ -4,7 +4,7 @@ amu = 931.4940954E6   # eV / c^2
 
 export potential, pot_from_dict, fit_pot!, solve_pot!, find_crossing
 export Plotter
-export solve1D_ev_amu
+# export solve1D_ev_amu
 # export sqwell, harmonic, double_well, polyfunc, morse
 # export get_bspline, get_spline
 
@@ -15,11 +15,12 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 
 - `name` -- the name of potential.
 - `QE_data`   -- the (n X 2) DataFrame of data points (Q vs Energy). 
+- `E0`, `Q0`  -- the minimum point of the potential [`Q0`, `E0`].
 - `func_type`     -- the type of fitting function ("bspline", "spline", "harmonic", "polyfunc", "morse_poly", "morse").
 - `params`    -- the list of hyper paramters for the fitting function.
 - `p0`  -- the initial paramters for the fitting function.
 - `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`.
-- `neV`  -- the number of eigenvalues to be evaluated.
+- `nev`  -- the number of eigenvalues to be evaluated.
 - `ϵ` -- the list of eigenvalues 
 
 ## Constructor
@@ -45,6 +46,10 @@ mutable struct potential
 end
 
 # read potential
+"""
+Depreciated.  
+Construct `potential` from `QE_data` and configure dictionalry `cfg`.
+"""
 function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot = potential()
     pot.name = cfg["name"]
@@ -65,7 +70,86 @@ function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     return pot
 end
 
-# fitting potential
+""" 
+    fit_pot!(pot::potential, Q; params = nothing)
+
+Fit a function `pot.func_type` to `QE_data` on the domain `Q`.
+
+## parameters
+
+- `pot`: `potential`
+    - `pot.func_type`: the fitting function; `{"spline" (preferred), "bspline", "harmonic", "polyfunc", "morse_poly", "morse"}`.  
+- `Q`: the spatial domain (1-d array).   
+- `params`: the hyperparameters.  
+
+### Hyperparameters `params`
+
+- spline (preferred)  
+
+    Spline interpolation. See more detail in [Dierckx.jl](https://github.com/kbarbary/Dierckx.jl).   
+    - `order`: spline order (between 1 and 5; default 2).  
+    - `smoothness`: the amount of smoothness is determined by the condition that `sum((w[i]*(y[i]-spline(x[i])))**2) <= s`  
+    - `weight`: the weight applied to each `QE_data` point (length m 1-d array).   
+
+
+- bspline  
+
+    Basic spline interpolation. See more detail in [Interpolations.jl](https://github.com/JuliaMath/Interpolations.jl).  
+
+
+- harmonic  
+
+    Harmonic function whose minimum is at [`pot.Q0`, `pot.E0`].  
+    - `hw`: the energy quanta of the harmonic oscillator.   
+  
+
+- polyfunc  
+
+    Polynomial function;  
+        `y = E₀ + Σ coeffs[i].* (x .- Q₀) .^(i-1)`.   
+    - `poly_order`: the maximum order of polynomials.
+
+
+## Example
+- Spline fit
+```julia
+nev = 60
+name = "DX-+h"
+
+Q2 = [30.66721918 29.860133 29.05306268 28.24612992 27.43911044 26.63197583 25.82507425 25.01797262 24.21096115 23.40387798 22.59690043 21.78991117 20.98281579 20.17570172 19.36884219 18.56169249 17.75463179 16.94772679 16.14061031 15.33347439 14.52663309 13.71945696 12.91240658 12.10544441 11.29841968 10.4913338 9.684370388 8.877289725 8.070184138]
+E2 = [8.0902 7.5970 7.0749 6.5242 5.9461 5.3451 4.7300 4.1147 3.5182 2.9637 2.4769 2.0819 1.7972 1.6315 1.5800 1.6237 1.7301 1.8586 1.9687 2.0283 2.0190 2.0673 1.9910 2.0528 1.9730 2.0857 2.4550 3.1653 4.3448]
+
+pot = potential(); pot.name = name
+pot.nev = nev
+pot.Q0 = Q2[findmin(E1)[2]]; pot.E0 = 1.69834
+pot.QE_data = DataFrame(Q = Q2[:], E = E2[:])
+pot.QE_data.E .+= - minimum(pot.QE_data.E) + pot.E0
+pot.Q = Q
+
+pot.func_type = "spline"
+# spline fitting parameters
+params = Dict()
+params["order"] = 4
+params["smoothness"] = 0.001
+params["weight"] = [1 1 1 1 1 0.5 0.4 0.4 0.5 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
+fit_pot!(pot, Q; params=params)
+```
+
+- Harmonic
+```julia
+nev = 40
+name = "SnIII+h"
+
+pot = potential(); pot.name = name
+pot.Q0 = 1.90291674728; pot.E0 = 0.585005
+pot.nev = nev
+pot.func_type = "harmonic"
+params = Dict()
+params["hw"] = 0.0281812646475
+fit_pot!(pot, Q; params = params)
+```
+
+"""
 function fit_pot!(pot::potential, Q; params = nothing)
     # pot.params["E0"] = pot.E0
     # pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
@@ -130,12 +214,28 @@ function fit_pot!(pot::potential, Q; params = nothing)
     end
 end
 
+
+"""
+    solve_pot!(pot::potential)
+
+Solve 1D Shrödinger equation for `potential`. `pot.ϵ` and `pot.χ` store the eigenvalues and eigenvectors, respectively.
+"""
 function solve_pot!(pot::potential)
-    pot.ϵ, pot.χ = solve1D_ev_amu(pot.func;
-        NQ=length(pot.Q), Qi=minimum(pot.Q), Qf=maximum(pot.Q), nev=pot.nev)
+    # pot.ϵ, pot.χ = solve1D_ev_amu(pot.func, pot.Q; nev=pot.nev)
+    # Q = pot.Q
+    # NQ=length(Q); Qi=minimum(Q); Qf=maximum(Q)
+    pot.ϵ, pot.χ = solve1D_ev_amu(pot.func, pot.Q; nev=pot.nev)
 end
 
-function solve1D_ev_amu(func; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
+"""
+Solve 1D Shrödinger equation. The Brooglie wrapper in the unit of `eV` and `amu`.
+"""
+function solve1D_ev_amu(func, Q; nev=30, maxiter=nev*NQ)
+    NQ=length(Q); Qi=minimum(Q); Qf=maximum(Q)
+    return solve1D_ev_amu(func, NQ, Qi, Qf; nev=nev, maxiter=maxiter)
+end
+
+function solve1D_ev_amu(func, NQ, Qi, Qf; nev=30, maxiter=nev*NQ)
     factor = (1/amu) * (ħc*1E10)^2
 
     ϵ1, χ1 = Brooglie.solve(x -> func.(x*factor^0.5);
@@ -143,6 +243,14 @@ function solve1D_ev_amu(func; NQ=100, Qi=-10, Qf=10, nev=30, maxiter=nev*NQ)
     return ϵ1, vcat(χ1'...)/factor^0.25
 end
 
+
+
+"""
+    find_crossing(pot_1::potential, pot_2::potential)
+
+Find the crossing point between two potential energy surfaces `pot1` and `pot2`.
+`Qx, Ex = find_crossing(pot1, pot2)`.
+"""
 function find_crossing(pot_1::potential, pot_2::potential)
     # find root of pot_1 - pot_2 = 0
     diff_func = x-> pot_1.func(x) - pot_2.func(x)

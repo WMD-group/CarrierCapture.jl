@@ -14,8 +14,8 @@ Stores two `potential`s with e-ph coupling constant `W` to calculate the capture
 
 ## Fields
 
-- `name` -- the name of conf_coord.
-- `V1` and `V2` -- the initial and fianal potentials.
+- `name` -- the name of a configuration coordinate.
+- `V1` and `V2` -- the initial and fianal `potential`s.
 - `W` -- the e-ph coupling matrix element.
 - `g` -- the degeneracy.
 - `temperature` -- the temperature range where `capt_coeff` is calculated.
@@ -42,18 +42,15 @@ conf_coord(pot_i::potential, pot_f::potential) = conf_coord("", pot_i, pot_f, In
            Array{Float64}(undef, 0, 0), Array{Float64}(undef, 0, 0), Array{Float64}(undef, 0, 0),
            [], [], Array{Float64}(undef, 0, 0, 0))
 
-# importing parameters
-function cc_from_dict(pot_i, pot_f, cfg::Dict)::conf_coord
-    cc = conf_coord(pot_i, pot_f)
-    cc.name = "$(cfg["initial"]) => $(cfg["final"])"
-    cc.W = cfg["W"]
-    cc.g = cfg["g"]
-    return cc
-end
 
-# calculating phonon overlap between potentials
-# cut_off:    energetic difference criteria for overlap of phonons [eV]
-# σ:          amount of smearing of delta functions for determining phonon overlap
+"""
+    calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
+
+Calculate phonon overlap between phonon wave functions 'potenrial.χ'.
+If energy difference is larger then the cutoff (eV) `abs(cc.V1.ϵ[i] - cc.V2.ϵ[j]) > cut_off`,
+the overlap will not be calculated.
+Delta functions are replaced by a Gaussians function with widths `σ`.
+"""
 function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
     Q₀ = cc.V1.Q0
     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
@@ -77,6 +74,16 @@ end
 # calculating carrier capture rate in units cm³/s for a given:
 # V: 	  volume of supercell [cm³]
 # temperature: range from Tmin to Tmax for NT steps
+"""
+    calc_capt_coeff!(cc::conf_coord, V, temperature)
+
+Calculte the capture coefficient `cc.capt_coeff` as a function of `temperature`.
+`V` is a volume where the electron-phonon coupling matrix element `cc.W` is calculated.
+The lowest thermal occupation number of the eigenstate must be lower than `occ_cut_off = 1E-5`.
+
+    @assert occ_high < occ_cut_off "occ(ϵ_max, T_max): \$occ_high should be less than $occ_cut_off"
+
+"""
 function calc_capt_coeff!(cc::conf_coord, V, temperature)
     # TODO:       convergence over σ
     partial_capt_coeff = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ), length(temperature))
@@ -114,4 +121,18 @@ function calc_capt_coeff!(cc::conf_coord, V, temperature)
     replace!(cc.capt_coeff, 0=>1E-127)
     cc.partial_capt_coeff = partial_capt_coeff
     cc.temperature = temperature
+end
+
+
+# importing parameters
+"""
+Depreciated.  
+Construct `conf_coord` from two potentials `pot_i` (initila) and 'pot_f' (final) and configure dictionalry `cfg`.
+"""
+function cc_from_dict(pot_i, pot_f, cfg::Dict)::conf_coord
+    cc = conf_coord(pot_i, pot_f)
+    cc.name = "$(cfg["initial"]) => $(cfg["final"])"
+    cc.W = cfg["W"]
+    cc.g = cfg["g"]
+    return cc
 end

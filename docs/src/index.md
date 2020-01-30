@@ -20,17 +20,6 @@ Install the package by:
 Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
 ```
 
-Add `/cli` in to your `PATH` so that you can use `GetPotential.jl` and `GetRate.jl` in your work directory.
-
-```bash
-$ julia
-
-julia> using CarrierCapture
-julia> pathof(CarrierCapture)
-"<YOUR_PATH_TO_PACKAGE>/src/CarrierCapture.jl"
-
-$ export PATH=<YOUR_PATH_TO_PACKAGE>/cli;$PATH
-```
 
 ## Development
 
