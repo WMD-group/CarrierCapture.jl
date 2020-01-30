@@ -1,6 +1,6 @@
 # Typical Usage
 
-A typical usage will consist of about three steps, implemented in a series of short programs which may be run from the command line. Input for the calculations is provided in `input.yaml`.
+A typical usage will consist of about three steps; 1. preparation, 2. building `potential`, and 3. computing capture coefficient. Find more detail for step 2 and step 3 in [example notebooks](https://github.com/WMD-group/CarrierCapture.jl/tree/master/example/notebook). The command line interface is depreciated and not recommended.
 
 ## 1. Preparation
 
@@ -63,7 +63,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
       done
       ```
 
-   4. Calculate `𝛥Q` using `get_del_Q.py`. Generate `potential.csv` using following script.
+   4. Calculate `𝛥Q` using `get_del_Q.py`. Generate `potential.csv` using following script.<a name="qe_data"></a>
 
       ```bash
       #!/bin/bash -l
@@ -96,33 +96,50 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
    1. Find initial and final eigenvalues (`ϵ_i` and `ϵ_f`).
 
-   2. Extract initial and final wavefunctions. For `VASP`, you can use `get_wf.py`:
-
+   2. Calculate overlap initial and final wavefunctions. For `VASP`, you can use `get_wf.py`:
+   
       ```bash
-      #!/bin/bash -l
-
-      # Initial: VBM (hole capture)/CBM (electron capture)
-      get_wf.py -f DISP_000/WAVECAR -k 0 -b <band_index_for_VBMorCBM> -s <spin_index(0or1)> -o wf
-
-      mv wf_k0b<band_index>.npy wf_i.npy
-
-      # Final: localized defect wavefunction
-      NBAND=<band_index_for_defect_wf>
-      for NUM in {-10,-06,-04,-02,-01,000,001,002,004,006,010}
-      do
-          get_wf.py -f DISP_${NUM}/WAVECAR -k 0 -b ${NBAND} -s <spin_index(0or1)> -o wf_${NUM}
-          mv wf_k0b<band_index>.npy wf_f_${NUM}.npy
-      done
+      $ python get_wf.py   -d 288 -b 291  -D DISP_000 -i DISP_-02 DISP_-01 DISP_001 DISP_002
+      
+      GRID ENCUT 918.2911873931497
+      finished making projector list
+      --------------
+      ran get_projector_list in 0.033210 seconds
+      ---------------
+      STARTING PROJSETUP
+      started setup_proj
+      calculating projector_values
+      onto_projector calcs
+      Done
+      --------------
+      
+      ...
+      
+      =================================
+      ----------- Overlaps ------------
+      =================================
+      [[0.0574]
+       [0.0267]
+       [0.0345]
+       [0.0643]]
       ```
+   
+   3. Calculate the rate of change in overlap between initial and final wavefunctions `<ψ_i0|ψ_f(𝛥Q)>` as the geometry changes `𝛥Q`:
+      `W_if = (ϵ_f - ϵ_i) d<ψ_i0|ψ_f(𝛥Q)> / d𝛥Q`. See more detail in [this example](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/e-ph.ipynb).
+   
+## 2. Building `potential`
+See [Example](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Anharmonic%20(DX%20center).ipynb).
 
-   3. Calculate the rate of change in overlap between initial and final wavefunctions `<ψ_i0|ψ_f(𝛥Q)>` as the geometry changes `𝛥Q`.
-      `W_if = (ϵ_f - ϵ_i) d<ψ_i0|ψ_f(𝛥Q)> / d𝛥Q`
+  1. Use `fit_pot!` to find a best fit to the [data of `Q` and `E`](#qe_data). 
+  2. Use `solve_pot!` to solve 1D Shrödinger equation for the potential energy surface (PES).
 
-      That  can be calculated by using `e-ph.py`.
+## 3. Computing capture rates
+See [Example](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Anharmonic%20(DX%20center).ipynb).
 
-      ```bash
-      e-ph.py -i wf_i.npy -f wf_D_-02.npy wf_D_-01.npy wf_D_00{0..6}.npy -d <delta_eig (ϵ_i - ϵ_f)> -z <index_of_Q0>
-      ```
+  1. Use `calc_overlap!` to calculate the overlap between phonon wave functions.
+  2. Use `calc_capt_coeff!` to calculate the capture coefficient as a function of temperature.
+
+
 
 # High-Throughput Usage
 High-throughput usage is possible by preparing files in a similar method to the examples, `useParamScan_Harmonic.jl` and `useParamScan_Anharmonic.jl`. It is recommended that a high-performance computer rather than a personal machine is used, depending on how many calculations are performed. The code can then be run remotely using `nohup julia useParamScan_Harmonic &`.
