@@ -34,7 +34,15 @@ Beyond an equilibrium description, the operation and performance of optoelectron
 
 `CarrierCapture.jl` is designed to calculate the rates of carrier capture by point defects from first-principles data. It builds on a large body of well established theory [@stoneham1981non], which was recently adapted to be compatible with quantities accessible from density functional theory (DFT) calculations [@alkauskas2014first]. In our implementation, we remove the harmonic approximation for the potential energy surfaces, which can be strongly asymmetric [@kim2019anham].
 
-A standard workflow involves building potentials and calculating electron-transfer rates.  `potential` stores essential information of a potential energy surface of a defect and offers various fitting schemes. `confi_coord` consists of two `potential`s and calculates the overlap between thier wave functions and the rate of electron transfer.
+A standard workflow involves building potentials and computing carrier capture coefficients. `CarrierCapture.jl` provides handy tools: 
+
+- Finding a best fit to the first-principles data.
+- Solving one-dimensional Shrödinger equation for the potential energy surfaces.
+- Computation of the overlap between nuclear wave functions.
+- Computation of the capture coefficients as a function of temperature.  
+
+We also provide auxiliary scripts to process the first-principles data.
+To our best knowlege, `carrierCapture.jl` is the only open-source package that provide such functionalities.
 Common computational workflows that reproduce published examples [@Kim2019kesterite; @kim2019anham] are available on Github pages. 
 The API documentation including the guide to the intallation is also up-to-date on GitHub pages. 
 
