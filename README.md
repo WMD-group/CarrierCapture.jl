@@ -97,12 +97,12 @@ In addition, the alignment of energy surfaces for defects in different charge st
 * [Markvart, Semiclassical theory of non-radiative transitions (1981)](http://iopscience.iop.org/article/10.1088/0022-3719/14/29/006/meta)
 *Semiclassical treatment of matrix elements following Landau and Holstein*
 
-#### Applications
+#### Applications of CarrierCapture
 
-* [Kim et al, Anharmonic Lattice Relaxation during Non-radiative Carrier Capture (2019)](https://arxiv.org/abs/1904.01348)
+* [Kim et al, Upper limit to the photovoltaic efficiency of imperfect crystals (2020)](https://arxiv.org/abs/1912.07889)
+
+* [Kim et al, Anharmonic lattice relaxation during non-radiative carrier capture (2019)](https://arxiv.org/abs/1904.01348)
 
 * [Kim et al, Lone-pair effect on carrier capture in Cu<sub>2</sub>ZnSnS<sub>4</sub> solar cells (2019)](https://pubs.rsc.org/en/content/articlehtml/2019/ta/c8ta10130b)
 
 * [Kim et al, Identification of killer defects in kesterite thin-film solar cells (2018)](https://pubs.acs.org/doi/abs/10.1021/acsenergylett.7b01313)
-
-* [Wickramaratne et al, Iron as a source of efficient Shockley-Read-Hall recombination in GaN (2016)](https://aip.scitation.org/doi/abs/10.1063/1.4964831)
