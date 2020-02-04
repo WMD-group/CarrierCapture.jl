@@ -30,7 +30,7 @@ bibliography: paper.bib
 ---
 The modern theory of defects in semiconducting materials allows for the accurate prediction of equilibrium point defect concentrations and transitions levels within the band gap from first-principles quantum mechanical simulations [@park2018point]. The procedures for such calculations are now well established [@freysoldt2014first].
 
-Beyond an equilibrium description, the operation and performance of optoelectronic devices, including solar cells and light-emitting diodes, relies on the interaction of points defects with non-equilibrium populations of electrons and holes. The non-radiataive capture of charge carriers by lattice defects results in efficiency loss, which can range from supressing luminesence to irrereversible chemical degradation [@stoneham1981non].
+Beyond an equilibrium description, the operation and performance of optoelectronic devices, including solar cells and light-emitting diodes, relies on the interaction of points defects with non-equilibrium populations of electrons and holes. The non-radiative capture of charge carriers by lattice defects results in efficiency loss, which can range from supressing luminesence to irrereversible chemical degradation [@stoneham1981non].
 
 `CarrierCapture.jl` is designed to calculate the rates of carrier capture by point defects from first-principles data. It builds on a large body of well established theory [@stoneham1981non], which was recently adapted to be compatible with quantities accessible from density functional theory (DFT) calculations [@alkauskas2014first]. In our implementation, we remove the harmonic approximation for the potential energy surfaces, which can be strongly asymmetric [@kim2019anham].
 
