@@ -16,7 +16,7 @@ to also describe anharmonic potential energy surfaces.
 
 ## Installation
 
-The codes are written in [Julia](https://julialang.org), while the scripts and [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org) and use [pymatgen](http://pymatgen.org) and [pawpyseed](https://github.com/kylebystrom/pawpyseed) (This has been tested on Scientific Linux 7 and Linux Mint 18), which are assumed to be installed.
+The codes are written in [Julia](https://julialang.org), while the scripts and [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org) and use [pymatgen](http://pymatgen.org) and [pawpyseed](https://github.com/kylebystrom/pawpyseed) (tested on Scientific Linux 7 and Linux Mint 18), which are assumed to be installed.
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation.
 
 Install the package by:
@@ -24,7 +24,6 @@ Install the package by:
 ```julia
 Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
 ```
-
 
 ## Development
 
@@ -54,11 +53,11 @@ Use [Jupyter Notebook](http://jupyter.org) [examples](https://github.com/WMD-gro
 
 The following examples are provided to illustrate some of the applications of these codes. The input data has been generated from density functional theory (DFT) using [VASP](https://www.vasp.at), but the framework can easily be adapted to accept output from other electronic structure calculators. 
 
-* [Sn<sub>Zn</sub> in Cu<sub>2</sub>ZnSnS<sub>4</sub>](./example/Sn_Zn_CZTS): Harmonic approximation
+* [Sn<sub>Zn</sub> in Cu<sub>2</sub>ZnSnS<sub>4</sub>](./example/notebook/Harmonic%20(Sn_Zn).ipynb): Harmonic approximation
 
-* [DX-center in GaAs](./example/DX-center): Anharmonic fitting
+* [DX-center in GaAs](./example/notebook/Anharmonic%20(DX%20center).ipynb): Anharmonic fitting
 
-* [Electron-phonon coupling](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/e-ph.ipynb): Electron-phonon coupling matrix element
+* [Electron-phonon coupling](./example/notebook/e-ph.ipynb): Electron-phonon coupling matrix element
 
 ## Theory
 
