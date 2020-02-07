@@ -37,17 +37,16 @@ Beyond an equilibrium description, the operation and performance of optoelectron
 A standard workflow involves building potentials and computing carrier capture coefficients. `CarrierCapture.jl` provides handy tools: 
 
 - Finding a best fit to the first-principles data.
-- Solving one-dimensional Schrödinger equation for the potential energy surfaces.
+- Solving the one-dimensional Schrödinger equation for the potential energy surfaces.
 - Computation of the overlap between nuclear wave functions.
 - Computation of the capture coefficients as a function of temperature.  
 
 We also provide auxiliary scripts to process the first-principles data.
-To our best knowledge, `carrierCapture.jl` is the only open-source package that provide such functionalities.
+To our best knowledge, `carrierCapture.jl` is currently the only open-source package to provide such functionalities.
 Common computational workflows that reproduce published examples [@Kim2019kesterite; @kim2019anham] are available on Github pages. 
 The API documentation including the guide to the installation is also up-to-date on GitHub pages. 
 
 **Interfacing to other codes:** A range of input parameters are required to describe the bulk and defective properties of the material. Scripts are provided to extract these from DFT calculations using `VASP`, but these can easily be modified to read data from other packages. Caution should to be taken in checking convergence with respect to calculation settings, e.g. basis sets and k-point sampling, as small errors in relative energies can change the resulting carrier capture cross-sections by orders of magnitude. 
-
 
 # Author contributions
 
@@ -55,7 +54,7 @@ The API documentation including the guide to the installation is also up-to-date
 
 # Acknowledgements
 
-The development of this code has benefited through discussions with and contributions from many members of the Walsh research group including
+The development of this code has benefited through discussions with and contributions from many members of the Materials Design group including
 Ji-Sang Park, Jarvist M. Frost, and Zijuan Xie, as well as John Buckeridge and Alexey A. Sokol from University College London. 
 
 # References
