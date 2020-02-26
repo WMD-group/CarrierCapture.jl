@@ -1,4 +1,4 @@
-# Typical Usage
+# Usage
 
 A typical usage will consist of about three steps; 1. preparation, 2. building `potential`, and 3. computing capture coefficient. Find more detail for step 2 and step 3 in [example notebooks](https://github.com/WMD-group/CarrierCapture.jl/tree/master/example/notebook). The command line interface is depreciated and not recommended.
 
@@ -150,3 +150,4 @@ The steps are as follows,
 2. Calculate C for these parameters, in parallel over the largest parameter range (usually ΔQ)
 
 3. Find `ccArray.npz` to analyse the capture coefficient as a function of its parameters.
+
