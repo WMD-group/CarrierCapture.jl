@@ -31,7 +31,7 @@ If you would like to contribute, please do so via a pull request.
 
 ## Usage
 
-A typical workflow will consist of several steps, implemented in a series of short programs, which may be run from the command line. Input for the calculations is provided in `input.yaml`.
+A typical workflow will consist of several steps, implemented in a series of short programs.
 
  0. Prepare a sequence of atomic structure models with displacements that interpolate between two defect configurations (e.g. a site vacancy in charge states q=0 and q=+1).
     Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing may be found in `script`.
@@ -46,6 +46,7 @@ A typical workflow will consist of several steps, implemented in a series of sho
 
 The command-line interface (`GetPotential.jl` and `GetRate.jl`) is depreciated.
 Use [Jupyter Notebook](http://jupyter.org) [examples](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/) as a template.
+the detailed description provided in the [Usage section](./usage.html).
 
 
 ## Examples

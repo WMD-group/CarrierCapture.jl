@@ -9,6 +9,7 @@ makedocs(
     modules = [CarrierCapture],
     pages = [
         "Home" => "index.md",
+        "Usage" => "usage.md",
         "Library" => Any[
             "Public" => "lib/public.md",
             "Brooglie" => "lib/brooglie.md",
