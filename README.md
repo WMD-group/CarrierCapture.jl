@@ -22,7 +22,9 @@ The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to 
 Install the package by:
 
 ```julia
-Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
+julia> using Pkg
+
+julia> Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
 ```
 
 ## Development
