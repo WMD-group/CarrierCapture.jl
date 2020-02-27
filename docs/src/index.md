@@ -16,7 +16,7 @@ The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to 
 
 Install the package by:
 
-```
+```julia
 julia> using Pkg
 
 julia> Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
@@ -46,7 +46,7 @@ A typical workflow will consist of several steps, implemented in a series of sho
 
 The command-line interface (`GetPotential.jl` and `GetRate.jl`) is depreciated.
 Use [Jupyter Notebook](http://jupyter.org) [examples](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/) as a template.
-the detailed description provided in the [Usage section](./usage.html).
+A detailed description provided in the [Usage section](usage/).
 
 
 ## Examples
