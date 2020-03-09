@@ -4,11 +4,11 @@ A typical usage will consist of about three steps; 1. preparation, 2. building `
 
 ## 1. Preparation
 
-Before `CarrierCapture`, you need to calculate potential energy surfaces of atomic vibrations (one-dimensional Configuration Coordinate diagram; `1D-CC`) and _e-ph_ coupling matrix element (`W_if`). Prepare a sequence of structures with displacements which interpolate between two defect states. Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing can be found in `/script` which require a python library [`pymatgen`](http://pymatgen.org).
+Before `CarrierCapture`, you need to calculate potential energy surfaces of atomic vibrations (one-dimensional Configuration Coordinate diagram; `1D-CC`) and _e-ph_ coupling matrix element (`W_if`). Prepare a sequence of structures with displacements which interpolate between two defect states. Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing can be found in `/script` which require the [`pymatgen`](http://pymatgen.org) python library.
 
 1. **Generate `1D-CC`**
 
-   1. Calculate equilibirum geometries and total energies of defective supercells with charge states `q`(initial) and `q±1`(final) denoted `Conf.(q)` and `Conf.(q±1)`, respectively.
+   1. Calculate equilibrium geometries and total energies of defective supercells with charge states `q`(initial) and `q±1`(final) denoted `Conf.(q)` and `Conf.(q±1)`, respectively.
 
    2. Generate interpolated and extrapolated structures between `Conf.(q)` (`POSCAR_i`) and `Conf.(q±1)` (`POSCAR_f`). You may use `gen_cc_struct.py`:
 
@@ -19,7 +19,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
       disp_dir_f
       ```
 
-   3. Run total-energy calculations for each structures. Example of the directory tree (`template` contains all input files for DFT calculations. Make sure DFT-program write wavefunctions (e.g. `LWAVE=.TRUE.` in `VASP`) for [the next stage `W_if`](#wif)):
+   3. Run total-energy calculations for each structure. Example of the directory tree (`template`) contains all input files for DFT calculations. Make sure DFT-program writes wavefunctions (e.g. `LWAVE=.TRUE.` in `VASP`) for [the next stage `W_if`](#wif)):
 
       ```bash
       ├── 00_q2q±1
@@ -44,7 +44,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
       │   │   ├── ...
       ```
 
-      You can submit jobs for all calculations using a following script in a high-performace computer with a batch system.
+      You can submit jobs for all calculations using a following script in a high-performance computer with a batch system.
 
       ```bash
       #!/bin/bash -l
@@ -92,7 +92,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
 
 2. **Calcuate _e-ph_ coupling matrix element `W_if`** <a name="wif"></a>
 
-   You already have eigenvalues, wave functions and configurations. Read [Work by Alkauskas and coworkers](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202) carefully.
+   You already have eigenvalues, wavefunctions and configurations. Read [Work by Alkauskas and coworkers](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202) carefully.
 
    1. Find initial and final eigenvalues (`ϵ_i` and `ϵ_f`).
 
