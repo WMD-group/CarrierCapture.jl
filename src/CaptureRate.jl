@@ -15,7 +15,7 @@ Stores two `potential`s with e-ph coupling constant `W` to calculate the capture
 ## Fields
 
 - `name` -- the name of a configuration coordinate.
-- `V1` and `V2` -- the initial and fianal `potential`s.
+- `V1` and `V2` -- the initial and final `potential`s.
 - `W` -- the e-ph coupling matrix element.
 - `g` -- the degeneracy.
 - `temperature` -- the temperature range where `capt_coeff` is calculated.
@@ -46,10 +46,10 @@ conf_coord(pot_i::potential, pot_f::potential) = conf_coord("", pot_i, pot_f, In
 """
     calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
 
-Calculate phonon overlap between phonon wave functions 'potenrial.χ'.
+Calculate phonon overlap between phonon wave functions 'potential.χ'.
 If energy difference is larger then the cutoff (eV) `abs(cc.V1.ϵ[i] - cc.V2.ϵ[j]) > cut_off`,
 the overlap will not be calculated.
-Delta functions are replaced by a Gaussians function with widths `σ`.
+Delta functions are replaced by Gaussian functions with widths `σ`.
 """
 function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
     Q₀ = cc.V1.Q0
@@ -77,7 +77,7 @@ end
 """
     calc_capt_coeff!(cc::conf_coord, V::Float64, temperature)
 
-Calculte the capture coefficient `cc.capt_coeff` as a function of `temperature` which is a `UnitRange`.
+Calculate the capture coefficient `cc.capt_coeff` as a function of `temperature` which is a `UnitRange`.
 `V` is a volume where the electron-phonon coupling matrix element `cc.W` is calculated.
 The lowest thermal occupation number of the eigenstate must be lower than `occ_cut_off = 1E-5`.
 
@@ -127,7 +127,7 @@ end
 # importing parameters
 """
 Depreciated.  
-Construct `conf_coord` from two potentials `pot_i` (initila) and 'pot_f' (final) and configure dictionalry `cfg`.
+Construct `conf_coord` from two potentials `pot_i` (initial) and 'pot_f' (final) and configure dictionary `cfg`.
 """
 function cc_from_dict(pot_i, pot_f, cfg::Dict)::conf_coord
     cc = conf_coord(pot_i, pot_f)
