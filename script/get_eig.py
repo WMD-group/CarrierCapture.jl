@@ -156,7 +156,8 @@ def main(paths, pivot_path, e_min, e_max):
 if __name__ == '__main__':
     '''
     '''
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
+                                     description="This script extracts and plots eigenvalues of a set of DFT (VASP) calculations")
     parser.add_argument("-p","--paths", nargs='+',
                         help="initial input file (POSCAR format) ",default=["DISP_-10", "DISP_-06", "DISP_-04", "DISP_-02", "DISP_-01", "DISP_000", "DISP_001", "DISP_002", "DISP_004", "DISP_006", "DISP_010"])
     parser.add_argument("-v","--pivot",
