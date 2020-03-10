@@ -22,6 +22,11 @@ julia> using Pkg
 julia> Pkg.add(PackageSpec(url="https://github.com/WMD-group/CarrierCapture.jl.git"))
 ```
 
+To run the unit tests for the package, use the `Pkg.test` function. 
+
+```julia
+julia> Pkg.test("CarrierCapture")
+```
 
 ## Development
 
