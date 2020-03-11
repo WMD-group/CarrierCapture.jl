@@ -41,10 +41,10 @@ A typical workflow will consist of several steps, implemented in a series of sho
  0. Prepare a sequence of atomic structure models with displacements that interpolate between two defect configurations (e.g. a site vacancy in charge states q=0 and q=+1).
     Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing may be found in `script`.
 
- 1. Find a best fit for the energy calculations of the deferomed structures (`potential`) to generate potential energy surfaces (PES).
+ 1. Find a best fit for the energy calculations of the deformed structures (`potential`) to generate potential energy surfaces (PES).
     Solve the 1D Schrödinger equation for each PES to obtain their phonon (nuclear) wavefunctions.
 
- 3. Constructe configuration coordinate (`conf_coord`) to calculate the wavefunction overlap between each PES, 
+ 3. Construct configuration coordinate (`conf_coord`) to calculate the wavefunction overlap between each PES, 
     which forms part of the temperature-dependent capture coefficient.
 
 ![schematics](https://github.com/WMD-group/CarrierCapture.jl/blob/master/schematics/carrier_capture_sketch.png?raw=true "schematics")
