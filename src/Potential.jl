@@ -17,7 +17,7 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 - `QE_data`   -- the (n X 2) DataFrame of data points (Q vs Energy). 
 - `E0`, `Q0`  -- the minimum point of the potential [`Q0`, `E0`].
 - `func_type`     -- the type of fitting function ("bspline", "spline", "harmonic", "polyfunc", "morse_poly", "morse").
-- `params`    -- the list of hyper paramters for the fitting function.
+- `params`    -- the list of hyper parameters for the fitting function.
 - `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`.
 - `nev`  -- the number of eigenvalues to be evaluated.
 - `ϵ` -- the list of eigenvalues 
@@ -82,7 +82,7 @@ Fit a function `pot.func_type` to `QE_data` on the domain `Q`.
     Polynomial function;  
         `y = E₀ + Σ coeffs[i].* (x .- Q₀) .^(i-1)`.   
     - `poly_order`: the maximum order of polynomials.
-    - `p0`: the initial paramters for the fitting function.
+    - `p0`: the initial parameters for the fitting function.
 
 ## Example
 - Spline fit
@@ -237,7 +237,7 @@ end
 # read potential
 """
 Depreciated.  
-Construct `potential` from `QE_data` and configure dictionalry `cfg`.
+Construct `potential` from `QE_data` and configure dictionary `cfg`.
 """
 function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
     pot = potential()
@@ -351,7 +351,7 @@ end
 
 function get_bspline(Qs, Es)
     # BSplines assume your data is uniformly spaced on the grid
-    # Qs, Es have to be eqaully-spaced (Range)
+    # Qs, Es have to be equally-spaced (Range)
     if Qs[1] > Qs[end]
         Qs = reverse(Qs)
         Es = reverse(Es)

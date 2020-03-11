@@ -50,7 +50,7 @@ The API documentation including the guide to the installation is also up-to-date
 
 # Author contributions
 
-[Sunghyun Kim](https://github.com/frssp) wrote the majority of the code base with contributions from [Samanth N. Hood](https://github.com/PaleBlueSam). [Lucy D. Whalley](https://github.com/lucydot) and [Puck van Gerwen](https://github.com/puckvg) performed detailed code testing and contributed to the example and test suite. All authors along with [Aron Walsh](https://github.com/aronwalsh) made decisions about code design and feature implementation. This manuscript was written with input from all co-authours.
+[Sunghyun Kim](https://github.com/frssp) wrote the majority of the code base with contributions from [Samanth N. Hood](https://github.com/PaleBlueSam). [Lucy D. Whalley](https://github.com/lucydot) and [Puck van Gerwen](https://github.com/puckvg) performed detailed code testing and contributed to the example and test suite. All authors along with [Aron Walsh](https://github.com/aronwalsh) made decisions about code design and feature implementation. This manuscript was written with input from all co-authors.
 
 # Acknowledgements
 
