@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/WMD-group/CarrierCapture.jl.svg?branch=master)](https://travis-ci.org/WMD-group/CarrierCapture.jl)
 [![codecov](https://codecov.io/gh/WMD-group/CarrierCapture.jl/branch/master/graph/badge.svg?token=7jzuwloNvs)](https://codecov.io/gh/WMD-group/CarrierCapture.jl)
 [![DOI](https://zenodo.org/badge/130691083.svg)](https://zenodo.org/badge/latestdoi/130691083)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.02102/status.svg)](https://doi.org/10.21105/joss.02102)
 
 <center>
 <img src="schematics/Logo.png" width="400" />
