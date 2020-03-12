@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Usage · CarrierCapture</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">CarrierCapture</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Usage</a><ul class="internal"><li><a class="tocitem" href="#.-Preparation-1"><span>1. Preparation</span></a></li><li><a class="tocitem" href="#.-Building-potential-1"><span>2. Building <code>potential</code></span></a></li><li><a class="tocitem" href="#.-Computing-capture-rates-1"><span>3. Computing capture rates</span></a></li><li class="toplevel"><a class="tocitem" href="#High-Throughput-Usage-1"><span>High-Throughput Usage</span></a></li></ul></li><li><span class="tocitem">Library</span><ul><li><a class="tocitem" href="../lib/public/">Public</a></li><li><a class="tocitem" href="../lib/brooglie/">Brooglie</a></li><li><a class="tocitem" href="../lib/plotter/">Plotter</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Usage</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Usage</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/WMD-group/CarrierCapture.jl/blob/master/docs/src/usage.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Usage-1"><a class="docs-heading-anchor" href="#Usage-1">Usage</a><a class="docs-heading-anchor-permalink" href="#Usage-1" title="Permalink"></a></h1><p>A typical usage will consist of about three steps; 1. preparation, 2. building <code>potential</code>, and 3. computing capture coefficient. Find more detail for step 2 and step 3 in <a href="https://github.com/WMD-group/CarrierCapture.jl/tree/master/example/notebook">example notebooks</a>. The command line interface is depreciated and not recommended.</p><h2 id=".-Preparation-1"><a class="docs-heading-anchor" href="#.-Preparation-1">1. Preparation</a><a class="docs-heading-anchor-permalink" href="#.-Preparation-1" title="Permalink"></a></h2><p>Before <code>CarrierCapture</code>, you need to calculate potential energy surfaces of atomic vibrations (one-dimensional Configuration Coordinate diagram; <code>1D-CC</code>) and <em>e-ph</em> coupling matrix element (<code>W_if</code>). Prepare a sequence of structures with displacements which interpolate between two defect states. Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing can be found in <code>/script</code> which require the <a href="http://pymatgen.org"><code>pymatgen</code></a> python library.</p><ol><li><p><strong>Generate <code>1D-CC</code></strong></p><ol><li><p>Calculate equilibrium geometries and total energies of defective supercells with charge states <code>q</code>(initial) and <code>q±1</code>(final) denoted <code>Conf.(q)</code> and <code>Conf.(q±1)</code>, respectively.</p></li><li><p>Generate interpolated and extrapolated structures between <code>Conf.(q)</code> (<code>POSCAR_i</code>) and <code>Conf.(q±1)</code> (<code>POSCAR_f</code>). You may use <code>gen_cc_struct.py</code>:</p><pre><code class="language-bash">$ gen_cc_struct.py -i POSCAR_i -f POSCAR_f -d -1 -0.6 -0.4 -0.2 -0.1 0 0.1 0.2 0.4 0.6 1.0
+$ ls
+disp_dir_i
+disp_dir_f</code></pre></li><li><p>Run total-energy calculations for each structure. Example of the directory tree (<code>template</code>) contains all input files for DFT calculations. Make sure DFT-program writes wavefunctions (e.g. <code>LWAVE=.TRUE.</code> in <code>VASP</code>) for <a href="#wif">the next stage <code>W_if</code></a>):</p><pre><code class="language-bash">├── 00_q2q±1
+│   ├── 00_q
+│   │   ├── DISP_000
+│   │   ├── DISP_001
+│   │   ├── ...
+│   │   ├── disp_dir -&gt; ../../90_DISPLACEMENT/disp_dir_i
+│   │   └── template
+│   └── 01_q±1
+│       ├── DISP_000
+│       ├── DISP_001
+│       ├── ...
+│       ├── disp_dir -&gt; ../../90_DISPLACEMENT/disp_dir_f
+│       └── template
+├── 90_DISPLACEMENT
+│   ├── disp_dir_f
+│   │   ├── POSCAR_000
+│   │   ├── ...
+│   ├── disp_dir_i
+│   │   ├── POSCAR_000
+│   │   ├── ...</code></pre><p>You can submit jobs for all calculations using a following script in a high-performance computer with a batch system.</p><pre><code class="language-bash">#!/bin/bash -l
+
+for NUM in {-14,-13,-12,-11,-10,-09,-08,-07,-06,-05,-04,-03,-02,-01,000,001,002,003,004,005,006,007,008,009,010,011,012,013,014}
+do
+   #if [ ! -d DISP_$NUM ]
+   #then
+     echo DISP_$NUM
+     cp -r template DISP_$NUM
+     cp disp_dir/POSCAR_$NUM DISP_$NUM/POSCAR
+     cd  DISP_$NUM
+     qsub run.pbs
+     cd ../
+   #fi
+done</code></pre></li><li><p>Calculate <code>𝛥Q</code> using <code>get_del_Q.py</code>. Generate <code>potential.csv</code> using following script.&lt;a name=&quot;qe_data&quot;&gt;&lt;/a&gt;</p><pre><code class="language-bash">#!/bin/bash -l
+
+echo Q, E
+for NUM in {-14,-13,-12,-11,-10,-09,-08,-07,-06,-05,-04,-03,-02,-01,000,001,002,003,004,005,006,007,008,009,010,011,012,013,014}
+do
+   en=`tail -n 1 DISP_$NUM/OSZICAR|awk &#39;{print $3};&#39;|sed  &#39;s/-./-0./&#39; `
+   del_Q=`get_del_Q.py -i $1 -f  DISP_$NUM/POSCAR`
+   echo ${del_Q}, ${en}
+done</code></pre><p>Example <code>potential.csv</code> file:</p><pre><code class="language-none">Q, E
+5.034147844442521, -0.28566871E+03
+4.027331082104984, -0.28581530E+03
+...
+1.0068515567113572, -0.28581699E+03
+0.0, -0.28566641E+03</code></pre></li></ol></li></ol><ol><li><p><strong>Calcuate <em>e-ph</em> coupling matrix element <code>W_if</code></strong> &lt;a name=&quot;wif&quot;&gt;&lt;/a&gt;</p><p>You already have eigenvalues, wavefunctions and configurations. Read <a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202">Work by Alkauskas and coworkers</a> carefully.</p><ol><li><p>Find initial and final eigenvalues (<code>ϵ_i</code> and <code>ϵ_f</code>).</p></li><li><p>Calculate overlap initial and final wavefunctions. For <code>VASP</code>, you can use <code>get_wf.py</code>:</p><pre><code class="language-bash">$ python get_wf.py   -d 288 -b 291  -D DISP_000 -i DISP_-02 DISP_-01 DISP_001 DISP_002
+
+GRID ENCUT 918.2911873931497
+finished making projector list
+--------------
+ran get_projector_list in 0.033210 seconds
+---------------
+STARTING PROJSETUP
+started setup_proj
+calculating projector_values
+onto_projector calcs
+Done
+--------------
+
+...
+
+=================================
+----------- Overlaps ------------
+=================================
+[[0.0574]
+ [0.0267]
+ [0.0345]
+ [0.0643]]</code></pre></li><li><p>Calculate the rate of change in overlap between initial and final wavefunctions <code>&lt;ψ_i0|ψ_f(𝛥Q)&gt;</code> as the geometry changes <code>𝛥Q</code>: <code>W_if = (ϵ_f - ϵ_i) d&lt;ψ_i0|ψ_f(𝛥Q)&gt; / d𝛥Q</code>. See more detail in <a href="https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/e-ph.ipynb">this example</a>.</p></li></ol></li></ol><h2 id=".-Building-potential-1"><a class="docs-heading-anchor" href="#.-Building-potential-1">2. Building <code>potential</code></a><a class="docs-heading-anchor-permalink" href="#.-Building-potential-1" title="Permalink"></a></h2><p>See <a href="https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Anharmonic%20(DX%20center).ipynb">Example</a>.</p><ol><li>Use <code>fit_pot!</code> to find a best fit to the <a href="#qe_data">data of <code>Q</code> and <code>E</code></a>. </li><li>Use <code>solve_pot!</code> to solve 1D Shrödinger equation for the potential energy surface (PES).</li></ol><h2 id=".-Computing-capture-rates-1"><a class="docs-heading-anchor" href="#.-Computing-capture-rates-1">3. Computing capture rates</a><a class="docs-heading-anchor-permalink" href="#.-Computing-capture-rates-1" title="Permalink"></a></h2><p>See <a href="https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Anharmonic%20(DX%20center).ipynb">Example</a>.</p><ol><li>Use <code>calc_overlap!</code> to calculate the overlap between phonon wave functions.</li><li>Use <code>calc_capt_coeff!</code> to calculate the capture coefficient as a function of temperature.</li></ol><h1 id="High-Throughput-Usage-1"><a class="docs-heading-anchor" href="#High-Throughput-Usage-1">High-Throughput Usage</a><a class="docs-heading-anchor-permalink" href="#High-Throughput-Usage-1" title="Permalink"></a></h1><p>High-throughput usage is possible by preparing files in a similar method to the examples, <code>useParamScan_Harmonic.jl</code> and <code>useParamScan_Anharmonic.jl</code>. It is recommended that a high-performance computer rather than a personal machine is used, depending on how many calculations are performed. The code can then be run remotely using <code>nohup julia useParamScan_Harmonic &amp;</code>.</p><p>The steps are as follows,</p><ol><li><p>Define the parameters for which capture coefficient C will be calculated.</p></li><li><p>Calculate C for these parameters, in parallel over the largest parameter range (usually ΔQ)</p></li><li><p>Find <code>ccArray.npz</code> to analyse the capture coefficient as a function of its parameters.</p></li></ol></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../lib/public/">Public »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 12 March 2020 09:50">Thursday 12 March 2020</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
