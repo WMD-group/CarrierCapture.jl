@@ -36,13 +36,13 @@ Beyond an equilibrium description, the operation and performance of optoelectron
 
 A standard workflow involves building potentials and computing carrier capture coefficients. `CarrierCapture.jl` provides handy tools: 
 
-- Finding a best fit to the first-principles data.
-- Solving the one-dimensional Schrödinger equation for the potential energy surfaces.
-- Computation of the overlap between nuclear wave functions.
-- Computation of the capture coefficients as a function of temperature.  
+- Finding a best fit to the first-principles data
+- Solving the one-dimensional Schrödinger equation for the potential energy surfaces
+- Computation of the overlap between nuclear wave functions
+- Computation of the capture coefficients as a function of temperature 
 
 We also provide auxiliary scripts to process the first-principles data.
-To our best knowledge, `carrierCapture.jl` is currently the only open-source package to provide such functionalities.
+To our best knowledge, `carrierCapture.jl` is currently the only open-source package to provide such functionality.
 Common computational workflows that reproduce published examples [@Kim2019kesterite; @kim2019anham] are available on Github pages. 
 The API documentation including the guide to the installation is also up-to-date on GitHub pages. 
 
