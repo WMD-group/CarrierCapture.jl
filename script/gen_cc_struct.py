@@ -68,13 +68,15 @@ def main(i_file, f_file, disp_range):
 if __name__ == '__main__':
     '''
     '''
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
+                                     description="This script interpolates coordinates of intermediate structures 
+                                      on a line between equivalent atoms of initial and final structures and generates POSCAR files.")
     parser.add_argument("-i","--init",
                         help="initial input file (POSCAR format) ",default="./POSCAR_i")
     parser.add_argument("-f","--fin",
                         help="final input file (POSCAR format) ",default="./POSCAR_f")
     parser.add_argument("-d","--disp", nargs='+',
-                        help="displacement range ",
+                        help="fractional displacement range ",
                         default=[-1.0, -0.6, -0.4, -0.2, -0.1, 0, 0.1, 0.2, 0.4, 0.6, 1.0])
     args = parser.parse_args()
     

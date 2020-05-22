@@ -98,7 +98,7 @@ function fitMorseParams(a_i, a_f, b_i, b_f, Q0, E0)
     a_i: first parameter of the Morse potential of the initial state
     a_f: first parameter of the Morse potential of the final state
     b_i: second parameter of the Morse potential of the initial state
-    b_f: seond parameter of the Morse potential of the final state
+    b_f: second parameter of the Morse potential of the final state
     Q0 : horizontal shift between the PES', in amu^0.5 Å^-1
     E0 : vertical shift between the PES', in eV
 

@@ -115,7 +115,7 @@ normalizewf(φ, L) = φ / √integrate(φ.^2, L)
 Solve the potential `V`(x,y,z,...) in a grid xᵢ ∈ [`a`,`b`], discretized in `N`
 steps.
 
-The particle is asumed to have mass `m` (by default 1, a electron mass).
+The particle is assumed to have mass `m` (by default 1, a electron mass).
 
 The function will return the `nev` first energy levels (in Hartree[^1])
 and its normalized eigenfunctions.

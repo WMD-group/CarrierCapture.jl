@@ -64,7 +64,9 @@ def main(i_file, f_file):
 if __name__ == '__main__':
     '''
     '''
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
+                                     description="This script calculates the atomic mass weigted distance 
+                                                  between two structures.)
     parser.add_argument("-i","--init",
                         help="initial input file (POSCAR format) ",default="./POSCAR_i")
     parser.add_argument("-f","--fin",
