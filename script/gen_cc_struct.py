@@ -68,18 +68,23 @@ def main(i_file, f_file, disp_range):
 if __name__ == '__main__':
     '''
     '''
+    def parse_floats(in_str):
+        """Turn a string into a list of floats"""
+        out_floats = [float(i) for i in in_str.split()]
+
+        return out_floats
+
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
-                                     description="This script interpolates coordinates of intermediate structures 
-                                      on a line between equivalent atoms of initial and final structures and generates POSCAR files.")
+            description="This script interpolates coordinates of intermediate structures on a line between equivalent atoms of initial and final structures and generates POSCAR files. Usage:\ngen_cc_struct.py -i POSCAR_i -f POSCAR_f -d '-1.0 -0.5 0.0 0.5 1.0'")
     parser.add_argument("-i","--init",
                         help="initial input file (POSCAR format) ",default="./POSCAR_i")
     parser.add_argument("-f","--fin",
                         help="final input file (POSCAR format) ",default="./POSCAR_f")
-    parser.add_argument("-d","--disp", nargs='+',
-                        help="fractional displacement range ",
+    parser.add_argument("-d","--disp", action='store', type=parse_floats,
+                        help="fractional displacement range, enclosed in quotes",
                         default=[-1.0, -0.6, -0.4, -0.2, -0.1, 0, 0.1, 0.2, 0.4, 0.6, 1.0])
     args = parser.parse_args()
-    
+
     i_file = args.init
     f_file = args.fin
     disp_range = args.disp
