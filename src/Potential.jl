@@ -170,6 +170,9 @@ function fit_pot!(pot::potential, Q; params = nothing)
         if pot.func_type == "polyfunc"
             println("========polynomial========\n")
             func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
+        if pot.func_type == "harmonic_fittable"
+            println("========harmoic fit========\n")
+            func = (x, p) -> harmonic(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
         elseif pot.func_type == "morse_poly"
             println("========morse polynomial========\n")
             func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
