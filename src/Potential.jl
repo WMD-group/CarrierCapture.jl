@@ -170,14 +170,14 @@ function fit_pot!(pot::potential, Q; params = nothing)
         if pot.func_type == "polyfunc"
             println("========polynomial========\n")
             func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
-        if pot.func_type == "harmonic_fittable"
-            println("========harmoic fit========\n")
-            func = (x, p) -> harmonic(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
         elseif pot.func_type == "morse_poly"
             println("========morse polynomial========\n")
             func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
         elseif pot.func_type == "morse"
             func = (x, p) -> morse(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
+        elseif pot.func_type == "harmonic_fittable"
+            println("========harmonic fit========\n")
+            func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
         end
 
         fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(params["p0"])) # curve_fit : model, x data, y data, p0
@@ -271,9 +271,15 @@ function sqwell(x, width, depth; x0=0.)
     return pot_well .* depth
 end
 
-function harmonic(x, ħω; E₀, Q₀)
+function harmonic(x, ħω::Real; E₀, Q₀)
     a = amu/2 * (ħω/ħc/1E10)^2
     return a*(x - Q₀)^2 + E₀
+end
+
+function harmonic_fittable(x, force_const; E₀, Q₀)
+    # an alternate syntax for harmonic() in order to make it fittable
+    y = (0 .* x) .+ E₀ .+ force_const[1] * (x .-Q₀) .^2
+    return y
 end
 
 function double_well(x, ħω1::Real, ħω2::Real; param)
