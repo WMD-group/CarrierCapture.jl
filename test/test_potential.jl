@@ -74,13 +74,6 @@
     fit_pot!(pot, Q; params=params)
     @test pot.E ≈ pot.func(Q) atol = 1e-8
 
-    pot.func_type = "sc_harmonic"
-    pot.T = 300
-    pot.natoms = 216
-    params["p0"] = [0.01]
-    fit_pot!(pot, Q; params=params)
-    @test pot.E ≈ pot.func(Q) atol = 1e-8
-
     # potential types
     # CarrierCapture.harmonic
     # double well
