@@ -1,8 +1,9 @@
 # defining constants
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
+boltz = 8.617333262E-5 # eV/K
 
-export potential, pot_from_dict, fit_pot!, solve_pot!, find_crossing
+export potential, pot_from_dict, filter_sample_points!, fit_pot!, solve_pot!, find_crossing
 export Plotter
 # export solve1D_ev_amu
 # export sqwell, harmonic, double_well, polyfunc, morse
@@ -14,13 +15,14 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 ## Fields
 
 - `name` -- the name of potential.
-- `QE_data`   -- the (n X 2) DataFrame of data points (Q vs Energy). 
+- `QE_data`   -- the (n X 2) DataFrame of data points (Q vs Energy).
 - `E0`, `Q0`  -- the minimum point of the potential [`Q0`, `E0`].
 - `func_type`     -- the type of fitting function ("bspline", "spline", "harmonic", "polyfunc", "morse_poly", "morse").
 - `params`    -- the list of hyper parameters for the fitting function.
-- `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`.
+- `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`. Only for using solve_pot
 - `nev`  -- the number of eigenvalues to be evaluated.
-- `ϵ` -- the list of eigenvalues 
+- `ϵ` -- the list of eigenvalues
+- `T` -- temperature (only used for self-consistent fitting)
 
 ## Constructor
     potential()
@@ -37,14 +39,38 @@ mutable struct potential
     nev::Int
     # ϵ includes E0
     ϵ::Array{Float64,1}; χ::Array{Float64,2}
+    # options for thermally accessible fit
+    T::Float64
+    natoms::Int32
     potential() = new("", DataFrame([0 0], [:Q, :E]), Inf, 0,
                       "func_type", x->0, Dict(),
                       [], [],
                       0, [], Array{Float64}(undef, 0, 2))
 end
 
+"""
+    filter_sample_points!(pot::potential)
 
-""" 
+Remove all fit points after a thermally unsurmountable point
+"""
+function filter_sample_points!(pot::potential)
+    thermal_energy = pot.T*boltz
+
+    lim_ind = 0
+    for ener_i in pot.QE_data.E
+        if ener_i > thermal_energy
+            break
+        else
+            lim_ind += 1
+        end
+    end
+    pot.QE_data = DataFrame(Q = pot.QE_data.Q[1:lim_ind], E = pot.QE_data.E[1:lim_ind])
+    println(lim_ind)
+    println(thermal_energy)
+
+end
+
+"""
     fit_pot!(pot::potential, Q; params = nothing)
 
 Fit a function `pot.func_type` to `QE_data` on the domain `Q`.
@@ -52,35 +78,35 @@ Fit a function `pot.func_type` to `QE_data` on the domain `Q`.
 ## parameters
 
 - `pot`: `potential`
-    - `pot.func_type`: the fitting function; `{"spline" (preferred), "bspline", "harmonic", "polyfunc", "morse_poly", "morse"}`.  
-- `Q`: the spatial domain (1-d array).   
-- `params`: the hyperparameters.  
+    - `pot.func_type`: the fitting function; `{"spline" (preferred), "bspline", "harmonic", "polyfunc", "morse_poly", "morse"}`.
+- `Q`: the spatial domain (1-d array).
+- `params`: the hyperparameters.
 
 ### Hyperparameters `params`
 
-- spline (preferred)  
+- spline (preferred)
 
-    Spline interpolation. See more detail in [Dierckx.jl](https://github.com/kbarbary/Dierckx.jl).   
-    - `order`: spline order (between 1 and 5; default 2).  
-    - `smoothness`: the amount of smoothness is determined by the condition that `sum((w[i]*(y[i]-spline(x[i])))**2) <= s`  
-    - `weight`: the weight applied to each `QE_data` point (length m 1-d array).   
-
-
-- bspline  
-
-    Basic spline interpolation. See more detail in [Interpolations.jl](https://github.com/JuliaMath/Interpolations.jl).  
+    Spline interpolation. See more detail in [Dierckx.jl](https://github.com/kbarbary/Dierckx.jl).
+    - `order`: spline order (between 1 and 5; default 2).
+    - `smoothness`: the amount of smoothness is determined by the condition that `sum((w[i]*(y[i]-spline(x[i])))**2) <= s`
+    - `weight`: the weight applied to each `QE_data` point (length m 1-d array).
 
 
-- harmonic  
+- bspline
 
-    Harmonic function whose minimum is at [`pot.Q0`, `pot.E0`].  
-    - `hw`: the energy quanta of the harmonic oscillator.   
-  
+    Basic spline interpolation. See more detail in [Interpolations.jl](https://github.com/JuliaMath/Interpolations.jl).
 
-- polyfunc  
 
-    Polynomial function;  
-        `y = E₀ + Σ coeffs[i].* (x .- Q₀) .^(i-1)`.   
+- harmonic
+
+    Harmonic function whose minimum is at [`pot.Q0`, `pot.E0`].
+    - `hw`: the energy quanta of the harmonic oscillator.
+
+
+- polyfunc
+
+    Polynomial function;
+        `y = E₀ + Σ coeffs[i].* (x .- Q₀) .^(i-1)`.
     - `poly_order`: the maximum order of polynomials.
     - `p0`: the initial parameters for the fitting function.
 
@@ -147,8 +173,8 @@ function fit_pot!(pot::potential, Q; params = nothing)
         println("=========spline==========\n")
 
         weight = get(params, "weight", nothing)
-        if isa(weight, String) 
-            weight = parse.(Float64, split(weight)) 
+        if isa(weight, String)
+            weight = parse.(Float64, split(weight))
         end
         if weight ≠ nothing
             weight = vec(weight)
@@ -166,21 +192,31 @@ function fit_pot!(pot::potential, Q; params = nothing)
         pot.E = harmonic.(Q, params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
         pot.func = x -> harmonic(x, params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
 
+    # potentials that need fitting
     else
-        if pot.func_type == "polyfunc"
-            println("========polynomial========\n")
-            func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
-        elseif pot.func_type == "morse_poly"
-            println("========morse polynomial========\n")
-            func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
-        elseif pot.func_type == "morse"
-            func = (x, p) -> morse(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
-        elseif pot.func_type == "harmonic_fittable"
-            println("========harmonic fit========\n")
-            func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
+        # self-consistent fitting
+        if pot.func_type == "sc_harmonic"
+        println("========self-consistent harmonic fit========\n")
+        func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
+        fit = sc_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(params["p0"]), pot.T, pot.natoms)
+
+        # one-shot fitting
+        else
+            if pot.func_type == "polyfunc"
+                println("========polynomial========\n")
+                func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
+            elseif pot.func_type == "morse_poly"
+                println("========morse polynomial========\n")
+                func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
+            elseif pot.func_type == "morse"
+                func = (x, p) -> morse(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
+            elseif pot.func_type == "harmonic_fittable"
+                println("========harmonic fit========\n")
+                func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
+            end
+            fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(params["p0"])) # curve_fit : model, x data, y data, p0
         end
 
-        fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(params["p0"])) # curve_fit : model, x data, y data, p0
         pot.E = func.(Q, Ref(fit.param)) # when calling function, need to Ref() so that it can deal with array mismatch
         pot.func = x -> func(x, fit.param)
 
@@ -239,7 +275,7 @@ end
 
 # read potential
 """
-Depreciated.  
+Depreciated.
 Construct `potential` from `QE_data` and configure dictionary `cfg`.
 """
 function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
@@ -276,10 +312,38 @@ function harmonic(x, ħω::Real; E₀, Q₀)
     return a*(x - Q₀)^2 + E₀
 end
 
-function harmonic_fittable(x, force_const; E₀, Q₀)
+function harmonic_fittable(x, coeff; E₀, Q₀)
     # an alternate syntax for harmonic() in order to make it fittable
-    y = (0 .* x) .+ E₀ .+ force_const[1] * (x .-Q₀) .^2
+    y = (0 .* x) .+ E₀ .+ coeff[1] * (x .- Q₀) .^2
     return y
+end
+
+"""
+    function sc_fit(func, Q_input, E_input, parameters, T, natoms)
+
+Make successive fits, iteratively narrowing the sample points such that all of
+them are thermally available.
+
+"""
+ function sc_fit(func, Q_input, E_input, parameters, T, natoms)
+    running = true
+    thresh = T*boltz/natoms # make this value the thermal energy
+    Q = Q_input
+    E = E_input
+    fit = nothing
+    while running
+        fit = curve_fit(func, Q, E, parameters)
+        println(Ref(fit.param[1]))
+        # pick Q and E values under the threshold
+        under_thermal_mask = E .< thresh*fit.param[1]
+        Q = Q[under_thermal_mask]
+        E = E[under_thermal_mask]
+        # if all value were under the thermal energy
+        if all(x->x!=0, under_thermal_mask)
+               running = false
+        end
+    end
+    return fit
 end
 
 function double_well(x, ħω1::Real, ħω2::Real; param)
