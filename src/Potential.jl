@@ -268,7 +268,7 @@ function find_crossing(pot_1::potential, pot_2::potential)
     # find root of pot_1 - pot_2 = 0
     diff_func = x-> pot_1.func(x) - pot_2.func(x)
     Q = pot_1.Q
-    rts = find_zero(diff_func, Q[length(Q)÷2])
+    rts = find_zero(diff_func, Q[length(Q)÷2]) # start search at the midpoint of the Q vector
     return rts, pot_1.func.(rts)
 end
 
@@ -316,34 +316,6 @@ function harmonic_fittable(x, coeff; E₀, Q₀)
     # an alternate syntax for harmonic() in order to make it fittable
     y = (0 .* x) .+ E₀ .+ coeff[1] * (x .- Q₀) .^2
     return y
-end
-
-"""
-    function sc_fit(func, Q_input, E_input, parameters, T, natoms)
-
-Make successive fits, iteratively narrowing the sample points such that all of
-them are thermally available.
-
-"""
- function sc_fit(func, Q_input, E_input, parameters, T, natoms)
-    running = true
-    thresh = T*boltz/natoms # make this value the thermal energy
-    Q = Q_input
-    E = E_input
-    fit = nothing
-    while running
-        fit = curve_fit(func, Q, E, parameters)
-        println(Ref(fit.param[1]))
-        # pick Q and E values under the threshold
-        under_thermal_mask = E .< thresh*fit.param[1]
-        Q = Q[under_thermal_mask]
-        E = E[under_thermal_mask]
-        # if all value were under the thermal energy
-        if all(x->x!=0, under_thermal_mask)
-               running = false
-        end
-    end
-    return fit
 end
 
 function double_well(x, ħω1::Real, ħω2::Real; param)
