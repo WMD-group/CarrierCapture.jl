@@ -74,6 +74,8 @@
     fit_pot!(pot, Q; params=params)
     @test pot.E ≈ pot.func(Q) atol = 1e-8
 
+    pot = potential_from_file("data/tio2_interpol.dat")
+    @test pot.QE_data.E[2] ≈ -2336.08912022 atol = 1e-8
     # potential types
     # CarrierCapture.harmonic
     # double well
@@ -83,4 +85,5 @@
     # get_bspline
 
     #println(pot.T)
+
 end
