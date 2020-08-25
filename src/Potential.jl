@@ -3,7 +3,7 @@ amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 boltz = 8.617333262E-5 # eV/K
 
-export potential, pot_from_dict, filter_sample_points!, fit_pot!, solve_pot!, find_crossing
+export potential, pot_from_dict, filter_sample_points!, fit_pot!, solve_pot!, find_crossing, potential_from_file
 export Plotter
 # export solve1D_ev_amu
 # export sqwell, harmonic, double_well, polyfunc, morse
@@ -19,7 +19,9 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 - `E0`, `Q0`  -- the minimum point of the potential [`Q0`, `E0`].
 - `func_type`     -- the type of fitting function ("bspline", "spline", "harmonic", "polyfunc", "morse_poly", "morse").
 - `params`    -- the list of hyper parameters for the fitting function.
-- `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`. Only for using solve_pot
+- `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`. They differ from QE_data
+in that they cover the whole range of the fitted function, so ideally Q is
+broader than QE_data.Q
 - `nev`  -- the number of eigenvalues to be evaluated.
 - `ϵ` -- the list of eigenvalues
 - `T` -- temperature (only used for self-consistent fitting)
@@ -41,17 +43,38 @@ mutable struct potential
     ϵ::Array{Float64,1}; χ::Array{Float64,2}
     # options for thermally accessible fit
     T::Float64
-    natoms::Int32
-    potential() = new("", DataFrame([0 0], [:Q, :E]), Inf, 0,
-                      "func_type", x->0, Dict(),
+    potential() = new("", DataFrame([0 0], [:Q, :E]), 0, 0,
+                      "harmonic_fittable", x->0, Dict(),
                       [], [],
-                      0, [], Array{Float64}(undef, 0, 2))
+                      0, [], Array{Float64}(undef, 0, 2), 293.15)
 end
+
+"""
+    potential_from_file(filename::String)
+
+    Parse a two column file with data for reaction coordinate and energy.
+    Lines beginning with a hash are ignored.
+"""
+function potential_from_file(filename::String)
+    Q_dat = Float64[]
+    E_dat = Float64[]
+    for line in eachline(filename)
+        if line[begin] != '#'
+            line_split=split(line)
+            append!(Q_dat,parse(Float64,line_split[1]))
+            append!(E_dat,parse(Float64,line_split[2]))
+        end
+    end
+    pot = potential()
+    pot.QE_data = DataFrame(Q = Q_dat[:], E = E_dat[:])
+    return pot
+end
+
 
 """
     filter_sample_points!(pot::potential)
 
-Remove all fit points after a thermally unsurmountable point
+Remove all fit points after a thermally unsurmountable point in increasing order.
 """
 function filter_sample_points!(pot::potential)
     thermal_energy = pot.T*boltz
@@ -198,7 +221,7 @@ function fit_pot!(pot::potential, Q; params = nothing)
         if pot.func_type == "sc_harmonic"
         println("========self-consistent harmonic fit========\n")
         func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
-        fit = sc_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(params["p0"]), pot.T, pot.natoms)
+        fit = sc_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(params["p0"]), pot.T)
 
         # one-shot fitting
         else
