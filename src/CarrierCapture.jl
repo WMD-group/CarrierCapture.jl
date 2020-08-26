@@ -3,7 +3,7 @@ Main module for `CarrierCapture.jl` -- A set of codes to compute carrier capture
 
 Two structs are exported from this module for public use:
 
-- [`potential`](@ref): Potential.
+- [`Potential`](@ref): Potential.
 - [`conf_coord`](@ref): Configuration coordinate.
 - [`Plotter`](@ref): Auxiliary submodule for plotting.
 - [`Brooglie`](@ref): 1D Shrödinger equation solver.

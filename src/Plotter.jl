@@ -2,7 +2,7 @@
 Submodule providing helper functions for generating plots.
 """
 module Plotter
-using ..CarrierCapture: potential, conf_coord
+using ..CarrierCapture: Potential, conf_coord
 
 export plot_pots, plot_pot!, plot_ccs, plot_cc!
 
@@ -12,9 +12,9 @@ using Plots, LaTeXStrings
 """
     plot_pot!(pot; lplt_wf = false, plt = nothing, color = Nothing, label = "", scale_factor = 2e-2)
 
-Plots `potential` with its' wave functions if `lplt_wf` is `true`.
+Plots `Potential` with its' wave functions if `lplt_wf` is `true`.
 """
-function plot_pot!(pot::potential; lplt_wf = false, plt = nothing, color = Nothing, label = "", scale_factor = 2e-2)
+function plot_pot!(pot::Potential; lplt_wf = false, plt = nothing, color = Nothing, label = "", scale_factor = 2e-2)
     if plt == nothing
         plt = plot()
     end
@@ -61,10 +61,10 @@ function plot_cc!(cc::conf_coord; plt = nothing, color = nothing, label = "")
 end
 
 """
-Depreciated:  
-Function for plotting `potential` in cli
+Depreciated:
+Function for plotting `Potential` in cli
 """
-function plot_pots(pots::Dict{String,potential}, plot_cfg; output_fig = "potential.pdf")
+function plot_pots(pots::Dict{String,Potential}, plot_cfg; output_fig = "potential.pdf")
     plt = plot(legend = :bottomleft)
 
     for (name, pot) in pots
