@@ -4,20 +4,24 @@
 
     # potential
     # pot1
-    pot1 = potential(); pot1.name = "pot1"; pot1.nev = 30
+    pot1 = Potential(); pot1.name = "pot1"; pot1.nev = 30
     pot1.Q0 = 0; pot1.E0 = 1.5    
     pot1.func_type = "harmonic"
     params = Dict()
     params["hw"] = 0.03
-    fit_pot!(pot1, Q; params = params)
+    pot1.params = params
+    pot1.Q = Q
+    fit_pot!(pot1)
 
     # pot2
-    pot2 = potential(); pot2.name = "pot2"; pot2.nev = 50
+    pot2 = Potential(); pot2.name = "pot2"; pot2.nev = 50
     pot2.Q0 = 2; pot2.E0 = 0.6
     pot2.func_type = "harmonic"
     params = Dict()
     params["hw"] = 0.03
-    fit_pot!(pot2, Q; params = params)
+    pot2.params = params
+    pot2.Q = Q
+    fit_pot!(pot2)
 
     solve_pot!(pot1)
     solve_pot!(pot2)

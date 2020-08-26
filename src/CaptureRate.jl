@@ -10,26 +10,26 @@ occ_cut_off = 1E-5
 
 
 """
-Stores two `potential`s with e-ph coupling constant `W` to calculate the capture coefficient `capt_coeff`(`temperature`).
+Stores two `Potential`s with e-ph coupling constant `W` to calculate the capture coefficient `capt_coeff`(`temperature`).
 
 ## Fields
 
 - `name` -- the name of a configuration coordinate.
-- `V1` and `V2` -- the initial and final `potential`s.
+- `V1` and `V2` -- the initial and final `Potential`s.
 - `W` -- the e-ph coupling matrix element.
 - `g` -- the degeneracy.
 - `temperature` -- the temperature range where `capt_coeff` is calculated.
 - `capt_coeff` -- the capture coefficient.
 
 ## Constructor
-    conf_coord(pot_i::potential, pot_f::potential)
+    conf_coord(pot_i::Potential, pot_f::Potential)
 
 """
 mutable struct conf_coord
     # Configuration coordinate
     name::String
     # potentials
-    V1::potential; V2::potential
+    V1::Potential; V2::Potential
     # e-ph coupling matrix element; degeneracy
     W::Float64; g::Int
     # to calculate vibrational wave function overlap integral:
@@ -38,7 +38,7 @@ mutable struct conf_coord
     temperature::Array{Float64,1}; capt_coeff::Array{Float64,1}
     partial_capt_coeff::Array{Float64, 3}
 end
-conf_coord(pot_i::potential, pot_f::potential) = conf_coord("", pot_i, pot_f, Inf, 1,
+conf_coord(pot_i::Potential, pot_f::Potential) = conf_coord("", pot_i, pot_f, Inf, 1,
            Array{Float64}(undef, 0, 0), Array{Float64}(undef, 0, 0), Array{Float64}(undef, 0, 0),
            [], [], Array{Float64}(undef, 0, 0, 0))
 
@@ -46,7 +46,7 @@ conf_coord(pot_i::potential, pot_f::potential) = conf_coord("", pot_i, pot_f, In
 """
     calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
 
-Calculate phonon overlap between phonon wave functions 'potential.χ'.
+Calculate phonon overlap between phonon wave functions 'Potential.χ'.
 If energy difference is larger then the cutoff (eV) `abs(cc.V1.ϵ[i] - cc.V2.ϵ[j]) > cut_off`,
 the overlap will not be calculated.
 Delta functions are replaced by Gaussian functions with widths `σ`.

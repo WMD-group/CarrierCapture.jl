@@ -3,7 +3,7 @@ amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 boltz = 8.617333262E-5 # eV/K
 
-export potential, pot_from_dict, filter_sample_points!, fit_pot!, solve_pot!, find_crossing, potential_from_file
+export Potential, pot_from_dict, filter_sample_points!, fit_pot!, solve_pot!, find_crossing, potential_from_file, cleave_pot
 export Plotter
 # export solve1D_ev_amu
 # export sqwell, harmonic, double_well, polyfunc, morse
@@ -14,9 +14,9 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 
 ## Fields
 
-- `name` -- the name of potential.
+- `name` -- the name of Potential.
 - `QE_data`   -- the (n X 2) DataFrame of data points (Q vs Energy).
-- `E0`, `Q0`  -- the minimum point of the potential [`Q0`, `E0`].
+- `E0`, `Q0`  -- the minimum point of the Potential [`Q0`, `E0`].
 - `func_type`     -- the type of fitting function ("bspline", "spline", "harmonic", "polyfunc", "morse_poly", "morse").
 - `params`    -- the list of hyper parameters for the fitting function.
 - `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`. They differ from QE_data
@@ -26,10 +26,10 @@ in that they are data points of the fitted function.
 - `T` -- temperature (only used for self-consistent fitting)
 
 ## Constructor
-    potential()
+    Potential()
 
 """
-mutable struct potential
+mutable struct Potential
     name::String
     QE_data::DataFrame
     E0::Float64; Q0::Float64
@@ -37,27 +37,48 @@ mutable struct potential
     func # can be either Function or Interpolations.ScaledInterpolation
     params::Dict{String, Any}
     Q::Array{Float64,1}; E::Array{Float64,1}
-    nev::Int
+    nev::Int64
     # ϵ includes E0
     ϵ::Array{Float64,1}; χ::Array{Float64,2}
     # options for thermally accessible fit
     T::Float64
-    potential() = new("", DataFrame([0 0], [:Q, :E]), 0, 0,
+    Potential() = new("", DataFrame([0 0], [:Q, :E]), 0, 0,
                       "harmonic_fittable", x->0, Dict(),
                       [], [],
                       0, [], Array{Float64}(undef, 0, 2), 293.15)
 end
 
-"""
-    potential_from_file(filename::String, resolution::Int64 = 3000)
+# extend copy to work with potentials, a cleaner implementation would be welcome
+function Base.copy(pot::Potential)
+    copy_pot = Potential()
+    copy_pot.name = pot.name
+    copy_pot.QE_data = pot.QE_data
+    copy_pot.E0 = pot.E0
+    copy_pot.Q0 = pot.Q0
+    copy_pot.func_type = pot.func_type
+    copy_pot.func = pot.func
+    copy_pot.params = pot.params
+    copy_pot.Q = pot.Q
+    copy_pot.E = pot.E
+    copy_pot.nev = pot.nev
+    copy_pot.ϵ = pot.ϵ
+    copy_pot.χ = pot.χ
+    copy_pot.T = pot.T
+    return copy_pot
+end
 
-    Parse a two column file with data for reaction coordinate and energy.
-    Lines beginning with a hash are ignored. The optional argument `resolution`
-    determines how many points are included in the interpolation between the
-    read-in data points.
+"""
+    potential_from_file(filename::String, resolution::Int64 = 3001)
+
+Parse a two column file with data for reaction coordinate and energy.
+Lines beginning with a hash are ignored. The optional argument `resolution`
+determines how many points are included in the interpolation between the
+read-in data points, pot.Q.
+
+Additionally, any pot.QE_data.Q not included in pot.Q are added.
 
 """
-function potential_from_file(filename::String, resolution::Int64 = 3000)
+function potential_from_file(filename::String, resolution::Int64 = 3001)
     Q_dat = Float64[]
     E_dat = Float64[]
     # read each line
@@ -69,19 +90,24 @@ function potential_from_file(filename::String, resolution::Int64 = 3000)
             append!(E_dat,parse(Float64,line_split[2]))
         end
     end
-    pot = potential()
+    pot = Potential()
     pot.QE_data = DataFrame(Q = Q_dat[:], E = E_dat[:])
-    pot.Q = range(Q_dat[1], stop=Q_dat[end], length=resolution)
+    # range of points
+    interpol_points = range(Q_dat[1], stop=Q_dat[end], length=resolution)
+    # add sample points from QE_data, sort and remove duplicates
+    pot.Q = unique(sort(vcat(interpol_points, Q_dat[:])))
+
     return pot
 end
 
 
 """
-    filter_sample_points!(pot::potential)
+    filter_sample_points!(pot::Potential)
 
 Remove all fit points after a thermally unsurmountable point in increasing order.
+
 """
-function filter_sample_points!(pot::potential)
+function filter_sample_points!(pot::Potential)
     thermal_energy = pot.T*boltz
 
     lim_ind = 0
@@ -99,13 +125,13 @@ function filter_sample_points!(pot::potential)
 end
 
 """
-    fit_pot!(pot::potential)
+    fit_pot!(pot::Potential)
 
 Fit a function `pot.func_type` to `QE_data` on the domain `Q`.
 
 ## parameters
 
-- `pot`: `potential`
+- `pot`: `Potential`
     - `pot.func_type`: the fitting function; `{"spline" (preferred), "bspline", "harmonic", "polyfunc", "morse_poly", "morse"}`.
     - `pot.params`: the hyperparameters.
 
@@ -146,7 +172,7 @@ name = "DX-+h"
 Q1 = [30.66721918 29.860133 29.05306268 28.24612992 27.43911044 26.63197583 25.82507425 25.01797262 24.21096115 23.40387798 22.59690043 21.78991117 20.98281579 20.17570172 19.36884219 18.56169249 17.75463179 16.94772679 16.14061031 15.33347439 14.52663309 13.71945696 12.91240658 12.10544441 11.29841968 10.4913338 9.684370388 8.877289725 8.070184138]
 E1 = [8.0902 7.5970 7.0749 6.5242 5.9461 5.3451 4.7300 4.1147 3.5182 2.9637 2.4769 2.0819 1.7972 1.6315 1.5800 1.6237 1.7301 1.8586 1.9687 2.0283 2.0190 2.0673 1.9910 2.0528 1.9730 2.0857 2.4550 3.1653 4.3448]
 
-pot = potential(); pot.name = name
+pot = Potential(); pot.name = name
 pot.nev = nev
 pot.Q0 = Q1[findmin(E1)[2]]; pot.E0 = 1.69834
 pot.QE_data = DataFrame(Q = Q1[:], E = E1[:])
@@ -167,7 +193,7 @@ fit_pot!(pot)
 nev = 40
 name = "SnIII+h"
 
-pot = potential(); pot.name = name
+pot = Potential(); pot.name = name
 pot.Q0 = 1.90291674728; pot.E0 = 0.585005
 pot.nev = nev
 pot.func_type = "harmonic"
@@ -177,7 +203,7 @@ fit_pot!(pot)
 ```
 
 """
-function fit_pot!(pot::potential)
+function fit_pot!(pot::Potential)
     # pot.params["E0"] = pot.E0
     # pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
 
@@ -253,11 +279,11 @@ end
 
 
 """
-    solve_pot!(pot::potential)
+    solve_pot!(pot::Potential)
 
-Solve 1D Shrödinger equation for `potential`. `pot.ϵ` and `pot.χ` store the eigenvalues and eigenvectors, respectively.
+Solve 1D Shrödinger equation for `Potential`. `pot.ϵ` and `pot.χ` store the eigenvalues and eigenvectors, respectively.
 """
-function solve_pot!(pot::potential)
+function solve_pot!(pot::Potential)
     # pot.ϵ, pot.χ = solve1D_ev_amu(pot.func, pot.Q; nev=pot.nev)
     # Q = pot.Q
     # NQ=length(Q); Qi=minimum(Q); Qf=maximum(Q)
@@ -283,12 +309,12 @@ end
 
 
 """
-    find_crossing(pot_1::potential, pot_2::potential)
+    find_crossing(pot_1::Potential, pot_2::Potential)
 
 Find the crossing point between two potential energy surfaces `pot1` and `pot2`.
 `Qx, Ex = find_crossing(pot1, pot2)`.
 """
-function find_crossing(pot_1::potential, pot_2::potential)
+function find_crossing(pot_1::Potential, pot_2::Potential)
     # find root of pot_1 - pot_2 = 0
     diff_func = x-> pot_1.func(x) - pot_2.func(x)
     Q = pot_1.Q
@@ -300,10 +326,10 @@ end
 # read potential
 """
 Depreciated.
-Construct `potential` from `QE_data` and configure dictionary `cfg`.
+Construct `Potential` from `QE_data` and configure dictionary `cfg`.
 """
-function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
-    pot = potential()
+function pot_from_dict(QE_data::DataFrame, cfg::Dict)::Potential
+    pot = Potential()
     pot.name = cfg["name"]
     pot.nev = cfg["nev"]
     pot.func_type = cfg["function"]["type"]
@@ -433,3 +459,48 @@ function get_bspline(Qs, Es)
 
     return setpf
 end
+
+"""
+    function cleave_pot(pot::Potential)
+
+Return two potentials with the `QE_data` of the original potential split by the apex.
+If there is more than one maximum, throw an error
+
+"""
+function cleave_pot(pot::Potential)
+    # find maxima
+    max_ind_array = findall(pot.E .== maximum(pot.E))
+    len_max_ind = length(max_ind_array)
+    # check if there are multiple maxima
+    if len_max_ind > 1
+        throw(ArgumentError("The fitted potential has several maxima."))
+    end
+
+    # cast unique maximum to int
+    max_ind = max_ind_array[1]
+
+    # find the corresponding Q value
+    Q_limit = pot.Q[max_ind]
+
+    # define two sub-potentials
+    pot_a = copy(pot)
+    pot_a.E = []
+    pot_a.func = x->0
+
+    pot_b = copy(pot_a)
+
+    # assign corresponding data points
+    Q_data = pot.QE_data.Q
+    E_data = pot.QE_data.E
+
+    pot_a.QE_data = DataFrame(Q = Q_data[Q_data.<=Q_limit], E = E_data[Q_data.<=Q_limit])
+    pot_b.QE_data = DataFrame(Q = Q_data[Q_data.>=Q_limit], E = E_data[Q_data.>=Q_limit])
+
+    return pot_a, pot_b
+end
+
+
+
+
+
+
