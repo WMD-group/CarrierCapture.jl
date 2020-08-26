@@ -53,25 +53,27 @@
     params["smoothness"] = 0.001
     params["weight"] = [1 1 1 1 1 0.5 0.4 0.4 0.5 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
 
-    fit_pot!(pot, Q; params=params)
+    pot.params = params
+
+    fit_pot!(pot)
     @test pot.E == pot.func(Q)
 
-    fit_pot!(pot, Q)
+    fit_pot!(pot)
     @test pot.E == pot.func(Q)
 
     pot.func_type = "bspline"
-    fit_pot!(pot, Q)
+    fit_pot!(pot)
     @test pot.E == pot.func(Q)
 
     pot.func_type = "polyfunc"
     params["poly_order"] = 4
     params["p0"] = [1, 2, 3, 4, 6]
-    fit_pot!(pot, Q; params=params)
+    fit_pot!(pot)
     @test pot.E ≈ pot.func(Q) atol = 1e-8
 
     pot.func_type = "harmonic_fittable"
     params["p0"] = [0.01]
-    fit_pot!(pot, Q; params=params)
+    fit_pot!(pot)
     @test pot.E ≈ pot.func(Q) atol = 1e-8
 
     pot = potential_from_file("data/tio2_interpol.dat")

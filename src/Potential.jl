@@ -20,8 +20,7 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 - `func_type`     -- the type of fitting function ("bspline", "spline", "harmonic", "polyfunc", "morse_poly", "morse").
 - `params`    -- the list of hyper parameters for the fitting function.
 - `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`. They differ from QE_data
-in that they cover the whole range of the fitted function, so ideally Q is
-broader than QE_data.Q
+in that they are data points of the fitted function.
 - `nev`  -- the number of eigenvalues to be evaluated.
 - `ϵ` -- the list of eigenvalues
 - `T` -- temperature (only used for self-consistent fitting)
@@ -50,15 +49,20 @@ mutable struct potential
 end
 
 """
-    potential_from_file(filename::String)
+    potential_from_file(filename::String, resolution::Int64 = 3000)
 
     Parse a two column file with data for reaction coordinate and energy.
-    Lines beginning with a hash are ignored.
+    Lines beginning with a hash are ignored. The optional argument `resolution`
+    determines how many points are included in the interpolation between the
+    read-in data points.
+
 """
-function potential_from_file(filename::String)
+function potential_from_file(filename::String, resolution::Int64 = 3000)
     Q_dat = Float64[]
     E_dat = Float64[]
+    # read each line
     for line in eachline(filename)
+        # skip comments
         if line[begin] != '#'
             line_split=split(line)
             append!(Q_dat,parse(Float64,line_split[1]))
@@ -67,6 +71,7 @@ function potential_from_file(filename::String)
     end
     pot = potential()
     pot.QE_data = DataFrame(Q = Q_dat[:], E = E_dat[:])
+    pot.Q = range(Q_dat[1], stop=Q_dat[end], length=resolution)
     return pot
 end
 
@@ -94,7 +99,7 @@ function filter_sample_points!(pot::potential)
 end
 
 """
-    fit_pot!(pot::potential, Q; params = nothing)
+    fit_pot!(pot::potential)
 
 Fit a function `pot.func_type` to `QE_data` on the domain `Q`.
 
@@ -102,8 +107,7 @@ Fit a function `pot.func_type` to `QE_data` on the domain `Q`.
 
 - `pot`: `potential`
     - `pot.func_type`: the fitting function; `{"spline" (preferred), "bspline", "harmonic", "polyfunc", "morse_poly", "morse"}`.
-- `Q`: the spatial domain (1-d array).
-- `params`: the hyperparameters.
+    - `pot.params`: the hyperparameters.
 
 ### Hyperparameters `params`
 
@@ -155,7 +159,7 @@ params = Dict()
 params["order"] = 4
 params["smoothness"] = 0.001
 params["weight"] = [1 1 1 1 1 0.5 0.4 0.4 0.5 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
-fit_pot!(pot, Q; params=params)
+fit_pot!(pot)
 ```
 
 - Harmonic
@@ -169,19 +173,16 @@ pot.nev = nev
 pot.func_type = "harmonic"
 params = Dict()
 params["hw"] = 0.0281812646475
-fit_pot!(pot, Q; params = params)
+fit_pot!(pot)
 ```
 
 """
-function fit_pot!(pot::potential, Q; params = nothing)
+function fit_pot!(pot::potential)
     # pot.params["E0"] = pot.E0
     # pot.params["Q0"] = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
 
     E_CUT = 2 # defines upper energy limit on data used for fitting
     e_cut_ind = pot.QE_data.E .< E_CUT + pot.E0 # boolean
-
-    params = if params == nothing pot.params else params end
-    pot.Q = Q
 
     println("Potential fitting: $(pot.name)")
 
@@ -189,31 +190,31 @@ function fit_pot!(pot::potential, Q; params = nothing)
         println("=========bspline=========\n")
 
         bspline = get_bspline(pot.QE_data.Q, pot.QE_data.E)
-        pot.E = bspline(Q)
+        pot.E = bspline(pot.Q)
         pot.func = bspline
 
     elseif pot.func_type == "spline"
         println("=========spline==========\n")
 
-        weight = get(params, "weight", nothing)
+        weight = get(pot.params, "weight", nothing)
         if isa(weight, String)
             weight = parse.(Float64, split(weight))
         end
         if weight ≠ nothing
             weight = vec(weight)
         end
-        smoothness = get(params, "smoothness", 0)
-        order = get(params, "order", 2)
+        smoothness = get(pot.params, "smoothness", 0)
+        order = get(pot.params, "order", 2)
 
         spline = get_spline(pot.QE_data.Q, pot.QE_data.E; weight = weight, smoothness = smoothness, order = order)
-        pot.E = spline(Q)
+        pot.E = spline(pot.Q)
         pot.func = spline
 
     elseif pot.func_type == "harmonic"
         println("========harmonic=========\n")
         # func = x -> harmonic(x, params["hw"]; param = params)
-        pot.E = harmonic.(Q, params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
-        pot.func = x -> harmonic(x, params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
+        pot.E = harmonic.(pot.Q, pot.params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
+        pot.func = x -> harmonic(x, pot.params["hw"]; E₀ = pot.E0, Q₀ = pot.Q0)
 
     # potentials that need fitting
     else
@@ -221,26 +222,26 @@ function fit_pot!(pot::potential, Q; params = nothing)
         if pot.func_type == "sc_harmonic"
         println("========self-consistent harmonic fit========\n")
         func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
-        fit = sc_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(params["p0"]), pot.T)
+        fit = sc_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(pot.params["p0"]), pot.T)
 
         # one-shot fitting
         else
             if pot.func_type == "polyfunc"
                 println("========polynomial========\n")
-                func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
+                func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = pot.params["poly_order"])
             elseif pot.func_type == "morse_poly"
                 println("========morse polynomial========\n")
-                func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = params["poly_order"])
+                func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = pot.params["poly_order"])
             elseif pot.func_type == "morse"
                 func = (x, p) -> morse(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
             elseif pot.func_type == "harmonic_fittable"
                 println("========harmonic fit========\n")
                 func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
             end
-            fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(params["p0"])) # curve_fit : model, x data, y data, p0
+            fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(pot.params["p0"])) # curve_fit : model, x data, y data, p0
         end
 
-        pot.E = func.(Q, Ref(fit.param)) # when calling function, need to Ref() so that it can deal with array mismatch
+        pot.E = func.(pot.Q, Ref(fit.param)) # when calling function, need to Ref() so that it can deal with array mismatch
         pot.func = x -> func(x, fit.param)
 
         println("===========Fit===========")
