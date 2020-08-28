@@ -112,7 +112,7 @@ function filter_sample_points!(pot::Potential)
 
     lim_ind = 0
     for ener_i in pot.QE_data.E
-        if ener_i > thermal_energy
+        if ener_i - pot.E0 > thermal_energy
             break
         else
             lim_ind += 1
