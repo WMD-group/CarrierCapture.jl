@@ -105,22 +105,47 @@ end
     filter_sample_points!(pot::Potential)
 
 Remove all fit points after a thermally unsurmountable point in increasing order.
+This function is only robust if
 
 """
 function filter_sample_points!(pot::Potential)
     thermal_energy = pot.T*boltz
 
-    lim_ind = 0
-    for ener_i in pot.QE_data.E
-        if ener_i - pot.E0 > thermal_energy
-            break
+    # find minima
+    min_ind_array = findall(pot.QE_data.E .== minimum(pot.QE_data.E))
+    len_min_ind = length(min_ind_array)
+    # check if there are multiple maxima
+    if len_min_ind > 1
+        throw(ArgumentError("The fitted potential has several minima."))
+    end
+
+    min_ind = len_min_ind[1]
+
+    # select the interconnected data points below the energy threshold and
+    # containing the minimum energy point we call these points an island
+    below_thresh = pot.QE_data.E .<= thermal_energy + pot.E0
+
+    island = []
+
+    for (ind, bool) in enumerate(below_thresh)
+        # if the data point is not part of an island
+        if bool == 0
+            # if there is a non-0 island in memory, add it and clear memory
+            if length(island) > 0
+                if min_ind in island
+                    break
+                else
+                island = []
+                end
+            end
+        # if the point is part of an island
         else
-            lim_ind += 1
+            # add point to island
+            append!(island, ind)
         end
     end
-    pot.QE_data = DataFrame(Q = pot.QE_data.Q[1:lim_ind], E = pot.QE_data.E[1:lim_ind])
-    println(lim_ind)
-    println(thermal_energy)
+
+    pot.QE_data = DataFrame(Q = pot.QE_data.Q[island], E = pot.QE_data.E[island])
 
 end
 
