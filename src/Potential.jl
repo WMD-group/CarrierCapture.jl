@@ -23,7 +23,7 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 in that they are data points of the fitted function.
 - `nev`  -- the number of eigenvalues to be evaluated.
 - `ϵ` -- the list of eigenvalues
-- `T` -- temperature (only used for self-consistent fitting)
+- `T` -- temperature (only used for filtering sample points)
 
 ## Constructor
     Potential()
@@ -146,6 +146,7 @@ function filter_sample_points!(pot::Potential)
     end
 
     pot.QE_data = DataFrame(Q = pot.QE_data.Q[island], E = pot.QE_data.E[island])
+    println(island)
 
 end
 
