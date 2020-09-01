@@ -108,7 +108,7 @@ Remove all fit points after a thermally unsurmountable point in increasing order
 This function is only robust if
 
 """
-function filter_sample_points!(pot::Potential)
+function filter_sample_points!(pot::Potential, thermal_energy::Float64)
     thermal_energy = pot.T*boltz
 
     # find minima
@@ -148,6 +148,16 @@ function filter_sample_points!(pot::Potential)
     pot.QE_data = DataFrame(Q = pot.QE_data.Q[island], E = pot.QE_data.E[island])
     println(island)
 
+end
+
+"""
+    function filter_sample_points!(pot::Potential, thermal_energy::Float64)
+
+Same as above but use the temperature associated with the potential to filter points
+
+"""
+function filter_sample_points!(pot::Potential)
+    filter_sample_points!(pot, pot.T*boltz)
 end
 
 """
