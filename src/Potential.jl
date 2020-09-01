@@ -163,7 +163,7 @@ end
 """
     fit_pot!(pot::Potential)
 
-Fit a function `pot.func_type` to `QE_data` on the domain `Q`.
+Fit a function `pot.func_type` to `pot.QE_data` on the domain `pot.Q`.
 
 ## parameters
 
@@ -534,9 +534,4 @@ function cleave_pot(pot::Potential)
 
     return pot_a, pot_b
 end
-
-
-
-
-
 
