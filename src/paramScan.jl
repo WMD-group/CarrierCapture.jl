@@ -66,24 +66,24 @@ function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
         Q = range(-20-ΔQ, stop=20+ΔQ, length=5000) # ensure high enough to get good harmonic fit
 
         # potential 1
-        potf = potential(); potf.name = "Relaxed state"
+        potf = Potential(); potf.name = "Relaxed state"
         potf.Q0 = ΔQ; potf.E0 = 0
         potf.nev = nev_relaxed # must overlap with initial excited state
         potf.func = x -> harmonic(x, ħω_f; E₀ = potf.E0, Q₀ = potf.Q0)
         potf.params["ħω"]= ħω_f
-	    potf.Q = Q
+        potf.Q = Q
         potf.E = potf.func.(Q)
         solve_pot!(potf)
 
         # potential 2
-        poti = potential(); poti.name = "Excited state"
+        poti = Potential(); poti.name = "Excited state"
         poti.Q0 = 0; poti.E0 = ΔE;
         poti.nev = nev_excited # must be converged for partition function
         poti.func = x -> harmonic(x, ħω_i; E₀ = poti.E0, Q₀ = poti.Q0)
         poti.Q = Q
         poti.E = poti.func.(Q)
         poti.params["ħω"]= ħω_i
-	    solve_pot!(poti)
+        solve_pot!(poti)
         println("parameters fit to potentials")
         return poti, potf
 end
@@ -113,7 +113,7 @@ function fitMorseParams(a_i, a_f, b_i, b_f, Q0, E0)
     Q = range(-20-Q0, stop=20+Q0, length=5000) # ensure high enough to get good harmonic fit
 
     # potential 1
-    poti = potential(); poti.name = "Excited state"
+    poti = Potential(); poti.name = "Excited state"
     poti.Q0 = 0; poti.E0 = E0;
     poti.nev = nev_excited
     poti.func = x -> morse(x, [a_i, b_i]; E₀ = poti.E0, Q₀ = poti.Q0)
@@ -124,7 +124,7 @@ function fitMorseParams(a_i, a_f, b_i, b_f, Q0, E0)
     solve_pot!(poti)
 
     # potential 2
-    potf = potential(); potf.name = "Relaxed state"
+    potf = Potential(); potf.name = "Relaxed state"
     potf.Q0 = Q0; potf.E0 = 0
     potf.nev = nev_relaxed # must overlap with initial excited state
     potf.func = x -> morse(x, [a_f, b_f]; E₀ = potf.E0, Q₀ = potf.Q0)
