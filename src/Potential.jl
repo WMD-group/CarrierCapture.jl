@@ -109,8 +109,6 @@ This function is only robust if
 
 """
 function filter_sample_points!(pot::Potential, thermal_energy::Float64)
-    thermal_energy = pot.T*boltz
-
     # find minima
     min_ind_array = findall(pot.QE_data.E .== minimum(pot.QE_data.E))
     len_min_ind = length(min_ind_array)
@@ -290,17 +288,23 @@ function fit_pot!(pot::Potential)
         else
             if pot.func_type == "polyfunc"
                 println("========polynomial========\n")
-                func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = pot.params["poly_order"])
+                poly_order = get(pot.params, "poly_order", 4)
+                poly_params = get(pot.params, "p0", zeros(poly_order))
+                func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = poly_order)
             elseif pot.func_type == "morse_poly"
                 println("========morse polynomial========\n")
-                func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = pot.params["poly_order"])
+                poly_params = get(pot.params, "p0", zeros(poly_order))
+                poly_order = get(pot.params, "poly_order", 4)
+                func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = poly_order)
             elseif pot.func_type == "morse"
+                poly_params = zeros(2)
                 func = (x, p) -> morse(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
             elseif pot.func_type == "harmonic_fittable"
                 println("========harmonic fit========\n")
+                poly_params = zeros(1)
                 func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
             end
-            fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(pot.params["p0"])) # curve_fit : model, x data, y data, p0
+            fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(poly_params)) # curve_fit : model, x data, y data, p0
         end
 
         pot.E = func.(pot.Q, Ref(fit.param)) # when calling function, need to Ref() so that it can deal with array mismatch
