@@ -23,6 +23,7 @@ module CarrierCapture
 
     include("Potential.jl")
     include("CaptureRate.jl")
+    include("TransferRate.jl")
     include("Plotter.jl")
     include("paramScan.jl")
 end # module
