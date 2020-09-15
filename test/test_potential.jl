@@ -76,7 +76,7 @@
     fit_pot!(pot)
     @test pot.E ≈ pot.func(Q) atol = 1e-8
 
-    pot = potential_from_file("data/tio2_interpol.dat")
+    pot = pot_from_file("data/tio2_interpol.dat")
     @test pot.QE_data.E[2] ≈ -2336.08912022 atol = 1e-8
 
     pot.func_type = "spline"
