@@ -3,7 +3,7 @@ amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 boltz = 8.617333262E-5 # eV/K
 
-export Potential, pot_from_dict, filter_sample_points!, fit_pot!, solve_pot!, find_crossing, potential_from_file, cleave_pot
+export Potential, pot_from_dict, filter_sample_points!, fit_pot!, solve_pot!, find_crossing, pot_from_file, cleave_pot
 export Plotter
 # export solve1D_ev_amu
 # export sqwell, harmonic, double_well, polyfunc, morse
@@ -68,7 +68,7 @@ function Base.copy(pot::Potential)
 end
 
 """
-    potential_from_file(filename::String, resolution::Int64 = 3001)
+    pot_from_file(filename::String, resolution::Int64 = 3001)
 
 Parse a two column file with data for reaction coordinate and energy.
 Lines beginning with a hash are ignored. The optional argument `resolution`
@@ -78,7 +78,7 @@ read-in data points, pot.Q.
 Additionally, any pot.QE_data.Q not included in pot.Q are added.
 
 """
-function potential_from_file(filename::String, resolution::Int64 = 3001)
+function pot_from_file(filename::String, resolution::Int64 = 3001)
     Q_dat = Float64[]
     E_dat = Float64[]
     # read each line
@@ -470,7 +470,7 @@ function morse_poly(x, coeffs; E₀, Q₀, poly_order)
     return morse(x) + poly(x-Q₀-r₁) + E₀ - morse(Q₀) - poly(-r₁)
 end
 
-function get_spline(Qs, Es; weight = nothing, smoothness = 0, order = 2)
+function get_spline(Qs, Es; weight = nothing, smoothness = -1, order = 2)
     if Qs[1] > Qs[end]
         Qs = reverse(Qs)
         Es = reverse(Es)
