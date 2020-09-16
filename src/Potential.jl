@@ -97,6 +97,10 @@ function pot_from_file(filename::String, resolution::Int64 = 3001)
     # add sample points from QE_data, sort and remove duplicates
     pot.Q = unique(sort(vcat(interpol_points, Q_dat[:])))
 
+
+    # default harmonic fittable
+    pot.func_type = "harmonic_fittable"
+
     return pot
 end
 
@@ -535,6 +539,14 @@ function cleave_pot(pot::Potential)
 
     pot_a.QE_data = DataFrame(Q = Q_data[Q_data.<=Q_limit], E = E_data[Q_data.<=Q_limit])
     pot_b.QE_data = DataFrame(Q = Q_data[Q_data.>=Q_limit], E = E_data[Q_data.>=Q_limit])
+
+    # assign the ground states as initial and final points
+    pot_a.E0 = pot.QE_data.E[1]
+    pot_a.Q0 = pot.QE_data.Q[1]
+
+    pot_b.E0 = pot.QE_data.E[end]
+    pot_b.Q0 = pot.QE_data.Q[end]
+
 
     return pot_a, pot_b
 end
