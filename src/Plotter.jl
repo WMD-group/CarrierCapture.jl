@@ -27,13 +27,13 @@ function plot_pot!(pot::Potential; lplt_wf = false, plt = nothing, color = Nothi
         for i = 1:length(ϵ)
             plot!(plt, pot.Q, χ[i, :] * scale_factor .+ ϵ[i], lw = 0,
                   fillrange = [χ[i, :] * 0 .+ ϵ[i], χ[i, :] * scale_factor .+ ϵ[i]],
-                  color = color, alpha = 0.5, label = "")    
+                  color = color, alpha = 0.5, label = "")
         end
     end
 
     # plot function
     plot!(plt, pot.Q, pot.E, lw = 4, color = color, label = label)
-    
+
     # plot data
     if size(pot.QE_data)[1] > 1 
         scatter!(plt, pot.QE_data.Q, pot.QE_data.E, color = color, label = "")
@@ -83,7 +83,7 @@ function plot_pots(pots::Dict{String,Potential}, plot_cfg; output_fig = "potenti
 end
 
 """
-Depreciated:  
+Depreciated:
 Function for plotting `conf_coord` in cli
 """
 function plot_ccs(ccs::Array{conf_coord,1}, plot_cfg::Dict; output_fig = "captcoeff.pdf")
@@ -91,7 +91,7 @@ function plot_ccs(ccs::Array{conf_coord,1}, plot_cfg::Dict; output_fig = "captco
     for cc in ccs
         plot_cc!(cc; plt = plt)
     end
-    
+
     Cmin = get(plot_cfg, "Cmin", minimum(hcat([cc.capt_coeff for cc in ccs]...)) / 2.)
     Cmax = get(plot_cfg, "Cmax", maximum(hcat([cc.capt_coeff for cc in ccs]...)) * 2.)
     ylims!(Cmin, Cmax)
