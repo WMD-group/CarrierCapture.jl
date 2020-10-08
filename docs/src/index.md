@@ -1,13 +1,14 @@
 # CarrierCapture.jl
 
-Documentation for CarrierCapture.jl
-
 ![Logo](https://github.com/WMD-group/CarrierCapture.jl/blob/master/schematics/Logo.png?raw=true)
 
 A set of codes to compute carrier capture and recombination rates in semiconducting compounds.
 This topic has a rich history starting from the work by [Huang and Rhys](http://rspa.royalsocietypublishing.org/content/204/1078/406.short).
 Our implementation was inspired by the approach (and FORTRAN code) employed by [Alkauskas and coworkers](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202), but has been adapted
 to also describe anharmonic potential energy surfaces.
+
+**Please cite:** Kim, S.; Hood, S. N.; Gerwen, P. van; Whalley, L. D.; Walsh, A. CarrierCapture.Jl: Anharmonic Carrier Capture. *Journal of Open Source Software*  2020, 5 (47), 2102. [https://doi.org/10.21105/joss.02102](https://doi.org/10.21105/joss.02102.)
+
 
 ## Installation
 
