@@ -1,19 +1,20 @@
 export getHarmonicQ_m, getMorseQ_m, fitHarmonicParams, fitMorseParams, getHarmonicCapture, getMorseCapture
 
+"""
+    getHarmonicQ_m(ħω,E0)
+
+This function gets the value of ΔQ corresponding to an activationless
+Marcus regime (Q_m) for two harmonic potential energy surfaces
+
+# Parameters
+`ħω` : energy of vibration of the initial state, in eV
+`E0` : vertical shift between PES, in eV
+
+# Returns
+`Q_m` : The value of ΔQ corresponding to an activationless Marcus regime, in amu^0.5 Å^-1
+
+"""
 function getHarmonicQ_m(ħω,E0)
-    """
-    This function gets the value of ΔQ corresponding to an activationless
-    Marcus regime (Q_m) for two harmonic potential energy surfaces
-
-    Parameters
-    -----------
-    ħω : energy of vibration of the initial state, in eV
-    E0 : vertical shift between PES, in eV
-
-    Returns
-    -------
-    Q_m : The value of ΔQ corresponding to an activationless Marcus regime, in amu^0.5 Å^-1
-    """
     amu = 931.4940954E6   # eV / c^2
     ħc = 0.19732697E-6    # eV m
 
@@ -21,43 +22,43 @@ function getHarmonicQ_m(ħω,E0)
     return (E0/a)^0.5
 end
 
+"""
+    getMorseQ_m(a, b, E0)
+
+This function gets the value of Q corresponding to an activationless
+Marcus regime (Q_m) for two Morse potentials
+
+# Parameters
+`a` : first parameter of the Morse potential of the initial state
+`b` : second parameter of the Morse potential of the final state
+`ΔE` : vertical shift between PES, in eV
+
+# Returns
+`Q_m` : The value of ΔQ corresponding to an activationless Marcus regime, in amu^0.5 Å^-1
+
+"""
 function getMorseQ_m(a, b, E0)
-    """
-    This function gets the value of Q corresponding to an activationless
-    Marcus regime (Q_m) for two Morse potentials
-
-    Parameters
-    -----------
-    a : first parameter of the Morse potential of the initial state
-    b : second parameter of the Morse potential of the final state
-    ΔE : vertical shift between PES, in eV
-
-    Returns
-    -------
-    Q_m : The value of ΔQ corresponding to an activationless Marcus regime, in amu^0.5 Å^-1
-    """
-
     Q_m = (1/b)*log(1-(E0/a)^0.5)
     return Q_m
 end
 
+"""
+    function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
+This function fits the parameters to the harmonic potential energy surfaces and
+solves the potentials using a 1D S.E. solver
+
+# Parameters
+`ħω_i` : energy of vibration of the initial state
+`ħω_f` : energy of vibration of the final state
+
+`ΔQ` : horizontal shift between the PES', in amu^0.5 Å^-1
+`ΔE` : vertical shift between the PES', in eV
+
+# Returns
+`poti`, `potf` : potential of initial and final states
+
+"""
 function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
-    """
-    This function fits the parameters to the harmonic potential energy surfaces and
-    solves the potentials using a 1D S.E. solver
-
-    Parameters
-    ----------
-    ħω_i: energy of vibration of the initial state
-    ħω_f: energy of vibration of the final state
-
-    ΔQ : horizontal shift between the PES', in amu^0.5 Å^-1
-    ΔE : vertical shift between the PES', in eV
-
-    Returns
-    -------
-    poti, potf: potential of initial and final states
-    """
         # set nev
         nev_excited = 180
         nf_min = (1/(ħω_f))*((nev_excited+0.5)ħω_i+2ΔE)-0.5
@@ -88,24 +89,25 @@ function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
         return poti, potf
 end
 
+"""
+    fitMorseParams(a_i, a_f, b_i, b_f, Q0, E0)
+
+This function fits the parameters to the Morse potential energy surfaces and
+solves the potentials using a 1D S.E. solver
+
+# Parameters
+`a_i` : first parameter of the Morse potential of the initial state
+`a_f` : first parameter of the Morse potential of the final state
+`b_i` : second parameter of the Morse potential of the initial state
+`b_f` : second parameter of the Morse potential of the final state
+`Q0` : horizontal shift between the PES', in amu^0.5 Å^-1
+`E0` : vertical shift between the PES', in eV
+
+# Returns
+`poti`, `potf` : potential of initial and final states
+
+"""
 function fitMorseParams(a_i, a_f, b_i, b_f, Q0, E0)
-    """
-    This function fits the parameters to the Morse potential energy surfaces and
-    solves the potentials using a 1D S.E. solver
-
-    Parameters
-    ----------
-    a_i: first parameter of the Morse potential of the initial state
-    a_f: first parameter of the Morse potential of the final state
-    b_i: second parameter of the Morse potential of the initial state
-    b_f: second parameter of the Morse potential of the final state
-    Q0 : horizontal shift between the PES', in amu^0.5 Å^-1
-    E0 : vertical shift between the PES', in eV
-
-    Returns
-    -------
-    poti, potf: potential of initial and final states
-    """
     # set number of eigenvalues (nev) to solve for in potential
     nev_excited = 180 # must be converged for partition function
     nev_relaxed = 800 # ensure max(ε_f) - max(ε_i) > E0
@@ -138,21 +140,21 @@ function fitMorseParams(a_i, a_f, b_i, b_f, Q0, E0)
     return poti, potf
 end
 
+"""
+    getHarmonicCapture(poti, potf)
+
+Get the capture coefficient in a charge trapping process from an initial to
+final state described by harmonic potential energy surfaces.
+
+# Parameters
+`poti` : initial potential
+`potf` : final potential
+
+# Returns
+`capt_coeff` : capture coefficient in units of cm^3 /s
+`barrier_height` : classical barrier to a capture process in eV
+"""
 function getHarmonicCapture(poti, potf)
-    """
-    Get the capture coefficient in a charge trapping process from an initial to
-    final state described by harmonic potential energy surfaces.
-
-    Parameters
-    ----------
-    poti: initial potential
-    potf: final potential
-
-    Returns
-    -------
-    capt_coeff: capture coefficient in units of cm^3 /s
-    barrier_height: classical barrier to a capture process in eV
-    """
     Volume = 1e-21 # cm^3
     σ = 0.8*potf.params["ħω"]
     g = 1 # degeneracy
@@ -190,21 +192,21 @@ function getHarmonicCapture(poti, potf)
     return capt_coeff, barrier_height
 end
 
+"""
+    getMorseCapture(poti, potf)
+
+Get the capture coefficient in a charge trapping process from an initial to
+final state described by harmonic potential energy surfaces.
+
+# Parameters
+`poti` : initial potential
+`potf` : final potential
+
+# Returns
+`capt_coeff` : capture coefficient in units of cm^3 /s
+`barrier_height` : classical barrier to a capture process in eV
+"""
 function getMorseCapture(poti, potf)
-    """
-    Get the capture coefficient in a charge trapping process from an initial to
-    final state described by harmonic potential energy surfaces.
-
-    Parameters
-    ----------
-    poti: initial potential
-    potf: final potential
-
-    Returns
-    -------
-    capt_coeff: capture coefficient in units of cm^3 /s
-    barrier_height: classical barrier to a capture process in eV
-    """
     Volume = 1e-21 # cm^3
     σ = 0.01
     g = 1 # degeneracy

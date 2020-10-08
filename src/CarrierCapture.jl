@@ -20,10 +20,9 @@ module CarrierCapture
     # @reexport using DataFrames
 
     include("Brooglie.jl")
-
     include("Potential.jl")
     include("CaptureRate.jl")
-    include("TransferRate.jl")
+    include("TransferCoord.jl")
     include("Plotter.jl")
-    include("paramScan.jl")
+    include("ParamScan.jl")
 end # module

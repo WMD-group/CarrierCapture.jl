@@ -99,7 +99,7 @@ function pot_from_file(filename::String, resolution::Int64 = 3001)
 
 
     # default harmonic fittable
-    pot.func_type = "harmonic_fittable"
+    pot.func_type = "spline"
 
     return pot
 end
@@ -547,6 +547,9 @@ function cleave_pot(pot::Potential)
     pot_b.E0 = pot.QE_data.E[end]
     pot_b.Q0 = pot.QE_data.Q[end]
 
+    # make cleft potentials harmonic
+    pot_a.func_type = "harmonic_fittable"
+    pot_b.func_type = "harmonic_fittable"
 
     return pot_a, pot_b
 end

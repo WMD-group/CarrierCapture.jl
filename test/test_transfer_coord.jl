@@ -28,11 +28,13 @@
     @test coupling ≈ 0.050542 atol = 1e-6
 
     reorg_energy = get_reorg_energy(tc)
-    @test reorg_energy ≈ 2.26961898898e6 atol = 1e-6
+    @test reorg_energy ≈ 0.41552841579 atol = 1e-6
 
     activation_energy = get_activation_energy(tc)
     @test activation_energy ≈ 0.103882103 atol = 1e-6
 
+    rate = get_transfer_rate(tc)
+    @test get_transfer_rate(tc) ≈ 1.099181691e12 atol = 1e6
 
 
 end
