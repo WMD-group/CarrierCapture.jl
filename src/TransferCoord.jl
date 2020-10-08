@@ -1,8 +1,9 @@
-include("Potential.jl")
-export TransferCoord, get_coupling, get_reorg_energy, get_activation_energy
+export TransferCoord, get_coupling, get_reorg_energy, get_activation_energy, get_transfer_rate, einstein_mobility
 
-ħ = 6.582119514E-16 # epot⋅s
-kB  = 8.6173303E-5 # epot⋅K⁻¹
+ħ = 6.582119514E-16 # eV⋅s
+kB  = 8.6173303E-5 # eV⋅K⁻¹
+ev_to_joule = 1.60218E-19
+e_char = 1.60217662E-19 # C
 
 """
 Stores three `Potential`s making up a transition between two diabatic states along an adiabatic potential energy surface.
@@ -43,12 +44,12 @@ Calculate the reorganisation energy for the transfer
 
 """
 function get_reorg_energy(tc::TransferCoord)
-    min_i = tc.pot_d_i.E0
-    min_f = tc.pot_d_f.E0
+    Q_min_i = tc.pot_d_i.Q0
+    E_min_f = tc.pot_d_f.E0
     # final diabatic potential evaulated at the initial minimum
-    min_i_f = tc.pot_d_f.func(min_i)
+    E_min_i_f = tc.pot_d_f.func(Q_min_i)
 
-    reorg_energy = min_i_f - min_f
+    reorg_energy = E_min_i_f - E_min_f
     return reorg_energy
 end
 
@@ -71,7 +72,7 @@ end
 Calculate the transfer rate
 
 """
-function transfer_rate(tc::TransferCoord)
+function get_transfer_rate(tc::TransferCoord)
     λ = get_reorg_energy(tc)
     Hab = get_coupling(tc)
     ΔG = get_activation_energy(tc)
@@ -80,6 +81,22 @@ function transfer_rate(tc::TransferCoord)
     rate = (2*pi/ħ) * 1/sqrt(4*pi*λ*kBT) * Hab^2 * exp(-ΔG/kBT)
 
     return rate
+end
 
+"""
+    einstein_mobility(rate::Float64, n_neighbours::Int64, dist::Float64, temp::Float64)
+
+## Fields
+
+- `rate` -- Transfer rate
+- `n_neighbours` -- Number of neighbours involved in the hopping
+- `dist` -- Distance between sites in whichever unit
+- `temp` -- Temperature in K
+
+"""
+function einstein_mobility(rate::Float64, n_neighbours::Int64, dist::Float64, temp::Float64)
+    diffusion = dist^2 * n_neighbours * rate
+    mob = e_char * diffusion / (kB * ev_to_joule * temp)
+    return mob
 end
 
