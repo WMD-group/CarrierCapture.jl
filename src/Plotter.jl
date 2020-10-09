@@ -60,49 +60,6 @@ function plot_cc!(cc::conf_coord; plt = nothing, color = nothing, label = "")
     return plt
 end
 
-"""
-Depreciated:
-Function for plotting `Potential` in cli
-"""
-function plot_pots(pots::Dict{String,Potential}, plot_cfg; output_fig = "potential.pdf")
-    plt = plot(legend = :bottomleft)
-
-    for (name, pot) in pots
-        plot_pot!(pot, lplt_wf = true, plt = plt)
-    end
-
-    Emin = get(plot_cfg, "Emin", minimum(hcat([pot.E for (name, pot) in pots]...)))
-    Emax = get(plot_cfg, "Emax", maximum(hcat([pot.E for (name, pot) in pots]...)))
-    ylims!(Emin, Emax)
-
-    Qmin = get(plot_cfg, "Qmin", minimum(hcat([pot.Q for (name, pot) in pots]...)))
-    Qmax = get(plot_cfg, "Qmax", maximum(hcat([pot.Q for (name, pot) in pots]...)))
-    xlims!(Qmin, Qmax)
-
-    savefig(plt, output_fig)
-end
-
-"""
-Depreciated:
-Function for plotting `conf_coord` in cli
-"""
-function plot_ccs(ccs::Array{conf_coord,1}, plot_cfg::Dict; output_fig = "captcoeff.pdf")
-    plt = plot(legend = :bottomleft)
-    for cc in ccs
-        plot_cc!(cc; plt = plt)
-    end
-
-    Cmin = get(plot_cfg, "Cmin", minimum(hcat([cc.capt_coeff for cc in ccs]...)) / 2.)
-    Cmax = get(plot_cfg, "Cmax", maximum(hcat([cc.capt_coeff for cc in ccs]...)) * 2.)
-    ylims!(Cmin, Cmax)
-
-    invTmin = get(plot_cfg, "invTmin", 1000 / maximum(hcat([cc.temperature for cc in ccs]...)))
-    invTmax = get(plot_cfg, "invTmax", 1000 / minimum(hcat([cc.temperature for cc in ccs]...)))
-    xlims!(invTmin, invTmax)
-
-    savefig(plt, output_fig)
-end
-
 
 
 end
