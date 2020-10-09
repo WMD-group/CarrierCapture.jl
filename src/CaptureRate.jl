@@ -123,16 +123,3 @@ function calc_capt_coeff!(cc::conf_coord, V::Float64, temperature)
     cc.temperature = temperature
 end
 
-
-# importing parameters
-"""
-Depreciated.  
-Construct `conf_coord` from two potentials `pot_i` (initial) and 'pot_f' (final) and configure dictionary `cfg`.
-"""
-function cc_from_dict(pot_i, pot_f, cfg::Dict)::conf_coord
-    cc = conf_coord(pot_i, pot_f)
-    cc.name = "$(cfg["initial"]) => $(cfg["final"])"
-    cc.W = cfg["W"]
-    cc.g = cfg["g"]
-    return cc
-end
