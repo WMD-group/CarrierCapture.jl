@@ -282,34 +282,25 @@ function fit_pot!(pot::Potential)
 
     # potentials that need fitting
     else
-        # self-consistent fitting
-        if pot.func_type == "sc_harmonic"
-        println("========self-consistent harmonic fit========\n")
-        func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
-        fit = sc_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(pot.params["p0"]), pot.T)
-
-        # one-shot fitting
-        else
-            if pot.func_type == "polyfunc"
-                println("========polynomial========\n")
-                poly_order = get(pot.params, "poly_order", 4)
-                poly_params = get(pot.params, "p0", zeros(poly_order))
-                func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = poly_order)
-            elseif pot.func_type == "morse_poly"
-                println("========morse polynomial========\n")
-                poly_params = get(pot.params, "p0", zeros(poly_order))
-                poly_order = get(pot.params, "poly_order", 4)
-                func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = poly_order)
-            elseif pot.func_type == "morse"
-                poly_params = zeros(2)
-                func = (x, p) -> morse(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
-            elseif pot.func_type == "harmonic_fittable"
-                println("========harmonic fit========\n")
-                poly_params = zeros(1)
-                func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
-            end
-            fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(poly_params)) # curve_fit : model, x data, y data, p0
+        if pot.func_type == "polyfunc"
+            println("========polynomial========\n")
+            poly_order = get(pot.params, "poly_order", 4)
+            poly_params = get(pot.params, "p0", zeros(poly_order))
+            func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = poly_order)
+        elseif pot.func_type == "morse_poly"
+            println("========morse polynomial========\n")
+            poly_params = get(pot.params, "p0", zeros(poly_order))
+            poly_order = get(pot.params, "poly_order", 4)
+            func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = poly_order)
+        elseif pot.func_type == "morse"
+            poly_params = zeros(2)
+            func = (x, p) -> morse(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
+        elseif pot.func_type == "harmonic_fittable"
+            println("========harmonic fit========\n")
+            poly_params = zeros(1)
+            func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
         end
+        fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(poly_params)) # curve_fit : model, x data, y data, p0
 
         pot.E = func.(pot.Q, Ref(fit.param)) # when calling function, need to Ref() so that it can deal with array mismatch
         pot.func = x -> func(x, fit.param)
@@ -366,35 +357,6 @@ function find_crossing(pot_1::Potential, pot_2::Potential)
     return rts, pot_1.func.(rts)
 end
 
-
-# read potential
-"""
-Depreciated.
-Construct `Potential` from `QE_data` and configure dictionary `cfg`.
-"""
-function pot_from_dict(QE_data::DataFrame, cfg::Dict)::Potential
-    pot = Potential()
-    pot.name = cfg["name"]
-    pot.nev = cfg["nev"]
-    pot.func_type = cfg["function"]["type"]
-    # pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
-    pot.E0 = get(cfg, "E0", Inf)
-    pot.QE_data = QE_data
-
-    pot.params = get(cfg["function"], "params",  Dict("E0" => pot.E0))
-    pot.params["p0"] =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
-
-    pot.Q0 = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
-
-    if pot.E0 < Inf
-        pot.QE_data.E .+= - minimum(pot.QE_data.E) + pot.E0
-    end
-
-    return pot
-end
-
-############################################################
-# Set of potentials
 function sqwell(x, width, depth; x0=0.)
     x = x .- x0
     pot_well = (x .< -width/2.) .| (x .> width/2.)
