@@ -38,7 +38,6 @@ def read_poscar(i_path, l_get_sorted_symbols=False):
 
 
 def get_init_fin(i_file, f_file, disp_range=None):
-def get_init_fin(args):
     '''
     '''
     # A. Alkauskas, Q. Yan, and C. G. Van de Walle, Physical Review B 90, 27 (2014)
@@ -84,16 +83,19 @@ def main(args):
         struct_m = read_poscar(args.med)
         delta_M = struct_m.frac_coords - struct_i.frac_coords
         delta_M = (delta_M + 0.5) % 1 - 0.5
+        delta_M = np.dot(delta_M, lattice)
         # project the midpoint on the delta_R vector
-        delta_M_proj = np.dot(delta_R, delta_M)/np.linalg.norm(delta_R)
+        # einsum for row-wise dot product
+        delta_M_proj = np.einsum('ij,ij->i',delta_R, delta_M)/np.linalg.norm(delta_R, axis=1)
         if args.no_weight:
             delta_M_proj_Q2 = delta_M_proj ** 2
         else:
-            delta_M_proj_Q2 = masses[:None] * delta_M_proj ** 2
+            #delta_M_proj_Q2 = masses[:,None] * delta_M_proj ** 2
+            delta_M_proj_Q2 = masses * delta_M_proj ** 2
         delta_M_proj_Q = np.sqrt(delta_M_proj_Q2.sum())
 
         print("Projected delta Q:", delta_M_proj_Q)
-        print(delta_M_proj_Q/delta_Q)
+        print("Fractional displacement:", delta_M_proj_Q/delta_Q)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
