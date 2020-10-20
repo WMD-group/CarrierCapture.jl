@@ -69,8 +69,8 @@ if __name__ == '__main__':
     '''
     '''
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
-                                     description="This script interpolates coordinates of intermediate structures 
-                                      on a line between equivalent atoms of initial and final structures and generates POSCAR files.")
+                                     description="This script interpolates coordinates of intermediate structures " 
+                                      "on a line between equivalent atoms of initial and final structures and generates POSCAR files.")
     parser.add_argument("-i","--init",
                         help="initial input file (POSCAR format) ",default="./POSCAR_i")
     parser.add_argument("-f","--fin",
