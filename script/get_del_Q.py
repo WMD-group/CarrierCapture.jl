@@ -54,18 +54,19 @@ def main(args):
         delta_M = np.dot(delta_M, lattice)
         # project the midpoint on the delta_R vector
         # einsum for row-wise dot product
-        delta_M_proj = np.einsum("ij,ij->i", delta_R, delta_M) / np.linalg.norm(
-            delta_R, axis=1
-        )
-        if args.no_weight:
-            delta_M_proj_Q2 = delta_M_proj ** 2
-        else:
-            # delta_M_proj_Q2 = masses[:,None] * delta_M_proj ** 2
-            delta_M_proj_Q2 = masses * delta_M_proj ** 2
-        delta_M_proj_Q = np.sqrt(delta_M_proj_Q2.sum())
+        dots = np.einsum("ij,ij->i", delta_R, delta_M)
+        norm = np.linalg.norm(delta_R, axis=1)
+        delta_M_proj = dots / norm
 
-        print("Projected delta Q:", delta_M_proj_Q)
-        print("Fractional displacement:", delta_M_proj_Q / delta_Q)
+        frac_delta_M_proj = delta_M_proj/norm
+
+        if args.no_weight:
+            res = np.average(frac_delta_M_proj)
+        else:
+            res = np.average(frac_delta_M_proj, weights = np.sqrt(masses))
+
+        print("Projected delta Q:", delta_Q*res)
+        print("Fractional displacement:", res)
 
 
 if __name__ == "__main__":
