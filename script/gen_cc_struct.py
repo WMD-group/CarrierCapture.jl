@@ -82,7 +82,7 @@ if __name__ == '__main__':
     
     i_file = args.init
     f_file = args.fin
-    disp_range = args.disp
+    disp_range = np.array(args.disp, dtype=float)
  
     main(i_file, f_file, disp_range)
 
