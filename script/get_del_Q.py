@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3
 # -*- coding=utf-8 -*-
 
 import sys
@@ -65,8 +65,8 @@ if __name__ == '__main__':
     '''
     '''
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
-                                     description="This script calculates the atomic mass weigted distance 
-                                                  between two structures.)
+                                     description="This script calculates the atomic mass weighted distance "
+                                                  "between two structures.")
     parser.add_argument("-i","--init",
                         help="initial input file (POSCAR format) ",default="./POSCAR_i")
     parser.add_argument("-f","--fin",
