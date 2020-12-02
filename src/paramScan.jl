@@ -1,3 +1,4 @@
+"""This module is a collection of functions used to scan different parameters in CarrierCapture."""
 export getHarmonicQ_m, getMorseQ_m, fitHarmonicParams, fitMorseParams, getHarmonicCapture, getMorseCapture
 
 """
@@ -44,7 +45,7 @@ end
 
 """
     function fitHarmonicParams(ħω_i, ħω_f, ΔQ, ΔE)
-This function fits the parameters to the harmonic potential energy surfaces and
+This function assigns the parameters to the harmonic potential energy surfaces and
 solves the potentials using a 1D S.E. solver
 
 # Parameters
