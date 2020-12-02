@@ -1,4 +1,4 @@
-"""This module is a collection of functions used to scan different parameters in CarrierCapture."""
+# This module is a collection of functions used to scan different parameters in CarrierCapture.
 export getHarmonicQ_m, getMorseQ_m, fitHarmonicParams, fitMorseParams, getHarmonicCapture, getMorseCapture
 
 """
