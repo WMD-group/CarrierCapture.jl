@@ -3,7 +3,7 @@
 """
 Get the mass weighted coordinate difference between two geometries.
 
-The distance can be in a straight line, or projected on to a vector of initial and final geometries.
+A middle geometry can be added, to measure it's projected distance between the initial and final ones.
 
 """
 
@@ -38,11 +38,7 @@ def main(args):
 
     masses = np.array([spc.atomic_mass for spc in struct_i.species])
 
-    # allow for no mass weighting
-    if args.no_weight:
-        delta_Q2 = delta_R ** 2
-    else:
-        delta_Q2 = masses[:, None] * delta_R ** 2
+    delta_Q2 = masses[:, None] * delta_R ** 2
     delta_Q = np.sqrt(delta_Q2.sum())
 
     print("Delta Q:", delta_Q)
@@ -54,16 +50,13 @@ def main(args):
         delta_M = np.dot(delta_M, lattice)
         # project the midpoint on the delta_R vector
         # einsum for row-wise dot product
-        dots = np.einsum("ij,ij->i", delta_R, delta_M)
-        norm = np.linalg.norm(delta_R, axis=1)
+        dots = np.dot(delta_R.flatten(), delta_M.flatten())
+        norm = np.linalg.norm(delta_R.flatten())
         delta_M_proj = dots / norm
 
         frac_delta_M_proj = delta_M_proj/norm
 
-        if args.no_weight:
-            res = np.average(frac_delta_M_proj)
-        else:
-            res = np.average(frac_delta_M_proj, weights = np.sqrt(masses))
+        res = frac_delta_M_proj
 
         print("Projected delta Q:", delta_Q*res)
         print("Fractional displacement:", res)
@@ -86,9 +79,6 @@ if __name__ == "__main__":
         nargs="?",
         default="unassigned",
         help="optional medium geometry (POSCAR format) to get its the fractional displacement between the initial and final geometries",
-    )
-    parser.add_argument(
-        "-nw", "--no_weight", action="store_true", help="Turn off mass weighting"
     )
 
     args = parser.parse_args()
