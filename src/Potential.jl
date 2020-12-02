@@ -19,11 +19,11 @@ Stores a potential in one-dimensional space Q, with discreet points (E0, Q0) and
 - `E0`, `Q0`  -- the minimum point of the Potential [`Q0`, `E0`].
 - `func_type`     -- the type of fitting function ("bspline", "spline", "harmonic", "polyfunc", "morse_poly", "morse").
 - `params`    -- the list of hyper parameters for the fitting function.
-- `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`. They differ from QE_data
-in that they are data points of the fitted function.
+- `Q`, `E`  -- `Q` and `E`=`func(Q, p_opt; params)`. They are not the same as QE_data, they are the data points of the fitted function.
 - `nev`  -- the number of eigenvalues to be evaluated.
 - `ϵ` -- the list of eigenvalues
 - `T` -- temperature (only used for filtering sample points)
+- `T_weight` -- turn on temperature-dependent Boltzman weighting
 
 ## Constructor
     Potential()
@@ -42,10 +42,11 @@ mutable struct Potential
     ϵ::Array{Float64,1}; χ::Array{Float64,2}
     # options for thermally accessible fit
     T::Float64
+    T_weight::Bool
     Potential() = new("", DataFrame([0 0], [:Q, :E]), 0, 0,
                       "harmonic_fittable", x->0, Dict(),
                       [], [],
-                      0, [], Array{Float64}(undef, 0, 2), 293.15)
+                      0, [], Array{Float64}(undef, 0, 2), 293.15,false)
 end
 
 # extend copy to work with potentials, a cleaner implementation would be welcome
@@ -148,7 +149,6 @@ function filter_sample_points!(pot::Potential, thermal_energy::Float64)
     end
 
     pot.QE_data = DataFrame(Q = pot.QE_data.Q[island], E = pot.QE_data.E[island])
-    println(island)
 
 end
 
@@ -300,7 +300,14 @@ function fit_pot!(pot::Potential)
             poly_params = zeros(1)
             func = (x, p) -> harmonic_fittable(x, p; E₀ = pot.E0, Q₀ = pot.Q0)
         end
-        fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(poly_params)) # curve_fit : model, x data, y data, p0
+        if pot.T_weight
+            # Boltzman weighting
+            weights = exp.((-(pot.QE_data.E[e_cut_ind].-minimum(pot.QE_data.E[e_cut_ind]))./(pot.T*boltz)))
+            print("Weights: ", weights)
+            fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], weights, Float64.(poly_params)) # curve_fit : model, x data, y data, weights, p0
+        else
+            fit = curve_fit(func, pot.QE_data.Q[e_cut_ind], pot.QE_data.E[e_cut_ind], Float64.(poly_params)) # curve_fit : model, x data, y data, p0
+        end
 
         pot.E = func.(pot.Q, Ref(fit.param)) # when calling function, need to Ref() so that it can deal with array mismatch
         pot.func = x -> func(x, fit.param)
@@ -473,7 +480,7 @@ Return two potentials with the `QE_data` of the original potential split by the 
 If there is more than one maximum, throw an error
 
 """
-function cleave_pot(pot::Potential)
+function cleave_pot(pot::Potential; discard_max=false)
     # find maxima
     max_ind_array = findall(pot.E .== maximum(pot.E))
     len_max_ind = length(max_ind_array)
@@ -499,8 +506,15 @@ function cleave_pot(pot::Potential)
     Q_data = pot.QE_data.Q
     E_data = pot.QE_data.E
 
-    pot_a.QE_data = DataFrame(Q = Q_data[Q_data.<=Q_limit], E = E_data[Q_data.<=Q_limit])
-    pot_b.QE_data = DataFrame(Q = Q_data[Q_data.>=Q_limit], E = E_data[Q_data.>=Q_limit])
+    # discard maxima
+    if discard_max
+        mask = E_data.<maximum(E_data)
+        E_data = E_data[mask]
+        Q_data = Q_data[mask]
+    end
+
+    pot_a.QE_data = DataFrame(Q = Q_data[Q_data.<Q_limit], E = E_data[Q_data.<Q_limit])
+    pot_b.QE_data = DataFrame(Q = Q_data[Q_data.>Q_limit], E = E_data[Q_data.>Q_limit])
 
     # assign the ground states as initial and final points
     pot_a.E0 = pot.QE_data.E[1]
