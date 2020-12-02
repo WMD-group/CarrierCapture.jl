@@ -58,9 +58,6 @@
     fit_pot!(pot)
     @test pot.E == pot.func(Q)
 
-    fit_pot!(pot)
-    @test pot.E == pot.func(Q)
-
     pot.func_type = "bspline"
     fit_pot!(pot)
     @test pot.E == pot.func(Q)
@@ -83,14 +80,14 @@
     fit_pot!(pot)
     pot_a, pot_b = cleave_pot(pot)
     @test length(pot_a.QE_data.Q) == length(pot_b.QE_data.Q)
-    # potential types
-    # CarrierCapture.harmonic
-    # double well
-    # polyfunc
-    # morse
-    # get_spline
-    # get_bspline
 
-    #println(pot.T)
+    pot.func_type = "harmonic_fittable"
+    pot.T_weight = true
+    pot.QE_data.E = pot.QE_data.E .- minimum(pot.QE_data.E)
+    pot.Q0 = 0
+    pot.E0 = 0
+    fit_pot!(pot)
+    @test pot.E[1500] ≈ 0.00262159065 atol = 1e-8
+
 
 end
