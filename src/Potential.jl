@@ -2,7 +2,7 @@
 amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 
-export potential, pot_from_dict, fit_pot!, solve_pot!, find_crossing
+export potential, pot_from_dict, fit_pot!, solve_pot!, find_crossing, calc_zero_phonon_freq
 export Plotter
 # export solve1D_ev_amu
 # export sqwell, harmonic, double_well, polyfunc, morse
@@ -231,6 +231,18 @@ function find_crossing(pot_1::potential, pot_2::potential)
     Q = pot_1.Q
     rts = find_zero(diff_func, Q[length(Q)÷2])
     return rts, pot_1.func.(rts)
+end
+
+
+"""
+    calc_zero_phonon_freq(pot::potential)
+
+Calculate the zero-phonon frequency (in meV) of a given potential energy surface `pot` from the potential eigenvalues `pot.ϵ`. 
+`ħω0 = calc_zero_phonon_freq(pot)`.
+"""
+function calc_zero_phonon_freq(pot::potential)
+	    ħω0 = (pot.ϵ[2] - pot.ϵ[1])*1000
+        return ħω0 
 end
 
 
