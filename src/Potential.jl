@@ -375,33 +375,6 @@ function calc_zero_phonon_freq(pot::potential)
         return ħω0 
 end
 
-
-# read potential
-"""
-Depreciated.  
-Construct `potential` from `QE_data` and configure dictionary `cfg`.
-"""
-function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
-    pot = potential()
-    pot.name = cfg["name"]
-    pot.nev = cfg["nev"]
-    pot.func_type = cfg["function"]["type"]
-    # pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
-    pot.E0 = get(cfg, "E0", Inf)
-    pot.QE_data = QE_data
-
-    pot.params = get(cfg["function"], "params",  Dict("E0" => pot.E0))
-    pot.params["p0"] =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
-
-    pot.Q0 = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
-
-    if pot.E0 < Inf
-        pot.QE_data.E .+= - minimum(pot.QE_data.E) + pot.E0
-    end
-
-    return pot
-end
-
 ############################################################
 # Set of potentials
 ############################################################
