@@ -3,7 +3,7 @@ amu = 931.4940954E6   # eV / c^2
 ħc = 0.19732697E-6    # eV m
 boltz = 8.617333262E-5 # eV/K
 
-export Potential, pot_from_dict, filter_sample_points!, fit_pot!, solve_pot!, find_crossing, pot_from_file, cleave_pot, calc_zero_phonon_freq
+export Potential, pot_from_dict, filter_sample_points!, fit_pot!, solve_pot!, find_crossing, pot_from_file, cleave_pot
 export Plotter
 # export solve1D_ev_amu
 # export sqwell, harmonic, double_well, polyfunc, morse
@@ -363,48 +363,6 @@ function find_crossing(pot_1::Potential, pot_2::Potential)
     rts = find_zero(diff_func, Q[length(Q)÷2]) # start search at the midpoint of the Q vector
     return rts, pot_1.func.(rts)
 end
-
-"""
-    calc_zero_phonon_freq(pot::potential)
-
-Calculate the zero-phonon frequency (in meV) of a given potential energy surface `pot` from the potential eigenvalues `pot.ϵ`. 
-`ħω0 = calc_zero_phonon_freq(pot)`.
-"""
-function calc_zero_phonon_freq(pot::potential)
-	    ħω0 = (pot.ϵ[2] - pot.ϵ[1])*1000
-        return ħω0 
-end
-
-
-# read potential
-"""
-Depreciated.  
-Construct `potential` from `QE_data` and configure dictionary `cfg`.
-"""
-function pot_from_dict(QE_data::DataFrame, cfg::Dict)::potential
-    pot = potential()
-    pot.name = cfg["name"]
-    pot.nev = cfg["nev"]
-    pot.func_type = cfg["function"]["type"]
-    # pot.p0 =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
-    pot.E0 = get(cfg, "E0", Inf)
-    pot.QE_data = QE_data
-
-    pot.params = get(cfg["function"], "params",  Dict("E0" => pot.E0))
-    pot.params["p0"] =  parse.(Float64, split(get(cfg["function"], "p0", "1 1")))
-
-    pot.Q0 = pot.QE_data.Q[findmin(pot.QE_data.E)[2]]
-
-    if pot.E0 < Inf
-        pot.QE_data.E .+= - minimum(pot.QE_data.E) + pot.E0
-    end
-
-    return pot
-end
-
-############################################################
-# Set of potentials
-############################################################
 
 function sqwell(x, width, depth; x0=0.)
     x = x .- x0
