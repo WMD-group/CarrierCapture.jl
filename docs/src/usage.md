@@ -1,6 +1,6 @@
 # Usage
 
-A typical usage will consist of about three steps; 1. preparation, 2. building `potential`, and 3. computing capture coefficient. Find more detail for step 2 and step 3 in [example notebooks](https://github.com/WMD-group/CarrierCapture.jl/tree/master/example/notebook). The command line interface is depreciated and not recommended.
+A typical usage will consist of about three steps; 1. preparation, 2. building `Potential`, and 3. computing capture coefficient. Find more detail for step 2 and step 3 in [example notebooks](https://github.com/WMD-group/CarrierCapture.jl/tree/master/example/notebook). The command line interface is depreciated and not recommended.
 
 ## 1. Preparation
 
@@ -63,7 +63,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
       done
       ```
 
-   4. Calculate `𝛥Q` using `get_del_Q.py`. Generate `potential.csv` using following script.<a name="qe_data"></a>
+   4. Calculate `𝛥Q` using `get_del_Q.py`. Generate `notential.csv` using following script.<a name="qe_data"></a>
 
       ```bash
       #!/bin/bash -l
@@ -127,7 +127,7 @@ Before `CarrierCapture`, you need to calculate potential energy surfaces of atom
    3. Calculate the rate of change in overlap between initial and final wavefunctions `<ψ_i0|ψ_f(𝛥Q)>` as the geometry changes `𝛥Q`:
       `W_if = (ϵ_f - ϵ_i) d<ψ_i0|ψ_f(𝛥Q)> / d𝛥Q`. See more detail in [this example](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/e-ph.ipynb).
    
-## 2. Building `potential`
+## 2. Building `Potential`
 See [Example](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Anharmonic%20(DX%20center).ipynb).
 
   1. Use `fit_pot!` to find a best fit to the [data of `Q` and `E`](#qe_data). 

@@ -1,11 +1,9 @@
-__precompile__(true)
-
 """
 Main module for `CarrierCapture.jl` -- A set of codes to compute carrier capture and recombination rates in semiconducting compounds.
 
 Two structs are exported from this module for public use:
 
-- [`potential`](@ref): Potential.
+- [`Potential`](@ref): Potential.
 - [`conf_coord`](@ref): Configuration coordinate.
 - [`Plotter`](@ref): Auxiliary submodule for plotting.
 - [`Brooglie`](@ref): 1D Shrödinger equation solver.
@@ -22,9 +20,9 @@ module CarrierCapture
     # @reexport using DataFrames
 
     include("Brooglie.jl")
-
     include("Potential.jl")
     include("CaptureRate.jl")
+    include("TransferCoord.jl")
     include("Plotter.jl")
-    include("paramScan.jl")
+    include("ParamScan.jl")
 end # module
