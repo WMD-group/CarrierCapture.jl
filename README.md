@@ -95,7 +95,7 @@ In addition, the alignment of energy surfaces for defects in different charge st
 * [Heny and Lang, Nonradiative capture and recombination by multiphonon emission in GaAs and GaP (1977)](https://journals.aps.org/prb/pdf/10.1103/PhysRevB.15.989)
 *Seminal contribution that introduces many important concepts*
 
-* [Huang, Adiabatic approximation theory and static coupling theory of nonradiative transition (1981)]([http://engine.scichina.com/doi/10.1360/ya1981-24-1-27](https://www.worldscientific.com/doi/epdf/10.1142/9789812793720_0009)
+* [Huang, Adiabatic approximation theory and static coupling theory of nonradiative transition (1981)](https://www.worldscientific.com/doi/epdf/10.1142/9789812793720_0009)
 *Context for the static approximation that we employ*
 
 * [Stoneham, Non-radiative transitions in semiconductors (1981)](http://iopscience.iop.org/article/10.1088/0034-4885/44/12/001/meta)
