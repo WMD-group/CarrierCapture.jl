@@ -44,15 +44,15 @@ conf_coord(pot_i::Potential, pot_f::Potential) = conf_coord("", pot_i, pot_f, In
 
 
 """
-    calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
+    calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025, Q₀)
 
 Calculate phonon overlap between phonon wave functions 'Potential.χ'.
 If energy difference is larger then the cutoff (eV) `abs(cc.V1.ϵ[i] - cc.V2.ϵ[j]) > cut_off`,
 the overlap will not be calculated.
 Delta functions are replaced by Gaussian functions with widths `σ`.
+Q₀ should be consistent with the middle datapoint used to calculate the e-ph coupling matrix element W.
 """
-function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025)
-    Q₀ = cc.V1.Q0
+function calc_overlap!(cc::conf_coord; cut_off = 0.25, σ = 0.025, Q₀)
     ΔL = (maximum(cc.V1.Q) - minimum(cc.V1.Q))/length(cc.V1.Q)
     cc.overlap_matrix = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ))
     cc.δ_matrix = zeros(length(cc.V1.ϵ), length(cc.V2.ϵ))
