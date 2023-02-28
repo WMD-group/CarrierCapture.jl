@@ -26,7 +26,7 @@ function plot_pot!(pot::Potential; lplt_wf = false, plt = nothing, color = Nothi
         ϵ = pot.ϵ; χ = pot.χ
         for i = 1:length(ϵ)
             plot!(plt, pot.Q, χ[i, :] * scale_factor .+ ϵ[i], lw = 0,
-                  fillrange = [χ[i, :] * 0 .+ ϵ[i], χ[i, :] * scale_factor .+ ϵ[i]],
+                  fillrange = χ[i, :] * -scale_factor .+ ϵ[i],
                   color = color, alpha = 0.5, label = "")
         end
     end
