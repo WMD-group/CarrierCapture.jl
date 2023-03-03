@@ -40,7 +40,7 @@
     cc.W = W; cc.g = g
     
     # calc_overlap!
-    calc_overlap!(cc; cut_off = cut_off, σ = σ)
+    calc_overlap!(cc; cut_off = cut_off, σ = σ, Q₀)
 
     using LinearAlgebra
     # zero-overlap between misaligned eigenvalues
