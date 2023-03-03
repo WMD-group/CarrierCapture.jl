@@ -1,8 +1,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![made-with-julia](https://img.shields.io/badge/Made%20with-Julia-ff69bf.svg)](https://julialang.org)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://wmd-group.github.io/CarrierCapture.jl/dev/)
-[![Build Status](https://travis-ci.org/WMD-group/CarrierCapture.jl.svg?branch=master)](https://travis-ci.org/WMD-group/CarrierCapture.jl)
-[![codecov](https://codecov.io/gh/WMD-group/CarrierCapture.jl/branch/master/graph/badge.svg?token=7jzuwloNvs)](https://codecov.io/gh/WMD-group/CarrierCapture.jl)
+[![CI](https://github.com/WMD-group/CarrierCapture.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/WMD-group/CarrierCapture.jl/actions/workflows/ci.yml)
 [![DOI](https://zenodo.org/badge/130691083.svg)](https://zenodo.org/badge/latestdoi/130691083)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02102/status.svg)](https://doi.org/10.21105/joss.02102)
 
