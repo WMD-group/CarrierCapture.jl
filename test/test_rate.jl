@@ -32,6 +32,7 @@
     cut_off = 0.25; σ = 0.0075
     temperature = range(Tmin, stop=Tmax, length=NT)
 
+    Q₀ = 0 
     W = 0.205 # e-ph coupling
     g = 1 # degeneracy
 
