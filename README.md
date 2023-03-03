@@ -4,7 +4,7 @@
 [![CI](https://github.com/WMD-group/CarrierCapture.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/WMD-group/CarrierCapture.jl/actions/workflows/ci.yml)
 [![DOI](https://zenodo.org/badge/130691083.svg)](https://zenodo.org/badge/latestdoi/130691083)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02102/status.svg)](https://doi.org/10.21105/joss.02102)
-[![Julia](https://img.shields.io/badge/julia-1.6%2B-blue)](https://julialang.org)
+[![Julia](https://img.shields.io/badge/Julia-1.6%2B-blue)](https://julialang.org)
 
 <center>
 <img src="schematics/Logo.png" width="400" />
