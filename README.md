@@ -108,12 +108,20 @@ In addition, the alignment of energy surfaces for defects in different charge st
 
 #### Applications of CarrierCapture
 
-* [Kim and Walsh, Ab initio calculation of the detailed balance limit to the photovoltaic efficiency of single p-n junction kesterite solar cells (2021)](https://aip.scitation.org/doi/10.1063/5.0049143) [[arXiv](https://arxiv.org/abs/2104.13572)]
+* [Kavanagh et al, Impact of metastable defect structures on carrier recombination in solar cells (2022)](https://pubs.rsc.org/en/content/articlelanding/2022/fd/d2fd00043a)
 
-* [Kim et al, Upper limit to the photovoltaic efficiency of imperfect crystals (2020)](https://dx.doi.org/10.1039/D0EE00291G) [[arXiv](https://arxiv.org/abs/1912.07889)]
+* [Kavanagh et al, Rapid recombination by cadmium vacancies in CdTe (2021)](https://doi.org/10.1021/acsenergylett.1c00380)
 
-* [Kim et al, Anharmonic lattice relaxation during non-radiative carrier capture (2019)](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.100.041202) [[arXiv](https://arxiv.org/abs/1904.01348)]
+* [Whalley et al, Giant Huang–Rhys factor for electron capture by the iodine intersitial in perovskite solar cells (2021)](https://pubs.acs.org/doi/full/10.1021/jacs.1c03064)
 
-* [Kim et al, Lone-pair effect on carrier capture in Cu<sub>2</sub>ZnSnS<sub>4</sub> solar cells (2019)](https://pubs.rsc.org/en/content/articlehtml/2019/ta/c8ta10130b) [[arXiv](https://arxiv.org/abs/1810.11259)]
+* [Kim and Walsh, Ab initio calculation of the detailed balance limit to the photovoltaic efficiency of single p-n junction kesterite solar cells (2021)](https://aip.scitation.org/doi/10.1063/5.0049143) 
+
+* [Dahliah et al, High-throughput computational search for high carrier lifetime, defect-tolerant solar absorbers (2021)](https://pubs.rsc.org/en/content/articlelanding/2021/EE/D1EE00801C)
+
+* [Kim et al, Upper limit to the photovoltaic efficiency of imperfect crystals (2020)](https://dx.doi.org/10.1039/D0EE00291G) 
+
+* [Kim et al, Anharmonic lattice relaxation during non-radiative carrier capture (2019)](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.100.041202) 
+
+* [Kim et al, Lone-pair effect on carrier capture in Cu<sub>2</sub>ZnSnS<sub>4</sub> solar cells (2019)](https://pubs.rsc.org/en/content/articlehtml/2019/ta/c8ta10130b)
 
 * [Kim et al, Identification of killer defects in kesterite thin-film solar cells (2018)](https://pubs.acs.org/doi/abs/10.1021/acsenergylett.7b01313)
