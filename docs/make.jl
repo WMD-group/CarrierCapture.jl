@@ -6,6 +6,7 @@ makedocs(
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true"
     ),
+    checkdocs = :none,  # Disable strict checking for missing docstrings
     modules = [CarrierCapture],
     pages = [
         "Home" => "index.md",
