@@ -133,15 +133,14 @@ See [Example](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example
   1. Use `fit_pot!` to find a best fit to the [data of `Q` and `E`](#qe_data). 
   2. Use `solve_pot!` to solve 1D Shrödinger equation for the potential energy surface (PES).
 
-## 3. Computing capture rates
+## 3. Computing Capture Rates
 See [Example](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Anharmonic%20(DX%20center).ipynb).
 
   1. Use `calc_overlap!` to calculate the overlap between phonon wave functions.
   2. Use `calc_capt_coeff!` to calculate the capture coefficient as a function of temperature.
 
 
-
-# High-Throughput Usage
+# High-throughput Usage
 High-throughput usage is possible by preparing files in a similar method to the examples, `useParamScan_Harmonic.jl` and `useParamScan_Anharmonic.jl`. It is recommended that a high-performance computer rather than a personal machine is used, depending on how many calculations are performed. The code can then be run remotely using `nohup julia useParamScan_Harmonic &`.
 
 The steps are as follows,
