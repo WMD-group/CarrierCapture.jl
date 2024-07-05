@@ -58,11 +58,11 @@ In addition, the alignment of energy surfaces for defects in different charge st
 
 The following examples are provided to illustrate some of the applications of these codes. The input data has been generated from density functional theory (DFT) using [VASP](https://www.vasp.at), but the framework can easily be adapted to accept output from other electronic structure calculators. 
 
-* [Sn<sub>Zn</sub> in Cu<sub>2</sub>ZnSnS<sub>4</sub>](./example/notebook/Harmonic%20(Sn_Zn).ipynb): Harmonic approximation
+* [Sn<sub>Zn</sub> in Cu<sub>2</sub>ZnSnS<sub>4</sub>](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Harmonic%20(Sn_Zn).ipynb): Harmonic approximation
 
-* [DX-center in GaAs](./example/notebook/Anharmonic%20(DX%20center).ipynb): Anharmonic fitting
+* [DX-center in GaAs](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Anharmonic%20(DX%20center).ipynb): Anharmonic fitting
 
-* [Electron-phonon coupling](./example/notebook/e-ph.ipynb): Electron-phonon coupling matrix element
+* [Electron-phonon coupling](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/e-ph.ipynb): Electron-phonon coupling matrix element
 
 ## Theory
 
