@@ -105,7 +105,7 @@ Here, *V* is the volume of the supercell, *W<sub>if</sub>* is the electron-phono
 
 #### Theory Development
 
-* [Heny and Lang, Nonradiative capture and recombination by multiphonon emission in GaAs and GaP (1977)](https://journals.aps.org/prb/pdf/10.1103/PhysRevB.15.989)
+* [Henry and Lang, Nonradiative capture and recombination by multiphonon emission in GaAs and GaP (1977)](https://journals.aps.org/prb/pdf/10.1103/PhysRevB.15.989)
 *Seminal contribution that introduces many important concepts*
 
 * [Huang, Adiabatic approximation theory and static coupling theory of nonradiative transition (1981)](https://www.worldscientific.com/doi/epdf/10.1142/9789812793720_0009)
