@@ -1,6 +1,4 @@
-<center>
-<img src="schematics/Logo.png" width="400" />
-</center>
+![Logo](https://github.com/WMD-group/CarrierCapture.jl/blob/master/schematics/Logo.png?raw=true)
 
 A set of codes to compute carrier capture and recombination rates in semiconducting compounds.
 This topic has a rich history starting from the work by [Huang and Rhys](http://rspa.royalsocietypublishing.org/content/204/1078/406.short).
@@ -58,7 +56,7 @@ In addition, the alignment of energy surfaces for defects in different charge st
 
 The following examples are provided to illustrate some of the applications of these codes. The input data has been generated from density functional theory (DFT) using [VASP](https://www.vasp.at), but the framework can easily be adapted to accept output from other electronic structure calculators. 
 
-* [Sn<sub>Zn</sub> in Cu<sub>2</sub>ZnSnS<sub>4</sub>](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Harmonic%20(Sn_Zn).ipynb): Harmonic approximation
+* [Sn-on-Zn in Cu2ZnSnS4](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Harmonic%20(Sn_Zn).ipynb): Harmonic approximation
 
 * [DX-center in GaAs](https://github.com/WMD-group/CarrierCapture.jl/blob/master/example/notebook/Anharmonic%20(DX%20center).ipynb): Anharmonic fitting
 
@@ -72,9 +70,9 @@ The capture of electrons or holes by point defects in a crystalline materials re
 
 The capture coefficient between an initial and final state for this computational set up is given by (eq. 22 in [Alkauskas and coworkers](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202)):
 
-<center>
-<img src="schematics/equation.gif" width="400" />
-</center>
+```math
+C_p = V \frac{2\pi}{\hbar} g W_{if}^2 \sum_m w_m \sum_n |\langle \xi_{im}| Q - Q_0 | \xi_{fn}\rangle|^2 \delta (\Delta E + m\hbar\Omega_i -n\hbar\Omega_f )
+```
 
 Here, *V* is the volume of the supercell, *W<sub>if</sub>* is the electron-phonon overlap and *ξ<sub>im</sub>* and *ξ<sub>fn</sub>* describe the wavefunctions of the *m<sup>th</sup>* and *n<sup>th</sup>* phonons in the initial *i* and final *f* states. The final delta-function term serves to conserve energy and in practice is replaced by a smearing Gaussian of finite width *σ*.
 
@@ -114,7 +112,7 @@ Here, *V* is the volume of the supercell, *W<sub>if</sub>* is the electron-phono
 
 #### Applications of CarrierCapture
 
-* [Wang et al, Upper efficiency limit of Sb<sub>2</sub>Se<sub>3</sub> solar cells (2024)](https://doi.org/10.1016/j.joule.2024.05.004)
+* [Wang et al, Upper efficiency limit of Sb2Se3 solar cells (2024)](https://doi.org/10.1016/j.joule.2024.05.004)
 
 * [Kavanagh et al, Impact of metastable defect structures on carrier recombination in solar cells (2022)](https://pubs.rsc.org/en/content/articlelanding/2022/fd/d2fd00043a)
 
@@ -130,6 +128,6 @@ Here, *V* is the volume of the supercell, *W<sub>if</sub>* is the electron-phono
 
 * [Kim et al, Anharmonic lattice relaxation during non-radiative carrier capture (2019)](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.100.041202) 
 
-* [Kim et al, Lone-pair effect on carrier capture in Cu<sub>2</sub>ZnSnS<sub>4</sub> solar cells (2019)](https://pubs.rsc.org/en/content/articlehtml/2019/ta/c8ta10130b)
+* [Kim et al, Lone-pair effect on carrier capture in Cu2ZnSnS4 solar cells (2019)](https://pubs.rsc.org/en/content/articlehtml/2019/ta/c8ta10130b)
 
 * [Kim et al, Identification of killer defects in kesterite thin-film solar cells (2018)](https://pubs.acs.org/doi/abs/10.1021/acsenergylett.7b01313)
