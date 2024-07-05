@@ -18,7 +18,7 @@ Pages = ["public.md"]
 
 ```@docs
 CarrierCapture
-potential
+Potential
 fit_pot!
 solve_pot!
 find_crossing
