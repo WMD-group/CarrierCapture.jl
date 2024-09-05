@@ -20,8 +20,6 @@ from pymatgen.core.structure import Structure
 import matplotlib.pyplot as plt
 
 
-E_MIN = -3
-E_MAX = 3
 dq = 0.01
 
 # Copied from pymatgen
@@ -83,16 +81,16 @@ def plot_eigs(eigval, q):
 
             # occpied
             indx_occ = np.where(occ > 0.9)
-            plt.plot([q+float(spin)*dq]*len(y[indx_occ]), y[indx_occ] - efermi, color=c, lw=0, marker='o')
+            plt.plot([q+float(spin)*dq]*len(y[indx_occ]), y[indx_occ] - efermi, color="C0", lw=0, marker='o')
 
             # unoccpied
             indx_unocc = np.where(occ < 0.3)
-            plt.plot([q+float(spin)*dq]*len(y[indx_unocc]), y[indx_unocc] - efermi, color=c, lw=0, marker='o', fillstyle='none')
+            plt.plot([q+float(spin)*dq]*len(y[indx_unocc]), y[indx_unocc] - efermi, color="C1", lw=0, marker='o', fillstyle='none')
 
             # halfoccpied
             indx_hocc = (0.3 <= occ) & (occ <= 0.9)
             if len(indx_hocc) > 0:
-                plt.plot([q+float(spin)*dq]*len(y[indx_hocc]), y[indx_hocc] - efermi, color=c, lw=0, marker='o', fillstyle='bottom')
+                plt.plot([q+float(spin)*dq]*len(y[indx_hocc]), y[indx_hocc] - efermi, color="C2", lw=0, marker='o', fillstyle='bottom')
 
 
 def read_poscar(i_path, l_get_sorted_symbols=False):
@@ -129,6 +127,7 @@ def plot(qs, eigvals, e_min, e_max):
     for q, eigval in zip(qs, eigvals):
         plot_eigs(eigval, q)
     plt.ylim((e_min, e_max))
+    plt.savefig("Q_eigs.pdf", bbox_inches="tight")
     plt.show()
 
 def read_data(paths, pivot_path):
