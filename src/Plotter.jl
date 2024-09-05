@@ -14,7 +14,10 @@ using Plots, LaTeXStrings
 
 Plots `Potential` with its' wave functions if `lplt_wf` is `true`.
 """
-function plot_pot!(pot::Potential; lplt_wf = false, plt = nothing, color = Nothing, label = "", scale_factor = 2e-2)
+function plot_pot!(
+    pot::Potential; lplt_wf = false, plt = nothing, color = Nothing, label = "", scale_factor = 2e-2,
+    wf_sampling_rate = 5, alpha = 0.5, linealpha=1)
+    )
     if plt == nothing
         plt = plot()
     end
@@ -24,19 +27,19 @@ function plot_pot!(pot::Potential; lplt_wf = false, plt = nothing, color = Nothi
     # plot wave functions
     if lplt_wf
         ϵ = pot.ϵ; χ = pot.χ
-        for i = 1:length(ϵ)
+        for i = 1:wf_sampling_rate:length(ϵ)
             plot!(plt, pot.Q, χ[i, :] * scale_factor .+ ϵ[i], lw = 0,
                   fillrange = χ[i, :] * -scale_factor .+ ϵ[i],
-                  color = color, alpha = 0.5, label = "")
+                  color = color, alpha = alpha, label = "")
         end
     end
 
     # plot function
-    plot!(plt, pot.Q, pot.E, lw = 4, color = color, label = label)
+    plot!(plt, pot.Q, pot.E, lw = 4, color = color, label = label, alpha = linealpha)
 
     # plot data
     if size(pot.QE_data)[1] > 1 
-        scatter!(plt, pot.QE_data.Q, pot.QE_data.E, color = color, label = "")
+        scatter!(plt, pot.QE_data.Q, pot.QE_data.E, color = color, label = "", alpha = linealpha)
     end
     xaxis!(L"\ Q (amu^{1\/2} Å) \ (^{}$$"); yaxis!(L"\ Energy  (eV) \ (^{}$$")
 
