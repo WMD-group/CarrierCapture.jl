@@ -16,7 +16,7 @@ Plots `Potential` with its' wave functions if `lplt_wf` is `true`.
 """
 function plot_pot!(
     pot::Potential; lplt_wf = false, plt = nothing, color = Nothing, label = "", scale_factor = 2e-2,
-    wf_sampling_rate = 5, alpha = 0.5, linealpha=1)
+    wf_sampling_rate = 5, alpha = 0.5, linealpha=1
     )
     if plt == nothing
         plt = plot()
