@@ -45,7 +45,7 @@ def get_init_fin(i_file, f_file, disp_range=np.linspace(-1, 1, 11), output_dir='
     masses = np.array([spc.atomic_mass for spc in struct_i.species])
     delta_Q2 = masses[:,None] * delta_R ** 2
 
-    print('Delta_Q^2', np.sqrt(delta_Q2.sum()))
+    print('Delta_Q:', np.sqrt(delta_Q2.sum()))
 
     # print(delta_Q2.shape)
     # print(struct_i.lattice, struct_i.species, struct_i.cart_coords, )
