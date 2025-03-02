@@ -10,14 +10,14 @@
 <img src="schematics/Logo.png" width="400" />
 </center>
 
-A set of codes to compute carrier capture and recombination rates in semiconducting compounds.
-This topic has a rich history starting from the work by [Huang and Rhys](http://rspa.royalsocietypublishing.org/content/204/1078/406.short).
+A set of codes to compute carrier capture and non-radiative recombination rates associated with point defects in semiconducting compounds.
+Multiphonon process involving impurities has a rich history starting from the work by [Huang and Rhys](http://rspa.royalsocietypublishing.org/content/204/1078/406.short).
 Our implementation was inspired by the approach (and FORTRAN code) employed by [Alkauskas and coworkers](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.90.075202), but has been adapted
 to also describe anharmonic potential energy surfaces.
 
 ## Installation
 
-The codes are written in [Julia](https://julialang.org), while the scripts and [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org) and use [pymatgen](http://pymatgen.org) and [pawpyseed](https://github.com/kylebystrom/pawpyseed) (tested on Scientific Linux 7 and Linux Mint 18), which are assumed to be installed.
+The codes are written in [Julia](https://julialang.org), while the scripts and [Jupyter Notebooks](http://jupyter.org) also contain [Python](https://www.python.org) and use [pymatgen](http://pymatgen.org) and [pawpyseed](https://github.com/kylebystrom/pawpyseed), which are assumed to be installed.
 The [Brooglie](https://github.com/RedPointyJackson/Brooglie) package is used to solve the time-independent Schrödinger equation.
 
 Install the package by:
