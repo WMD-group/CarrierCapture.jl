@@ -122,6 +122,12 @@ Here, *V* is the volume of the supercell, *W<sub>if</sub>* is the electron-phono
 
 #### Applications of CarrierCapture
 
+* [Kavanagh et al, Intrinsic point defect tolerance in selenium for indoor and tandem photovoltaics (2025)](https://pubs.rsc.org/en/content/articlelanding/2025/ee/d4ee04647a)
+
+* [López et al, Chalcogen Vacancies Rule Charge Recombination in Pnictogen Chalcohalide Solar-Cell Absorbers (2025)](https://arxiv.org/abs/2504.18089)
+
+* [Wang et al, Sulfur Vacancies Limit the Open-Circuit Voltage of Sb₂S₃ Solar Cells (2024)](https://pubs.acs.org/doi/full/10.1021/acsenergylett.4c02722)
+
 * [Wang et al, Upper efficiency limit of Sb<sub>2</sub>Se<sub>3</sub> solar cells (2024)](https://doi.org/10.1016/j.joule.2024.05.004)
 
 * [Kavanagh et al, Impact of metastable defect structures on carrier recombination in solar cells (2022)](https://pubs.rsc.org/en/content/articlelanding/2022/fd/d2fd00043a)
