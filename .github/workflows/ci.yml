@@ -39,6 +39,9 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
+      - name: Force GR upstream binary and precompile
+        if: matrix.os == 'windows-latest'
+        run: julia -e 'using Pkg; Pkg.activate("."); import GR; GR.GRPreferences.use_upstream_binary(; force=true); Pkg.precompile()'
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
