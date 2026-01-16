@@ -20,6 +20,7 @@ Pages = ["public.md"]
 CarrierCapture
 Potential
 fit_pot!
+filter_sample_points!
 solve_pot!
 find_crossing
 conf_coord

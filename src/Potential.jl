@@ -107,11 +107,19 @@ end
 
 
 """
-    filter_sample_points!(pot::Potential)
+    filter_sample_points!(pot::Potential, thermal_energy::Float64)
 
-Remove all fit points after a thermally unsurmountable point in increasing order.
-This function is only robust if
+Remove data points that are thermally inaccessible from the potential minimum.
+Keeps only the contiguous region of points below `thermal_energy + pot.E0` that
+contains the minimum energy point.
 
+## Arguments
+- `pot::Potential`: The potential to filter (modified in place).
+- `thermal_energy::Float64`: The thermal energy threshold in eV.
+
+## Notes
+This function assumes the potential has a single minimum. Throws `ArgumentError`
+if multiple minima are found.
 """
 function filter_sample_points!(pot::Potential, thermal_energy::Float64)
     # find minima
@@ -122,7 +130,7 @@ function filter_sample_points!(pot::Potential, thermal_energy::Float64)
         throw(ArgumentError("The fitted potential has several minima."))
     end
 
-    min_ind = len_min_ind[1]
+    min_ind = min_ind_array[1]
 
     # select the interconnected data points below the energy threshold and
     # containing the minimum energy point we call these points an island
@@ -153,10 +161,10 @@ function filter_sample_points!(pot::Potential, thermal_energy::Float64)
 end
 
 """
-    function filter_sample_points!(pot::Potential, thermal_energy::Float64)
+    filter_sample_points!(pot::Potential)
 
-Same as above but use the temperature associated with the potential to filter points
-
+Filter data points using the temperature `pot.T` to compute thermal energy (`pot.T * boltz`).
+See `filter_sample_points!(pot, thermal_energy)` for details.
 """
 function filter_sample_points!(pot::Potential)
     filter_sample_points!(pot, pot.T*boltz)
@@ -200,6 +208,19 @@ Fit a function `pot.func_type` to `pot.QE_data` on the domain `pot.Q`.
         `y = E₀ + Σ coeffs[i].* (x .- Q₀) .^(i-1)`.
     - `poly_order`: the maximum order of polynomials.
     - `p0`: the initial parameters for the fitting function.
+
+
+- morse
+
+    Morse potential function centered at [`pot.Q0`, `pot.E0`].
+    - `p0`: initial parameters [A, a] for the Morse potential (default: zeros(2)).
+
+
+- morse_poly
+
+    Morse potential with polynomial corrections.
+    - `poly_order`: the order(s) of polynomial corrections (Int or String of space-separated integers).
+    - `p0`: initial parameters for fitting (default: zeros(poly_order)).
 
 ## Example
 - Spline fit
@@ -289,8 +310,8 @@ function fit_pot!(pot::Potential)
             func = (x, p) -> polyfunc(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = poly_order)
         elseif pot.func_type == "morse_poly"
             println("========morse polynomial========\n")
-            poly_params = get(pot.params, "p0", zeros(poly_order))
             poly_order = get(pot.params, "poly_order", 4)
+            poly_params = get(pot.params, "p0", zeros(poly_order))
             func = (x, p) -> morse_poly(x, p; E₀ = pot.E0, Q₀ = pot.Q0, poly_order = poly_order)
         elseif pot.func_type == "morse"
             poly_params = zeros(2)
@@ -334,14 +355,28 @@ end
 
 
 """
-Solve 1D Shrödinger equation. The Brooglie wrapper in the unit of `eV` and `amu`.
+    solve1D_ev_amu(func, Q; nev=30, maxiter=nev*length(Q))
+    solve1D_ev_amu(func, NQ, Qi, Qf; nev=30, maxiter=nev*NQ)
+
+Solve the 1D Schrödinger equation using the Brooglie solver. Units: eV for energy, amu·Å² for mass.
+
+## Arguments
+- `func`: Potential energy function V(Q).
+- `Q`: Array of configuration coordinates, or:
+- `NQ`, `Qi`, `Qf`: Number of grid points, start, and end of coordinate range.
+- `nev`: Number of eigenvalues/eigenvectors to compute (default: 30).
+- `maxiter`: Maximum ARPACK iterations (default: `nev * length(Q)` or `nev * NQ`).
+
+## Returns
+- `ϵ`: Eigenvalues (energies) in eV.
+- `χ`: Eigenvectors (wavefunctions).
 """
 function solve1D_ev_amu(func, Q::AbstractArray{<:Real,1}; nev=30, maxiter=nev*length(Q))
     NQ=length(Q); Qi=minimum(Q); Qf=maximum(Q)
     return solve1D_ev_amu(func, NQ, Qi, Qf; nev=nev, maxiter=maxiter)
 end
 
-function solve1D_ev_amu(func, NQ::Int, Qi::Real, Qf::Real; nev=30, maxiter=nev*length(Q))
+function solve1D_ev_amu(func, NQ::Int, Qi::Real, Qf::Real; nev=30, maxiter=nev*NQ)
     factor = (1/amu) * (ħc*1E10)^2
 
     ϵ1, χ1 = Brooglie.solve(x -> func.(x*factor^0.5);
@@ -411,13 +446,30 @@ function morse(x, coeffs; E₀, Q₀)
     return y
 end
 
+"""
+    morse_poly(x, coeffs; E₀, Q₀, poly_order)
+
+Morse potential with polynomial corrections.
+
+## Arguments
+- `x`: Configuration coordinate(s).
+- `coeffs`: Fitting coefficients [A, a, r₀, poly_coeffs...] where A is the Morse depth,
+  a is the Morse width parameter, r₀ is the equilibrium offset, and poly_coeffs are
+  polynomial correction coefficients.
+- `E₀`: Energy minimum.
+- `Q₀`: Configuration coordinate at the minimum.
+- `poly_order`: Order(s) of polynomial corrections (Int or String of space-separated integers).
+
+## Returns
+The potential energy at configuration coordinate(s) `x`.
+"""
 function morse_poly(x, coeffs; E₀, Q₀, poly_order)
     # TODO: CHECK # of coeffs and param["poly_order"], and give a WARNING
     # E₀ = param["E0"]
     # Q₀ = param["Q0"]
     # po = param["poly_order"]
 
-    orders = if (typeof(po) == Int64) Array([po]) else parse.(Int, split(po)) end
+    orders = if (typeof(poly_order) == Int64) Array([poly_order]) else parse.(Int, split(poly_order)) end
 
     A = abs(coeffs[1])
     a = coeffs[2]

@@ -118,7 +118,7 @@ Here, *V* is the volume of the supercell, *W<sub>if</sub>* is the electron-phono
 
 * [Wang et al, Sulfur Vacancies Limit the Open-Circuit Voltage of Sb₂S₃ Solar Cells (2024)](https://pubs.acs.org/doi/full/10.1021/acsenergylett.4c02722)
 
-* [Wang et al, Upper efficiency limit of Sb₂S3₃ solar cells (2024)](https://doi.org/10.1016/j.joule.2024.05.004)
+* [Wang et al, Upper efficiency limit of Sb₂S₃ solar cells (2024)](https://doi.org/10.1016/j.joule.2024.05.004)
 
 * [Kavanagh et al, Impact of metastable defect structures on carrier recombination in solar cells (2022)](https://pubs.rsc.org/en/content/articlelanding/2022/fd/d2fd00043a)
 
