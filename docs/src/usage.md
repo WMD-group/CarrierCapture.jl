@@ -7,6 +7,9 @@ A typical usage will consist of about three steps; 1. preparation, 2. building `
 Before `CarrierCapture`, you need to calculate potential energy surfaces of atomic vibrations (one-dimensional Configuration Coordinate diagram; `1D-CC`) and _e-ph_ coupling matrix element (`W_if`). Prepare a sequence of structures with displacements which interpolate between two defect states. Run single-point energy calculations on these structures, and extract the total energies. Scripts for preprocessing can be found in `/script` which require the [`pymatgen`](http://pymatgen.org) python library.
 
 1. **Generate `1D-CC`**
+The [`doped`](https://doped.readthedocs.io) Python package provides a tutorial for ensuring appropriately oriented and 
+ordered structures for configuration-coordinate diagram (and NEB path) generation, to ensure appropriate structure 
+interpolation. See the `doped` [NEB/CCD generation tutorial](https://doped.readthedocs.io/en/latest/CCD_NEB_tutorial.html) for this.
 
    1. Calculate equilibrium geometries and total energies of defective supercells with charge states `q`(initial) and `q±1`(final) denoted `Conf.(q)` and `Conf.(q±1)`, respectively.
 
