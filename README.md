@@ -66,6 +66,10 @@ In addition, the alignment of energy surfaces for defects in different charge st
 
 The following examples are provided to illustrate some of the applications of these codes. The input data has been generated from density functional theory (DFT) using [VASP](https://www.vasp.at), but the framework can easily be adapted to accept output from other electronic structure calculators. 
 
+* [Full workflow](./example/notebook/CarrierCapture_workflow.ipynb): **Recommended starting point** — complete carrier capture workflow from potential energy surfaces to capture coefficients
+
+* [CC path generation](./example/notebook/Example_CC_Path_Generation.ipynb): Generating the interpolated input structures (with symmetry matching) for the carrier capture calculation
+
 * [Sn<sub>Zn</sub> in Cu<sub>2</sub>ZnSnS<sub>4</sub>](./example/notebook/Harmonic%20(Sn_Zn).ipynb): Harmonic approximation
 
 * [DX-center in GaAs](./example/notebook/Anharmonic%20(DX%20center).ipynb): Anharmonic fitting
